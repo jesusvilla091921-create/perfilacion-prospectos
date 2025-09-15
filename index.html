@@ -21,6 +21,7 @@
     .score-high{ color:#dc2626; }
     .glass{ backdrop-filter: blur(8px); background: rgb(255 255 255 / 0.65); }
     .backdrop{ position:fixed; inset:0; background: rgb(0 0 0 / 0.6); display:none; align-items:center; justify-content:center; z-index:50; }
+    input[readonly]{ background-color:#f8fafc; }
   </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
@@ -77,7 +78,7 @@
           </p>
         </div>
 
-        <!-- Encuesta (se muestra solo si el usuario la elige) -->
+        <!-- Encuesta (solo si la eligen) -->
         <div id="questionsBlock" class="hidden bg-white rounded-2xl border shadow-sm p-5 space-y-4">
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold">Diagnóstico rápido</h3>
@@ -125,37 +126,50 @@
 
           <div class="flex flex-wrap items-center gap-4 text-sm">
             <span class="font-medium">Modo:</span>
-            <label class="flex items-center gap-2"><input type="radio" name="capMode" value="curp" class="capMode" checked> Solo CURP</label>
-            <label class="flex items-center gap-2"><input type="radio" name="capMode" value="full" class="capMode"> Datos para generar CURP</label>
+            <label class="flex items-center gap-2"><input type="radio" name="capMode" value="curp" class="capMode" checked> Ya tengo CURP</label>
+            <label class="flex items-center gap-2"><input type="radio" name="capMode" value="full" class="capMode"> Generar CURP</label>
           </div>
 
-          <!-- Para generar CURP -->
+          <!-- Datos para generar CURP -->
           <div id="capFull" class="grid sm:grid-cols-2 gap-3 hidden">
-            <input id="capNombreCompleto" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Nombre completo" />
+            <input id="capNombre" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none sm:col-span-2" placeholder="Nombre(s)" />
+            <input id="capApellidoP" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Apellido paterno" />
+            <input id="capApellidoM" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Apellido materno" />
             <input id="capFechaNacimiento" type="date" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Fecha de nacimiento" />
+            <select id="capSexo" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none">
+              <option value="">Sexo</option>
+              <option value="H">Hombre</option>
+              <option value="M">Mujer</option>
+            </select>
             <select id="capEntidadNacimiento" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none sm:col-span-2">
               <option value="">Entidad de nacimiento</option>
-              <option>Aguascalientes</option><option>Baja California</option><option>Baja California Sur</option>
-              <option>Campeche</option><option>Coahuila</option><option>Colima</option><option>Chiapas</option>
-              <option>Chihuahua</option><option>Ciudad de México</option><option>Durango</option><option>Guanajuato</option>
-              <option>Guerrero</option><option>Hidalgo</option><option>Jalisco</option><option>México</option>
-              <option>Michoacán</option><option>Morelos</option><option>Nayarit</option><option>Nuevo León</option>
-              <option>Oaxaca</option><option>Puebla</option><option>Querétaro</option><option>Quintana Roo</option>
-              <option>San Luis Potosí</option><option>Sinaloa</option><option>Sonora</option><option>Tabasco</option>
-              <option>Tamaulipas</option><option>Tlaxcala</option><option>Veracruz</option><option>Yucatán</option><option>Zacatecas</option>
+              <option value="AS">Aguascalientes</option><option value="BC">Baja California</option><option value="BS">Baja California Sur</option>
+              <option value="CC">Campeche</option><option value="CL">Coahuila</option><option value="CM">Colima</option><option value="CS">Chiapas</option>
+              <option value="CH">Chihuahua</option><option value="DF">Ciudad de México</option><option value="DG">Durango</option><option value="GT">Guanajuato</option>
+              <option value="GR">Guerrero</option><option value="HG">Hidalgo</option><option value="JC">Jalisco</option><option value="MC">México</option>
+              <option value="MN">Michoacán</option><option value="MS">Morelos</option><option value="NT">Nayarit</option><option value="NL">Nuevo León</option>
+              <option value="OC">Oaxaca</option><option value="PL">Puebla</option><option value="QT">Querétaro</option><option value="QR">Quintana Roo</option>
+              <option value="SP">San Luis Potosí</option><option value="SL">Sinaloa</option><option value="SR">Sonora</option><option value="TC">Tabasco</option>
+              <option value="TS">Tamaulipas</option><option value="TL">Tlaxcala</option><option value="VZ">Veracruz</option><option value="YN">Yucatán</option><option value="ZS">Zacatecas</option>
+              <option value="NE">Nacido en el extranjero</option>
             </select>
-            <input id="capLugarNacimiento" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none sm:col-span-2" placeholder="Lugar de nacimiento (municipio/ciudad)" />
           </div>
 
-          <!-- Campos comunes -->
+          <!-- Campos comunes (siempre) -->
           <div id="capCommon" class="grid sm:grid-cols-2 gap-3">
-            <input id="capNombre" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none sm:col-span-2" placeholder="Nombre del cliente" />
+            <!-- Nombres (para modo CURP ya tengo CURP también pedimos nombres una sola vez) -->
+            <input id="capNombreCurp" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none sm:col-span-2" placeholder="Nombre(s)" />
+            <input id="capApellidoPCurp" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Apellido paterno" />
+            <input id="capApellidoMCurp" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Apellido materno" />
+
             <input id="capTelefono" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Teléfono (10 dígitos)" inputmode="numeric" maxlength="10" />
-            <input id="capCurp" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="CURP (si ya la trae)" />
+            <input id="capCurp" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="CURP" />
+
             <div class="flex gap-2 items-center sm:col-span-2">
-              <input id="capICC" class="flex-1 border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="ICC (SIM)" />
+              <input id="capICC" class="flex-1 border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="ICC (SIM, máximo 20 dígitos)" maxlength="20" inputmode="numeric" />
               <button id="btnScanICC" type="button" class="px-3 py-2 rounded-xl border hover:bg-slate-50">Escanear</button>
             </div>
+
             <input id="capNip" maxlength="4" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="NIP de portabilidad (4 dígitos)" />
           </div>
 
@@ -165,8 +179,8 @@
           </div>
 
           <div class="text-xs opacity-70">
-            Requeridos (Solo CURP): Compañía, Nombre, Teléfono, CURP, ICC y NIP.  
-            Requeridos (Datos para generar CURP): Compañía, Nombre, Teléfono, Nombre completo, Fecha y Entidad de nacimiento, ICC y NIP.
+            Requeridos (Ya tengo CURP): Compañía, Nombre(s) y Apellidos, Teléfono, CURP, ICC y NIP.  
+            Requeridos (Generar CURP): Compañía, Nombre(s) y Apellidos, Fecha/Entidad/Sexo para generar CURP, ICC y NIP.
           </div>
 
           <div class="p-3 rounded-xl bg-[var(--brand-soft)] border text-sm mt-3">
@@ -305,16 +319,25 @@
     const captureBlock = el('captureBlock');
     const capFull = el('capFull');
     const capCurpOnlyRadios = document.querySelectorAll('.capMode');
-    const capNombreCompleto = el('capNombreCompleto');
-    const capFechaNacimiento = el('capFechaNacimiento');
-    const capEntidadNacimiento = el('capEntidadNacimiento');
-    const capLugarNacimiento = el('capLugarNacimiento');
 
+    // Full mode inputs
     const capNombre = el('capNombre');
+    const capApellidoP = el('capApellidoP');
+    const capApellidoM = el('capApellidoM');
+    const capFechaNacimiento = el('capFechaNacimiento');
+    const capSexo = el('capSexo');
+    const capEntidadNacimiento = el('capEntidadNacimiento');
+
+    // Always inputs (single set of names for both modos)
+    const capNombreCurp = el('capNombreCurp');
+    const capApellidoPCurp = el('capApellidoPCurp');
+    const capApellidoMCurp = el('capApellidoMCurp');
+
     const capTelefono = el('capTelefono');
     const capCurp = el('capCurp');
     const capICC = el('capICC');
     const capNip = el('capNip');
+
     const btnCancelCapture = el('btnCancelCapture');
     const btnSaveCapture = el('btnSaveCapture');
 
@@ -341,16 +364,25 @@
       btnSkipToCapture.addEventListener('click', () => startApp(false));
 
       carrier.addEventListener('change', handleCarrierChange);
-      btnAccept.addEventListener('click', () => { captureBlock.classList.remove('hidden'); window.scrollTo({top:captureBlock.offsetTop-12, behavior:'smooth'}); });
-      btnReject.addEventListener('click', () => alert('¡Gracias! Si cambias de opinión, aquí seguimos.'));
-      btnSaveLead.addEventListener('click', saveLeadLocal);
+      btnAccept?.addEventListener('click', () => { captureBlock.classList.remove('hidden'); window.scrollTo({top:captureBlock.offsetTop-12, behavior:'smooth'}); });
+      btnReject?.addEventListener('click', () => alert('¡Gracias! Si cambias de opinión, aquí seguimos.'));
+      btnSaveLead?.addEventListener('click', saveLeadLocal);
 
       btnCancelCapture.addEventListener('click', () => captureBlock.classList.add('hidden'));
       btnSaveCapture.addEventListener('click', saveCapture);
 
       capCurpOnlyRadios.forEach(r => r.addEventListener('change', () => { currentMode = r.value; updateCaptureMode(); }));
+
+      // Validaciones
       capTelefono.addEventListener('input', () => { capTelefono.value = capTelefono.value.replace(/\D/g, '').slice(0,10); });
       capNip.addEventListener('input', () => { capNip.value = capNip.value.replace(/\D/g, '').slice(0,4); });
+      capICC.addEventListener('input', () => { capICC.value = capICC.value.replace(/\D/g, '').slice(0,20); });
+
+      // Generación de CURP automática en modo "full"
+      [capNombre, capApellidoP, capApellidoM, capFechaNacimiento, capSexo, capEntidadNacimiento].forEach(inp=>{
+        inp.addEventListener('input', maybeGenerateCURP);
+        inp.addEventListener('change', maybeGenerateCURP);
+      });
 
       // Scanner
       btnScanICC.addEventListener('click', openScanModal);
@@ -360,6 +392,7 @@
         'Sin soporte nativo. Si no detecta, ingresa el ICC manualmente.';
 
       loadSavedLeads();
+      updateCaptureMode(); // estado inicial
     });
 
     function startApp(wantSurvey){
@@ -462,44 +495,80 @@
       leads.push(lead); localStorage.setItem('leads', JSON.stringify(leads)); renderLeads(); alert('Lead guardado localmente');
     }
 
-    function updateCaptureMode(){ if(currentMode==='curp') capFull.classList.add('hidden'); else capFull.classList.remove('hidden'); }
+    function updateCaptureMode(){
+      const isFull = (currentMode==='full');
+      capFull.classList.toggle('hidden', !isFull);
+
+      // Si es FULL: el CURP se autogenera (editable), y tomamos los nombres del bloque FULL
+      // Si es CURP: usamos los nombres del bloque CURP y el usuario escribe el CURP manualmente
+      if(isFull){
+        // Copiamos nombres de FULL -> bloque común CURP para que no se pidan dos veces
+        capNombreCurp.value = capNombre.value;
+        capApellidoPCurp.value = capApellidoP.value;
+        capApellidoMCurp.value = capApellidoM.value;
+        maybeGenerateCURP(); // rellena capCurp
+      }
+    }
 
     function saveCapture(){
       if(!carrier.value){ alert('Selecciona la compañía'); carrier.focus(); return; }
-      if(!capNombre.value.trim()){ alert('Ingresa el nombre'); capNombre.focus(); return; }
+
+      // Nombres siempre una sola vez (desde bloque común)
+      if(!capNombreCurp.value.trim()){ alert('Ingresa el/los nombre(s)'); capNombreCurp.focus(); return; }
+      if(!capApellidoPCurp.value.trim()){ alert('Ingresa el apellido paterno'); capApellidoPCurp.focus(); return; }
+
       if(!/^\d{10}$/.test(capTelefono.value)){ alert('Teléfono de 10 dígitos'); capTelefono.focus(); return; }
 
+      // CURP / FULL
       if(currentMode==='curp'){
-        if(!capCurp.value || !capICC.value || !capNip.value){ alert('Completa CURP, ICC y NIP'); return; }
+        if(!capCurp.value || capCurp.value.length<18){ alert('Ingresa una CURP válida (18 caracteres)'); capCurp.focus(); return; }
       } else {
-        if(!capNombreCompleto.value || !capFechaNacimiento.value || !capEntidadNacimiento.value || !capICC.value || !capNip.value){
-          alert('Completa Nombre completo, Fecha y Entidad de nacimiento, ICC y NIP'); return;
+        // full: debe poder generarse
+        if(!capFechaNacimiento.value || !capEntidadNacimiento.value || !capSexo.value){
+          alert('Completa Fecha de nacimiento, Entidad y Sexo para generar la CURP'); return;
+        }
+        maybeGenerateCURP();
+        if(!capCurp.value || capCurp.value.length<18){
+          alert('No se pudo generar CURP. Revisa los datos.'); return;
         }
       }
+
+      // ICC  (máx 20 y al menos 18)
+      if(!capICC.value || capICC.value.length < 18){
+        alert('ICC incompleto (debe tener al menos 18 dígitos, máximo 20)'); capICC.focus(); return;
+      }
+
+      if(!capNip.value || capNip.value.length!==4){ alert('NIP de 4 dígitos'); capNip.focus(); return; }
 
       const captureData = {
         type:'capture',
         timestamp:new Date().toLocaleString(),
         carrier:carrier.value,
-        nombre:capNombre.value,
+
+        nombre:capNombreCurp.value,
+        apellidoP:capApellidoPCurp.value,
+        apellidoM:capApellidoMCurp.value,
+
         telefono:capTelefono.value,
-        curp:capCurp.value,
+        curp:capCurp.value.toUpperCase(),
+
+        // Para auditoría si vino por FULL (no se escriben todos a Sheets si tu GAS no los usa)
+        mode:currentMode,
+        fechaNacimiento: capFechaNacimiento.value || '',
+        entidadNacimiento: capEntidadNacimiento.value || '',
+        sexo: capSexo.value || '',
+
         icc:capICC.value,
-        nip:capNip.value,
-        captureMode:currentMode,
-        nombreCompleto:capNombreCompleto.value,
-        fechaNacimiento:capFechaNacimiento.value,
-        entidadNacimiento:capEntidadNacimiento.value,
-        lugarNacimiento:capLugarNacimiento.value
+        nip:capNip.value
       };
 
       // Guarda local (historial lateral)
       const captures = JSON.parse(localStorage.getItem('portabilityCaptures')||'[]'); captures.push(captureData); localStorage.setItem('portabilityCaptures', JSON.stringify(captures));
-      leads.push({ id:Date.now(), timestamp:captureData.timestamp, nombre:captureData.nombre, telefono:captureData.telefono, carrier:captureData.carrier, score:null, status:'Portabilidad iniciada' });
+      leads.push({ id:Date.now(), timestamp:captureData.timestamp, nombre:captureData.nombre+' '+(captureData.apellidoP||''), telefono:captureData.telefono, carrier:captureData.carrier, score:null, status:'Portabilidad iniciada' });
       localStorage.setItem('leads', JSON.stringify(leads));
       renderLeads();
 
-      // ENVÍO a Sheets (solo capturas)
+      // ENVÍO a Sheets
       pushToSheets(captureData);
 
       // Reset
@@ -510,11 +579,13 @@
 
     async function pushToSheets(record){
       try{
+        const body = 'payload='+encodeURIComponent(JSON.stringify(record));
+        console.log('POST =>', SHEETS_WEBAPP_URL, record);
         await fetch(SHEETS_WEBAPP_URL, {
           method:'POST',
           mode:'no-cors',
           headers:{ 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
-          body:'payload='+encodeURIComponent(JSON.stringify(record))
+          body
         });
       }catch(e){
         console.error('Falló envío a Sheets', e);
@@ -537,18 +608,85 @@
     }
 
     function resetForm(){
-      // portada
       startBlock.classList.remove('hidden');
       mainBlock.classList.add('hidden');
-      // limpiar
+
       carrier.value=''; currentCarrier=null; telcelNote.classList.add('hidden');
       questionsBlock.classList.add('hidden'); questionsContainer.innerHTML=''; answers={}; currentScore=0; pitchBox.textContent='';
-      capNombre.value=''; capTelefono.value=''; capCurp.value=''; capICC.value=''; capNip.value='';
-      capNombreCompleto.value=''; capFechaNacimiento.value=''; capEntidadNacimiento.value=''; capLugarNacimiento.value='';
+
+      // Nombres (bloque común)
+      capNombreCurp.value=''; capApellidoPCurp.value=''; capApellidoMCurp.value='';
+      // Full
+      capNombre.value=''; capApellidoP.value=''; capApellidoM.value='';
+      capFechaNacimiento.value=''; capEntidadNacimiento.value=''; capSexo.value='';
+      // Comunes
+      capTelefono.value=''; capCurp.value=''; capICC.value=''; capNip.value='';
       currentMode='curp'; updateCaptureMode();
     }
 
-    // ICC Scanner
+    // ===================== CURP GENERATOR (aproximado) =====================
+    function normalize(s){
+      const map = {'Á':'A','É':'E','Í':'I','Ó':'O','Ú':'U','Ü':'U','Ñ':'X'};
+      return (s||'').toUpperCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+        .replace(/[ÁÉÍÓÚÜÑ]/g, m=>map[m]||m)
+        .replace(/[^A-Z\s]/g,'').trim().replace(/\s+/g,' ');
+    }
+    function firstVowel(word){
+      const m = (word||'').slice(1).match(/[AEIOU]/); return m? m[0] : 'X';
+    }
+    function firstInternalConsonant(word){
+      const m = (word||'').slice(1).match(/[B-DF-HJ-NP-TV-Z]/); return m? m[0] : 'X';
+    }
+    function pickNameForCurp(nombre){
+      // omite nombres comunes JOSE / MARIA si hay otro
+      const parts = normalize(nombre).split(' ');
+      if(parts.length>1 && (parts[0]==='JOSE' || parts[0]==='MARIA')) return parts[1];
+      return parts[0]||'X';
+    }
+    function fechaToYYMMDD(fecha){
+      // yyyy-mm-dd -> yymmdd
+      if(!fecha) return '000000';
+      const [y,m,d] = fecha.split('-');
+      return y.slice(-2) + (m||'00') + (d||'00');
+    }
+    function sanitizeOffensive(curp4){
+      // reemplaza palabras altisonantes (muy básico)
+      const bad = ['BACA','BUEI','BUEY','CACA','CACO','CAGA','CAGO','CAKA','CAKO','COGE','COGI','COJA','COJE','COJI','COJO','CULO','FETO','GUEI','GUEY','JOTO','KACA','KACO','KAGA','KAGO','KOGE','KOGI','KOJA','KOJE','KOJI','KOJO','KULO','MAME','MAMO','MEAR','MEAS','MEON','MION','MULA','PEDA','PEDO','PENE','PUTA','PUTO','QULO','RATA','RUIN'];
+      return bad.includes(curp4)? curp4.slice(0,3)+'X' : curp4;
+    }
+    function homoclaveSimple(){
+      // homoclave simple 2 caracteres (no oficial). Puedes dejar "00".
+      return '00';
+    }
+    function generateCURP(nombres, apP, apM, fecha, sexo, estado){
+      const n = normalize(nombres);
+      const p = normalize(apP);
+      const m = normalize(apM);
+
+      const nPick = pickNameForCurp(n);
+      const curp4raw = (p[0]||'X') + firstVowel(p) + (m[0]||'X') + (nPick[0]||'X');
+      const curp4 = sanitizeOffensive(curp4raw);
+
+      const yymmdd = fechaToYYMMDD(fecha);
+      const s = (sexo||'H').toUpperCase()==='M' ? 'M' : 'H';
+      const edo = (estado||'NE').toUpperCase();
+
+      const cons = firstInternalConsonant(p) + firstInternalConsonant(m) + firstInternalConsonant(nPick);
+
+      return (curp4 + yymmdd + s + edo + cons + homoclaveSimple()).slice(0,18);
+    }
+    function maybeGenerateCURP(){
+      if(currentMode!=='full') return;
+      const curpGen = generateCURP(capNombre.value, capApellidoP.value, capApellidoM.value, capFechaNacimiento.value, capSexo.value, capEntidadNacimiento.value);
+      capCurp.value = curpGen;
+      // también copiamos nombres al bloque común (para no pedir doble)
+      capNombreCurp.value = capNombre.value;
+      capApellidoPCurp.value = capApellidoP.value;
+      capApellidoMCurp.value = capApellidoM.value;
+    }
+
+    // ===================== Scanner ICC =====================
     async function openScanModal(){
       scanModal.style.display='flex';
       try{
@@ -558,7 +696,20 @@
       }catch(e){ alert('No se pudo acceder a la cámara. Otorga permisos o ingresa el ICC manualmente.'); closeScanModal(); }
     }
     async function scanLoop(){
-      if(!scanning) return; try{ if(detector && scanVideo.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA){ const codes = await detector.detect(scanVideo); if(codes && codes.length){ const value = codes[0].rawValue || ''; if(value){ capICC.value = value.trim(); closeScanModal(); return; } } } }catch(e){}
+      if(!scanning) return;
+      try{
+        if(detector && scanVideo.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA){
+          const codes = await detector.detect(scanVideo);
+          if(codes && codes.length){
+            const value = codes[0].rawValue || '';
+            if(value){
+              capICC.value = (value.trim().replace(/\D/g,'' )).slice(0,20);
+              closeScanModal();
+              return;
+            }
+          }
+        }
+      }catch(e){}
       requestAnimationFrame(scanLoop);
     }
     function closeScanModal(){ scanning=false; if(scanStream){ scanStream.getTracks().forEach(t=>t.stop()); scanStream=null; } scanVideo.pause(); scanVideo.srcObject=null; scanModal.style.display='none'; }
