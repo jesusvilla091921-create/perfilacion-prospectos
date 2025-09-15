@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MADA — Captura y Portabilidad</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MADA — Encuesta y Ficha de captura</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root{
@@ -11,179 +11,344 @@
       --brand-blue-700:#0a2f6b;
       --brand-cyan:#00aeef;
       --brand-soft:#e9f3ff;
-      --ok:#10b981;
     }
     body{font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;}
-    .glass{ backdrop-filter: blur(8px); background: rgb(255 255 255 / 0.85); }
-    .backdrop{ position:fixed; inset:0; background: rgb(0 0 0 / 0.6); display:none; align-items:center; justify-content:center; z-index:50; }
-    .fade-in{ animation: fadeIn .2s ease-in; }
-    @keyframes fadeIn{ from{opacity:.3; transform: translateY(2px);} to{opacity:1; transform: translateY(0);} }
-    .checkmark{
-      width:78px;height:78px;border-radius:9999px;border:6px solid var(--ok); position:relative; display:grid; place-items:center;
-    }
-    .checkmark:after{
-      content:""; width:28px;height:14px; border-left:6px solid var(--ok); border-bottom:6px solid var(--ok);
-      transform: rotate(-45deg); position:absolute; top:26px; left:22px;
-    }
+    .btn-option.selected{ background: var(--brand-blue); color:#fff; border-color: transparent; }
+    .fade-in{ animation: fadeIn .25s ease-in; }
+    @keyframes fadeIn{ from{opacity:0; transform: translateY(4px);} to{opacity:1; transform: translateY(0);} }
+    .score-low{ color:#16a34a; }.score-medium{ color:#ca8a04; }.score-high{ color:#dc2626; }
+    .glass{ backdrop-filter: blur(8px); background: rgb(255 255 255 / .92); }
+    .backdrop{ position:fixed; inset:0; background: rgb(0 0 0 / .55); display:none; align-items:center; justify-content:center; z-index:50; }
   </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
   <!-- Topbar -->
   <header class="bg-gradient-to-r from-[var(--brand-blue)] to-[var(--brand-blue-700)] text-white">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div id="btnHome" class="h-8 w-8 rounded-full bg-white/10 grid place-items-center font-black cursor-pointer hover:bg-white/20 transition" title="Ir al inicio">M</div>
-        <div class="leading-tight">
-          <h1 class="text-lg font-semibold">MADA</h1>
-          <p class="text-xs text-white/70">Desarrollando el talento humano</p>
-        </div>
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3">
+      <div class="h-8 w-8 rounded-full bg-white/15 grid place-items-center font-black">M</div>
+      <div>
+        <h1 class="text-lg font-semibold">MADA</h1>
+        <p class="text-xs text-white/70">Desarrollando el talento humano</p>
       </div>
-      <div class="text-xs opacity-0 select-none">.</div>
     </div>
   </header>
 
-  <main class="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+  <main class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+
     <!-- Portada -->
     <section id="startBlock" class="bg-white rounded-2xl shadow-sm border p-6 sm:p-8 fade-in">
       <div class="flex flex-col items-center text-center gap-4">
         <h2 class="text-2xl font-bold text-[var(--brand-blue)]">¿Cómo quieres continuar?</h2>
         <p class="text-sm text-slate-600 max-w-prose">
-          Puedes omitir la encuesta y pasar directo a la ficha de captura.
+          Puedes hacer un diagnóstico rápido (3–5 clics) o ir directo a la ficha de captura.
+          Solo se solicitan datos personales al capturar.
         </p>
         <div class="flex flex-col sm:flex-row gap-3">
-          <button id="btnSkipToCapture" class="px-5 py-2.5 rounded-xl bg-[var(--brand-blue)] text-white hover:bg-[var(--brand-blue-700)]">Ir a ficha de captura</button>
+          <button id="btnStartSurvey" class="px-5 py-2.5 rounded-xl bg-[var(--brand-blue)] text-white hover:bg-[var(--brand-blue-700)]">Comenzar encuesta</button>
+          <button id="btnSkipToCapture" class="px-5 py-2.5 rounded-xl border hover:bg-slate-50">Ir directo a captura</button>
         </div>
       </div>
     </section>
 
-    <!-- Captura -->
-    <section id="captureBlock" class="hidden bg-white rounded-2xl border shadow-sm p-5 space-y-6">
-      <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold">Ficha de captura</h3>
-        <span class="text-xs text-slate-500">Solo se guardan los datos solicitados</span>
-      </div>
-
-      <!-- Carrier -->
-      <div>
-        <label class="block text-sm font-semibold mb-2">Compañía del cliente</label>
-        <select id="carrier" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none">
-          <option value="">Selecciona...</option>
-          <option>Telcel</option>
-          <option>Movistar</option>
-          <option>AT&T</option>
-          <option>Unefon</option>
-          <option>Bait</option>
-          <option>OXXO Cel</option>
-          <option>Virgin</option>
-          <option>Rincel</option>
-        </select>
-      </div>
-
-      <!-- Modo -->
-      <div class="flex flex-wrap items-center gap-5 text-sm">
-        <span class="font-medium">Modo:</span>
-        <label class="flex items-center gap-2"><input type="radio" name="capMode" value="curp" class="capMode" checked> Solo CURP</label>
-        <label class="flex items-center gap-2"><input type="radio" name="capMode" value="full" class="capMode"> Datos para CURP</label>
-      </div>
-
-      <!-- Datos del cliente -->
-      <div class="grid sm:grid-cols-3 gap-3">
-        <input id="capNombre"      class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Nombre(s)" />
-        <input id="capApPaterno"   class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Apellido paterno" />
-        <input id="capApMaterno"   class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Apellido materno" />
-      </div>
-
-      <!-- Tel, CURP (solo en modo CURP) -->
-      <div class="grid sm:grid-cols-2 gap-3">
-        <input id="capTelefono"    class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Teléfono (10 dígitos)" inputmode="numeric" maxlength="10" />
-        <input id="capCurp"        class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="CURP (18 caracteres)" />
-      </div>
-
-      <!-- ICC + NIP + Promotor -->
-      <div class="grid sm:grid-cols-3 gap-3">
-        <div class="flex gap-2">
-          <input id="capICC" class="flex-1 border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="ICC (SIM, 20 dígitos)" inputmode="numeric" maxlength="20" />
-          <button id="btnScanICC" type="button" class="px-3 py-2 rounded-xl border hover:bg-slate-50">Esc.</button>
+    <!-- App -->
+    <section id="mainBlock" class="hidden grid lg:grid-cols-3 gap-5 mt-4">
+      <!-- Columna principal -->
+      <div class="lg:col-span-2 space-y-5">
+        <!-- Sección: compañía actual (siempre visible) -->
+        <div class="bg-white rounded-2xl border shadow-sm p-5">
+          <label class="block text-sm font-semibold mb-2">Compañía del cliente</label>
+          <select id="carrier" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none">
+            <option value="">Selecciona...</option>
+            <option>Telcel</option><option>Movistar</option><option>AT&amp;T</option>
+            <option>Unefon</option><option>Bait</option><option>OXXO Cel</option>
+            <option>Virgin</option><option>Rincel</option>
+          </select>
+          <p id="telcelNote" class="hidden mt-3 p-3 rounded-xl bg-[var(--brand-soft)] border text-sm text-[var(--brand-blue)]">
+            Ya es Telcel. Deriva a upsell/recargas.
+          </p>
         </div>
-        <input id="capNip"         class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="NIP (4 dígitos)" inputmode="numeric" maxlength="4" />
-        <input id="capPromotor"    class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Nombre del promotor" />
+
+        <!-- Encuesta (solo si el usuario la eligió) -->
+        <div id="questionsBlock" class="hidden bg-white rounded-2xl border shadow-sm p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">Diagnóstico rápido</h3>
+            <div class="text-xs text-slate-500">3–5 clics</div>
+          </div>
+          <div id="questionsContainer" class="space-y-3"></div>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-xl bg-slate-50 border text-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-semibold">Severidad</span>
+                <span id="scoreBox" class="text-base font-bold">0.00</span>
+              </div>
+              <div id="pitchBox" class="opacity-80"></div>
+            </div>
+
+            <!-- Recomendación -->
+            <div id="planBox" class="p-4 rounded-xl bg-[var(--brand-soft)] border text-sm hidden">
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-semibold text-[var(--brand-blue)]">Recomendación</span>
+                <span class="inline-flex items-center gap-1 text-[var(--brand-blue)] text-xs">
+                  <span class="size-2 rounded-full bg-[var(--brand-cyan)]"></span> Portabilidad Plus 12 meses
+                </span>
+              </div>
+              <div id="planCard"></div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2 items-center">
+            <span class="font-semibold">Resultado:</span>
+            <button id="btnAccept" class="px-3 py-2 rounded-xl bg-emerald-600 text-white text-sm hover:bg-emerald-700">Aceptó cambio</button>
+            <button id="btnReject" class="px-3 py-2 rounded-xl bg-rose-600 text-white text-sm hover:bg-rose-700">No aceptó</button>
+            <div class="ml-auto">
+              <button id="btnSaveLead" class="px-3 py-2 rounded-xl text-sm border hover:bg-slate-50">Guardar lead (local)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ficha de captura -->
+        <div id="captureBlock" class="hidden bg-white rounded-2xl border shadow-sm p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">Ficha de captura</h3>
+            <span class="text-xs text-slate-500">Solo se guardan los datos solicitados</span>
+          </div>
+
+          <!-- Datos del cliente -->
+          <div class="grid sm:grid-cols-3 gap-3">
+            <div class="sm:col-span-1">
+              <label class="block text-sm font-medium mb-1">Nombre(s)</label>
+              <input id="capNombre" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Nombre(s)" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Apellido paterno</label>
+              <input id="capApPaterno" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Apellido paterno" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Apellido materno</label>
+              <input id="capApMaterno" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Apellido materno" />
+            </div>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium mb-1">Teléfono (10 dígitos)</label>
+              <input id="capTelefono" inputmode="numeric" maxlength="10"
+                     class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none"
+                     placeholder="5512345678" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">CURP (opcional)</label>
+              <input id="capCurp" class="w-full border rounded-xl px-3 py-2 uppercase focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="CURP (si ya la trae)" />
+            </div>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium mb-1">Fecha de nacimiento (opcional)</label>
+              <input id="capFechaNacimiento" type="date" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Lugar de nacimiento (opcional)</label>
+              <input id="capLugarNacimiento" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Entidad o municipio" />
+            </div>
+          </div>
+
+          <!-- SIM, NIP, Promotor -->
+          <div class="grid sm:grid-cols-2 gap-3 items-end">
+            <div class="flex gap-2 items-end">
+              <div class="flex-1">
+                <label class="block text-sm font-medium mb-1">ICC (SIM, 20 dígitos)</label>
+                <input id="capICC" inputmode="numeric" maxlength="20"
+                       class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none"
+                       placeholder="20 dígitos" />
+              </div>
+              <button id="btnScanICC" type="button" class="px-3 py-2 rounded-xl border hover:bg-slate-50">Esc.</button>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">NIP (4 dígitos)</label>
+              <input id="capNip" inputmode="numeric" maxlength="4"
+                     class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none"
+                     placeholder="NIP de portabilidad" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Nombre del promotor</label>
+            <input id="capPromotor" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Quién atendió" />
+          </div>
+
+          <div class="flex justify-end gap-2">
+            <button id="btnCancelCapture" class="px-3 py-2 rounded-xl border text-sm hover:bg-slate-50">Cancelar</button>
+            <button id="btnSaveCapture" class="px-3 py-2 rounded-xl bg-[var(--brand-blue)] text-white text-sm hover:bg-[var(--brand-blue-700)]">Guardar captura</button>
+          </div>
+
+          <div class="text-xs text-slate-500">
+            Se guardan en Sheets: <strong>Fecha de captura, Número, Nombre, Ap. paterno, Ap. materno, CURP (si aplica), ICC, NIP y Carrier</strong>.
+          </div>
+        </div>
       </div>
 
-      <div class="flex justify-end gap-2">
-        <button id="btnCancelCapture" class="px-3 py-2 rounded-xl border text-sm hover:bg-slate-50">Cancelar</button>
-        <button id="btnSaveCapture"   class="px-3 py-2 rounded-xl bg-[var(--brand-blue)] text-white text-sm hover:bg-[var(--brand-blue-700)]">Guardar captura</button>
-      </div>
+      <!-- Lateral -->
+      <aside class="space-y-5">
+        <div class="rounded-2xl border shadow-sm overflow-hidden">
+          <div class="bg-[var(--brand-blue)] text-white px-4 py-2 text-sm font-semibold">Debilidades típicas</div>
+          <div class="bg-white p-4">
+            <ul id="weakList" class="list-disc list-inside text-sm space-y-1">
+              <li class="opacity-70">Selecciona una compañía para ver enfoque.</li>
+            </ul>
+          </div>
+        </div>
 
-      <div class="text-xs opacity-70">
-        Se guardan en Sheets: <strong>Fecha de captura, Número, Nombre, Ap. paterno, Ap. materno, CURP (si aplica), ICC, NIP y Carrier.</strong>
-      </div>
+        <div class="rounded-2xl border shadow-sm overflow-hidden">
+          <div class="bg-[var(--brand-blue)] text-white px-4 py-2 text-sm font-semibold">Leads capturados (local)</div>
+          <div id="leadsLog" class="bg-white p-4 space-y-3 max-h-[28rem] overflow-auto">
+            <div class="text-sm opacity-60">Aún no hay registros.</div>
+          </div>
+        </div>
+      </aside>
     </section>
   </main>
 
   <!-- Modal Éxito -->
-  <div id="okModal" class="backdrop">
-    <div class="glass rounded-2xl shadow-xl w-full max-w-md p-6 border fade-in text-center">
-      <div class="mx-auto checkmark mb-4"></div>
-      <h3 class="text-xl font-semibold text-[var(--brand-blue)]">¡Éxito! Ficha enviada</h3>
-      <p class="text-sm text-slate-600 mt-1">Toma una captura para tu evidencia.</p>
-      <div class="mt-4 text-sm bg-slate-50 border rounded-xl p-3 text-left">
-        <div><span class="font-semibold">Número: </span><span id="okNumero">—</span></div>
-        <div><span class="font-semibold">ICC: </span><span id="okICC">—</span></div>
-        <div><span class="font-semibold">Promotor: </span><span id="okPromotor">—</span></div>
+  <div id="successModal" class="backdrop">
+    <div class="glass rounded-2xl shadow-xl w-[92%] max-w-md p-5 border text-center">
+      <div class="mx-auto mb-3 h-14 w-14 rounded-full bg-emerald-100 grid place-items-center">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M20 7L9 18l-5-5" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
-      <div class="mt-5">
-        <button id="btnOkClose" class="px-4 py-2 rounded-xl bg-[var(--brand-blue)] text-white hover:bg-[var(--brand-blue-700)]">Listo</button>
+      <h3 class="text-lg font-semibold text-emerald-700">¡Éxito! Subiste tu ficha</h3>
+      <p class="text-sm text-slate-600 mt-2">Guarda captura para tu evidencia:</p>
+      <div id="successDetails" class="mt-3 text-sm bg-slate-50 border rounded-xl p-3 text-left"></div>
+      <div class="mt-4 flex justify-center">
+        <button id="btnCloseSuccess" class="px-4 py-2 rounded-xl border bg-white hover:bg-slate-50">OK</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal Scanner -->
+  <!-- Scanner modal -->
   <div id="scanModal" class="backdrop">
     <div class="glass rounded-2xl shadow-xl w-full max-w-md p-4 border">
       <div class="flex items-center justify-between mb-2">
         <h3 class="font-semibold">Escanear código de barras (ICC)</h3>
-        <button id="btnCloseScan" class="text-sm px-2 py-1 rounded-lg border bg-white/70">Cerrar</button>
+        <button id="btnCloseScan" class="text-sm px-2 py-1 rounded-lg border bg-white">Cerrar</button>
       </div>
       <div id="scanSupport" class="text-sm opacity-70 mb-2"></div>
       <video id="scanVideo" class="w-full rounded-xl bg-black aspect-video" playsinline></video>
-      <div class="text-xs opacity-60 mt-2">Enfoca el código del SIM. Al detectar, se llenará el ICC automáticamente.</div>
+      <div class="text-xs opacity-60 mt-2">Enfoca el código del SIM. Al detectar, se llenará el campo ICC automáticamente.</div>
     </div>
   </div>
 
   <script>
-    /* ============ URL FIJA DEL WEBHOOK (Apps Script) ============ */
+    /* ====== CONFIG ====== */
     const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycby1iL0kw-m2IUmlS1nnDPnQe4HVyLK6D7CfaxgXhDdCLCu2ssLnLAdhrhd__PO4q7sFfg/exec';
 
-    /* ============ Helpers de DOM ============ */
+    /* ====== Encuesta (igual que antes) ====== */
+    const carriers = {
+      Telcel:{disabled:true, note:"Cliente Telcel actual", weaknesses:["Cliente actual - upsell/recargas"]},
+      Movistar:{
+        weaknesses:["Descuentos 2 meses, luego sube","Cobertura fuera de ciudad limitada","Lentitud en horas pico"],
+        questions:[
+          {id:"descuento", text:"¿Sabías que los descuentos de Movistar solo aplican los primeros 2 meses?", options:["Sí, lo sé","No estaba seguro","No lo sabía"], weight:1.5},
+          {id:"cobertura", text:"¿Tu señal falla cuando viajas o en zonas rurales?", options:["Sí, seguido","A veces","No"], weight:2},
+          {id:"velocidad", text:"¿Notas que tu internet se pone lento en horas pico?", options:["Sí, siempre","A veces","No"], weight:1.5},
+          {id:"precio", text:"¿Pagas más de $200 al mes después de los descuentos iniciales?", options:["Sí","No estoy seguro","No"], weight:1}
+        ],
+        pitch:s=> s>=4?"Con Movistar terminas pagando más y con menos cobertura. Telcel te da precio estable, 5G y cobertura real. Porta hoy y activa beneficios 12 meses.": s>=2.5?"Si te sube el precio o falla la señal, Telcel mantiene estabilidad y mejor red. Cambio rápido con tu mismo número.":"Si estás bien, perfecto. Si necesitas cobertura o precio estable, Telcel tiene opciones sin sorpresas."
+      },
+      "AT&T":{
+        weaknesses:["Condiciones confusas para acumular","Cobertura irregular fuera de ciudades","Precio alto para lo que recibes"],
+        questions:[
+          {id:"acumulacion", text:"¿Te confunden las condiciones para acumular megas?", options:["Sí, es confuso","Más o menos","No"], weight:1.5},
+          {id:"viajes", text:"¿Cuando viajas pierdes señal o se vuelve inestable?", options:["Sí, siempre","A veces","No"], weight:2},
+          {id:"costo", text:"¿Pagas más de $200 al mes?", options:["Sí","No estoy seguro","No"], weight:1.5}
+        ],
+        pitch:s=> s>=3.5?"AT&T complica y la cobertura se cae. Telcel es claro y con red más amplia. Porta y activa beneficios por 12 meses.": s>=2?"Si batallas en carretera o interiores, Telcel te cubre mejor. Cambio con mismo número en 24 h.":"Si quieres simplificar y tener más red, Telcel tiene planes estables."
+      },
+      Unefon:{
+        weaknesses:["Velocidad limitada en 'ilimitados'","Atención limitada","Dependencia de Altán"],
+        questions:[
+          {id:"velocidad", text:"¿Aunque tengas datos 'ilimitados' se pone muy lento?", options:["Sí, siempre","A veces","No"], weight:2},
+          {id:"atencion", text:"¿Has tenido mala atención al cliente?", options:["Sí, pésimo","Regular","No"], weight:1.5},
+          {id:"cobertura", text:"¿En interiores o zonas alejadas se cae la señal?", options:["Sí, seguido","A veces","No"], weight:2}
+        ],
+        pitch:s=> s>=4?"Unefon es barato pero lento y con poca atención. Telcel te da velocidad real, tiendas y mejor cobertura.": s>=2.5?"Si te frustra la velocidad o el soporte, Telcel ofrece datos de verdad y atención cercana.":"Si algún día necesitas velocidad y soporte, Telcel tiene opciones accesibles."
+      },
+      Bait:{
+        weaknesses:["Prioridad baja en congestión","Cobertura dependiente de Altán","Pocas variantes de plan"],
+        questions:[
+          {id:"congestion", text:"¿En horas pico tu internet se vuelve casi inusable?", options:["Sí, siempre","A veces","No"], weight:2},
+          {id:"interiores", text:"¿En edificios o interiores pierdes señal seguido?", options:["Sí, seguido","A veces","No"], weight:2},
+          {id:"planes", text:"¿Sientes que faltan opciones de planes?", options:["Sí, faltan","Está bien","No"], weight:1}
+        ],
+        pitch:s=> s>=4?"Bait es económico, pero la red se congestiona. Telcel te da prioridad y cobertura nacional.": s>=2.5?"Si te desespera la lentitud en pico, Telcel mantiene velocidad constante.":"Si buscas mejor rendimiento, Telcel tiene planes accesibles con mejor servicio."
+      },
+      "OXXO Cel":{
+        weaknesses:["Cobertura y soporte básicos","Opciones limitadas","Prioridad baja"],
+        questions:[
+          {id:"urgente", text:"¿Dependes del celular para trabajo o urgencias?", options:["Sí, totalmente","A veces","No"], weight:2},
+          {id:"soporte", text:"¿Te ha costado obtener soporte?", options:["Sí, mucho","Más o menos","No"], weight:1.5}
+        ],
+        pitch:s=> s>=2.5?"Para uso importante, Telcel es confiable: red amplia y soporte en tiendas.":"Para emergencias y trabajo, Telcel ofrece mayor confiabilidad."
+      },
+      Virgin:{
+        weaknesses:["Velocidad variable","Cobertura media","Limitaciones ocultas"],
+        questions:[
+          {id:"streaming", text:"¿Se te corta el video o música?", options:["Sí, siempre","A veces","No"], weight:1.8},
+          {id:"costos", text:"¿Pagas extra por datos seguido?", options:["Sí, siempre","A veces","No"], weight:1.5}
+        ],
+        pitch:s=> s>=2.5?"Virgin puede variar; Telcel da velocidad consistente y transparencia.":"Si buscas constancia y precios claros, Telcel tiene mejores opciones."
+      },
+      Rincel:{
+        weaknesses:["Cobertura muy limitada","Pocas opciones","Soporte limitado"],
+        questions:[
+          {id:"cobertura", text:"¿Problemas de señal en varias zonas de la ciudad?", options:["Sí, en muchas","En algunas","No"], weight:2},
+          {id:"opciones", text:"¿Sientes que faltan beneficios/planes?", options:["Sí, muy limitado","Más o menos","No"], weight:1.5}
+        ],
+        pitch:s=> s>=2.5?"Operador pequeño: Telcel ofrece la red más extensa y soporte en tiendas.":"Si te mueves mucho, Telcel mantiene cobertura consistente."
+      }
+    };
+
+    /* ====== Helpers / elementos ====== */
     const el = id => document.getElementById(id);
 
-    // Elementos
     const startBlock = el('startBlock');
-    const captureBlock = el('captureBlock');
+    const mainBlock = el('mainBlock');
+    const btnStartSurvey = el('btnStartSurvey');
     const btnSkipToCapture = el('btnSkipToCapture');
-    const btnHome = el('btnHome');
 
     const carrier = el('carrier');
-    const modeRadios = document.querySelectorAll('.capMode');
+    const telcelNote = el('telcelNote');
+    const weakList = el('weakList');
 
+    const questionsBlock = el('questionsBlock');
+    const questionsContainer = el('questionsContainer');
+    const scoreBox = el('scoreBox');
+    const pitchBox = el('pitchBox');
+    const planBox = el('planBox');
+    const planCard = el('planCard');
+    const btnAccept = el('btnAccept');
+    const btnReject = el('btnReject');
+    const btnSaveLead = el('btnSaveLead');
+
+    // Capture fields
+    const captureBlock = el('captureBlock');
     const capNombre = el('capNombre');
     const capApPaterno = el('capApPaterno');
     const capApMaterno = el('capApMaterno');
     const capTelefono = el('capTelefono');
     const capCurp = el('capCurp');
+    const capFechaNacimiento = el('capFechaNacimiento');
+    const capLugarNacimiento = el('capLugarNacimiento');
     const capICC = el('capICC');
     const capNip = el('capNip');
     const capPromotor = el('capPromotor');
-
     const btnCancelCapture = el('btnCancelCapture');
     const btnSaveCapture = el('btnSaveCapture');
 
-    // Modal éxito
-    const okModal = el('okModal');
-    const okNumero = el('okNumero');
-    const okICC = el('okICC');
-    const okPromotor = el('okPromotor');
-    const btnOkClose = el('btnOkClose');
+    // Success modal
+    const successModal = el('successModal');
+    const successDetails = el('successDetails');
+    const btnCloseSuccess = el('btnCloseSuccess');
 
     // Scanner
     const scanModal = el('scanModal');
@@ -191,166 +356,248 @@
     const btnScanICC = el('btnScanICC');
     const btnCloseScan = el('btnCloseScan');
     const scanSupport = el('scanSupport');
-    let scanStream = null, scanning = false, detector = null;
+    let scanStream=null, scanning=false, detector=null;
 
-    /* ============ Init ============ */
+    // State
+    let showSurvey = false;
+    let currentCarrier = null;
+    let currentScore = 0;
+    let answers = {};
+    let leads = [];
+
+    /* ====== Init ====== */
     document.addEventListener('DOMContentLoaded', () => {
-      btnSkipToCapture.addEventListener('click', () => {
-        startBlock.classList.add('hidden');
-        captureBlock.classList.remove('hidden');
-        captureBlock.classList.add('fade-in');
-        carrier.focus();
-      });
+      btnStartSurvey.addEventListener('click', () => startApp(true));
+      btnSkipToCapture.addEventListener('click', () => startApp(false));
 
-      btnHome.addEventListener('click', () => {
-        resetForm();
-        window.scrollTo({top:0, behavior:'smooth'});
-      });
+      carrier.addEventListener('change', handleCarrierChange);
+      btnAccept.addEventListener('click', () => { captureBlock.classList.remove('hidden'); scrollToBlock(captureBlock); });
+      btnReject.addEventListener('click', () => alert('¡Gracias! Si cambias de opinión, aquí seguimos.'));
+      btnSaveLead.addEventListener('click', saveLeadLocal);
 
-      // Validaciones de entrada
-      capTelefono.addEventListener('input', () => {
-        capTelefono.value = capTelefono.value.replace(/\D/g,'').slice(0,10);
-      });
-      capICC.addEventListener('input', () => {
-        capICC.value = capICC.value.replace(/\D/g,'').slice(0,20);
-      });
-      capNip.addEventListener('input', () => {
-        capNip.value = capNip.value.replace(/\D/g,'').slice(0,4);
-      });
+      capTelefono.addEventListener('input', () => capTelefono.value = capTelefono.value.replace(/\D/g,'').slice(0,10));
+      capNip.addEventListener('input', () => capNip.value = capNip.value.replace(/\D/g,'').slice(0,4));
+      capICC.addEventListener('input', () => capICC.value = capICC.value.replace(/\D/g,'').slice(0,20));
+      capCurp.addEventListener('input', () => capCurp.value = capCurp.value.toUpperCase());
 
-      // Modo: mostrar/ocultar CURP
-      modeRadios.forEach(r => r.addEventListener('change', updateCurpVisibility));
-      updateCurpVisibility();
+      btnCancelCapture.addEventListener('click', resetForm);
+      btnSaveCapture.addEventListener('click', saveCapture);
 
-      // Botones guardar/cancelar
-      btnCancelCapture.addEventListener('click', () => captureBlock.classList.add('hidden'));
-      btnSaveCapture.addEventListener('click', onSaveCapture);
-
-      // Modal OK
-      btnOkClose.addEventListener('click', () => { okModal.style.display='none'; resetForm(); });
+      // success
+      btnCloseSuccess.addEventListener('click', () => { successModal.style.display='none'; resetForm(); });
 
       // Scanner
       btnScanICC.addEventListener('click', openScanModal);
       btnCloseScan.addEventListener('click', closeScanModal);
-      scanSupport.textContent = ('BarcodeDetector' in window)
-        ? 'Soportado: Code128/EAN.'
-        : 'Sin soporte nativo. Si no detecta, ingresa el ICC manualmente.';
+      scanSupport.textContent = ('BarcodeDetector' in window) ?
+        'Soportado: intentaremos Code128/EAN.' :
+        'Sin soporte nativo. Si no detecta, ingresa el ICC manualmente.';
+
+      loadSavedLeads();
     });
 
-    function currentMode(){
-      const r = Array.from(modeRadios).find(x => x.checked);
-      return r ? r.value : 'curp';
+    function startApp(wantSurvey){
+      showSurvey = wantSurvey;
+      startBlock.classList.add('hidden');
+      mainBlock.classList.remove('hidden');
+      mainBlock.classList.add('fade-in');
+      questionsBlock.classList.toggle('hidden', !showSurvey);
+      if(!showSurvey) captureBlock.classList.remove('hidden');
+      carrier.focus();
     }
 
-    function updateCurpVisibility(){
-      const needCurp = currentMode()==='curp';
-      capCurp.parentElement.style.display = needCurp ? '' : 'none';
-      if (!needCurp) capCurp.value='';
+    function scrollToBlock(block){ window.scrollTo({ top: block.offsetTop-12, behavior: 'smooth' }); }
+
+    function handleCarrierChange(){
+      currentCarrier = carrier.value;
+      if(currentCarrier==='Telcel') telcelNote.classList.remove('hidden'); else telcelNote.classList.add('hidden');
+      updateWeaknesses(currentCarrier);
+      if(showSurvey && carriers[currentCarrier]){ renderQuestions(); updateScore(); }
     }
 
-    async function onSaveCapture(){
-      // Validaciones
+    function updateWeaknesses(name){
+      weakList.innerHTML='';
+      const list = carriers[name]?.weaknesses || [];
+      if(list.length===0){ const li=document.createElement('li'); li.className='text-sm opacity-70'; li.textContent='Selecciona una compañía para ver enfoque.'; weakList.appendChild(li); return; }
+      list.forEach(w=>{ const li=document.createElement('li'); li.className='text-sm'; li.textContent=w; weakList.appendChild(li); });
+    }
+
+    function renderQuestions(){
+      questionsContainer.innerHTML=''; currentScore=0; answers={};
+      const qs = carriers[currentCarrier]?.questions || [];
+      qs.forEach(q=>{
+        const div = document.createElement('div');
+        div.className='p-3 rounded-xl border';
+        div.innerHTML = `
+          <div class="font-medium mb-2">${q.text}</div>
+          <div class="flex flex-wrap gap-2">
+            ${q.options.map(opt=>`<button class="btn-option px-3 py-1.5 rounded-lg border text-sm" data-id="${q.id}" data-value="${opt}">${opt}</button>`).join('')}
+          </div>`;
+        const buttons = div.querySelectorAll('.btn-option');
+        buttons.forEach(btn=> btn.addEventListener('click', ()=>{
+          buttons.forEach(b=>b.classList.remove('selected'));
+          btn.classList.add('selected');
+          answers[q.id] = btn.dataset.value;
+          updateScore();
+        }));
+        questionsContainer.appendChild(div);
+      });
+    }
+
+    function updateScore(){
+      currentScore=0; const qs = carriers[currentCarrier]?.questions || [];
+      qs.forEach(q=>{ if(answers[q.id]){ const idx=q.options.indexOf(answers[q.id]); currentScore += (q.options.length-1-idx)*q.weight; }});
+      scoreBox.textContent = currentScore.toFixed(2);
+      if(currentScore>=4) scoreBox.className='text-base font-bold score-high';
+      else if(currentScore>=2) scoreBox.className='text-base font-bold score-medium';
+      else scoreBox.className='text-base font-bold score-low';
+      pitchBox.textContent = carriers[currentCarrier]?.pitch ? carriers[currentCarrier].pitch(currentScore) : '';
+      const plan = recommendOffer();
+      if(plan){ planBox.classList.remove('hidden'); planCard.innerHTML = renderPlanCard(plan); } else { planBox.classList.add('hidden'); planCard.innerHTML=''; }
+    }
+
+    function recommendOffer(){
+      const a = answers || {};
+      const paysOver200 = (a['precio']==='Sí') || (a['costo']==='Sí');
+      const highData = ['velocidad','congestion','streaming'].some(id => a[id]?.startsWith('Sí'));
+      const travelOrCoverage = ['viajes','cobertura','interiores'].some(id => a[id]?.startsWith('Sí'));
+      return (paysOver200 || highData || travelOrCoverage) ? 'ASL150' : 'ASL100';
+    }
+
+    function renderPlanCard(plan){
+      const is150 = plan==='ASL150';
+      const title = is150? 'Amigo Sin Límite 150' : 'Amigo Sin Límite 100';
+      const price = is150? '$150 / 30 días' : '$100 / 30 días';
+      const points = [
+        'Minutos y SMS ilimitados',
+        'WhatsApp y redes sociales incluidas',
+        'Mismo número, cambio en ~24h',
+        'Beneficios por 12 meses al portar'
+      ];
+      return `
+        <div class="rounded-xl border bg-white p-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-sm text-slate-500">Plan sugerido</div>
+              <div class="text-base font-semibold text-[var(--brand-blue)]">${title}</div>
+            </div>
+            <div class="text-sm font-bold text-[var(--brand-blue)]">${price}</div>
+          </div>
+          <ul class="mt-2 text-xs space-y-1">${points.map(p=>`<li class="flex items-start gap-2"><span class="mt-1 size-1.5 rounded-full bg-[var(--brand-cyan)]"></span><span>${p}</span></li>`).join('')}</ul>
+        </div>`;
+    }
+
+    function saveLeadLocal(){
+      if(!carrier.value){ alert('Selecciona una compañía'); carrier.focus(); return; }
+      const lead = { id:Date.now(), timestamp:new Date().toLocaleString(), nombre:'', telefono:'', carrier:carrier.value, score:currentScore, status:'Lead (local)', answers:JSON.stringify(answers) };
+      leads.push(lead); localStorage.setItem('leads', JSON.stringify(leads)); renderLeads(); alert('Lead guardado localmente');
+    }
+
+    function renderLeads(){
+      const leadsLog = el('leadsLog');
+      leadsLog.innerHTML=''; if(leads.length===0){ leadsLog.innerHTML='<div class="text-sm opacity-60">Aún no hay registros.</div>'; return; }
+      const items=[...leads].reverse().slice(0,12);
+      items.forEach(lead=>{
+        const div=document.createElement('div'); div.className='p-3 rounded-xl border text-sm bg-white';
+        div.innerHTML=`
+          <div class='flex justify-between items-start'>
+            <div class='font-medium'>${lead.nombre||'Anónimo'}</div>
+            <div class='text-xs opacity-70'>${lead.timestamp}</div>
+          </div>
+          <div class='mt-1'>${lead.telefono||'—'} · ${lead.carrier}</div>
+          <div class='flex justify-between items-center mt-2'>
+            <span class='px-2 py-1 rounded-full text-xs bg-slate-100 text-slate-800'>${lead.status}</span>
+            <span class='text-xs'>${lead.score!==null?('Score: '+lead.score):''}</span>
+          </div>`;
+        leadsLog.appendChild(div);
+      });
+    }
+
+    function loadSavedLeads(){
+      const saved = localStorage.getItem('leads');
+      if(saved){ leads = JSON.parse(saved); renderLeads(); }
+    }
+
+    function resetForm(){
+      startBlock.classList.remove('hidden');
+      mainBlock.classList.add('hidden');
+      questionsBlock.classList.add('hidden'); questionsContainer.innerHTML=''; answers={}; currentScore=0; pitchBox.textContent='';
+      carrier.value=''; telcelNote.classList.add('hidden');
+      capNombre.value=''; capApPaterno.value=''; capApMaterno.value=''; capTelefono.value=''; capCurp.value='';
+      capFechaNacimiento.value=''; capLugarNacimiento.value=''; capICC.value=''; capNip.value=''; capPromotor.value='';
+    }
+
+    /* ====== Guardar captura ====== */
+    function saveCapture(){
       if(!carrier.value){ alert('Selecciona la compañía'); carrier.focus(); return; }
       if(!capNombre.value.trim()){ alert('Ingresa el nombre'); capNombre.focus(); return; }
       if(!capApPaterno.value.trim()){ alert('Ingresa el apellido paterno'); capApPaterno.focus(); return; }
       if(!capApMaterno.value.trim()){ alert('Ingresa el apellido materno'); capApMaterno.focus(); return; }
       if(!/^\d{10}$/.test(capTelefono.value)){ alert('Teléfono de 10 dígitos'); capTelefono.focus(); return; }
+      if(!/^\d{20}$/.test(capICC.value)){ alert('ICC debe tener 20 dígitos'); capICC.focus(); return; }
+      if(!/^\d{4}$/.test(capNip.value)){ alert('NIP de 4 dígitos'); capNip.focus(); return; }
 
-      const needCurp = currentMode()==='curp';
-      if(needCurp){
-        const v = capCurp.value.trim().toUpperCase();
-        if(v.length!==18){ alert('CURP debe tener 18 caracteres'); capCurp.focus(); return; }
-        capCurp.value = v;
-      }
-
-      if(capICC.value.length < 18){ alert('ICC debe tener al menos 18 dígitos (máx 20)'); capICC.focus(); return; }
-      if(!/^\d{4}$/.test(capNip.value)){ alert('NIP debe ser de 4 dígitos'); capNip.focus(); return; }
-
+      // Solo enviamos lo que se guarda en Sheets (promotor y nacimientos NO se envían)
       const record = {
-        // SOLO los campos que tu Apps Script guarda
-        telefono : capTelefono.value.trim(),
-        nombre   : capNombre.value.trim(),
+        tipo:'capture',
+        timestamp: new Date().toLocaleString(),
+        numero: capTelefono.value,
+        nombre: capNombre.value.trim(),
         apPaterno: capApPaterno.value.trim(),
         apMaterno: capApMaterno.value.trim(),
-        curp     : (needCurp ? capCurp.value.trim().toUpperCase() : ''),
-        icc      : capICC.value.trim(),
-        nip      : capNip.value.trim(),
-        carrier  : carrier.value.trim()
+        curp: (capCurp.value||'').toUpperCase().trim(),
+        icc: capICC.value.trim(),
+        nip: capNip.value.trim(),
+        carrier: carrier.value
       };
 
+      // Envío
+      pushToSheets(record);
+
+      // Modal éxito (con promotor solo para evidencia)
+      successDetails.innerHTML = `
+        <div><span class="font-semibold">Número:</span> ${capTelefono.value}</div>
+        <div><span class="font-semibold">ICC:</span> ${capICC.value}</div>
+        <div><span class="font-semibold">Promotor:</span> ${capPromotor.value || '—'}</div>
+      `;
+      successModal.style.display = 'flex';
+    }
+
+    async function pushToSheets(payload){
       try{
         await fetch(SHEETS_WEBAPP_URL, {
           method:'POST',
           mode:'no-cors',
           headers:{ 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
-          body:'payload='+encodeURIComponent(JSON.stringify(record))
+          body:'payload='+encodeURIComponent(JSON.stringify(payload))
         });
-
-        // Modal de éxito para evidencia
-        okNumero.textContent  = record.telefono || '—';
-        okICC.textContent     = record.icc      || '—';
-        okPromotor.textContent= capPromotor.value.trim() || '—';
-        okModal.style.display = 'flex';
-      }catch(e){
-        alert('No se pudo enviar la ficha. Revisa conexión e intenta de nuevo.');
-        console.error(e);
-      }
+      }catch(e){ console.error('Falló envío a Sheets', e); }
     }
 
-    function resetForm(){
-      startBlock.classList.remove('hidden');
-      captureBlock.classList.add('hidden');
-
-      carrier.value='';
-      capNombre.value='';
-      capApPaterno.value='';
-      capApMaterno.value='';
-      capTelefono.value='';
-      capCurp.value='';
-      capICC.value='';
-      capNip.value='';
-      capPromotor.value='';
-      // default a "curp"
-      modeRadios.forEach(r => r.checked = (r.value==='curp'));
-      updateCurpVisibility();
-    }
-
-    /* ============ Scanner ICC ============ */
+    /* ====== Scanner ICC ====== */
     async function openScanModal(){
       scanModal.style.display='flex';
       try{
         if('BarcodeDetector' in window){
           detector = new BarcodeDetector({formats:['code_128','ean_13','ean_8','upc_a','upc_e','code_39']});
-        } else { detector = null; }
+        } else { detector=null; }
         scanStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
-        scanVideo.srcObject = scanStream;
-        await scanVideo.play();
-        scanning = true;
-        requestAnimationFrame(scanLoop);
-      }catch(e){
-        alert('No se pudo acceder a la cámara. Otorga permisos o ingresa el ICC manualmente.');
-        closeScanModal();
-      }
+        scanVideo.srcObject = scanStream; await scanVideo.play(); scanning=true; requestAnimationFrame(scanLoop);
+      }catch(e){ alert('No se pudo acceder a la cámara. Otorga permisos o ingresa el ICC manualmente.'); closeScanModal(); }
     }
-
     async function scanLoop(){
       if(!scanning) return;
       try{
         if(detector && scanVideo.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA){
           const codes = await detector.detect(scanVideo);
           if(codes && codes.length){
-            const value = (codes[0].rawValue || '').replace(/\D/g,'').slice(0,20);
-            if(value){
-              capICC.value = value;
-              closeScanModal();
-              return;
-            }
+            const value = codes[0].rawValue || '';
+            if(value){ capICC.value = value.replace(/\D/g,'').slice(0,20); closeScanModal(); return; }
           }
         }
-      }catch(_){}
+      }catch(e){}
       requestAnimationFrame(scanLoop);
     }
-
     function closeScanModal(){
       scanning=false;
       if(scanStream){ scanStream.getTracks().forEach(t=>t.stop()); scanStream=null; }
