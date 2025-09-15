@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PERFILACION DE PROSPECTOS — Telcel Pro UI</title>
+  <title>MADA — Captura y Portabilidad</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root{
-      --telcel-blue:#003b8f;
-      --telcel-blue-700:#0a2f6b;
-      --telcel-cyan:#00aeef;
-      --telcel-soft:#e9f3ff;
+      --brand-blue:#003b8f;
+      --brand-blue-700:#0a2f6b;
+      --brand-cyan:#00aeef;
+      --brand-soft:#e9f3ff;
     }
     body{font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;}
-    .btn-option.selected{ background-color: var(--telcel-blue); color:#fff; border-color: transparent; }
+    .btn-option.selected{ background-color: var(--brand-blue); color:#fff; border-color: transparent; }
     .fade-in{ animation: fadeIn .25s ease-in; }
     @keyframes fadeIn{ from{opacity:0; transform: translateY(4px);} to{opacity:1; transform: translateY(0);} }
     .score-low{ color:#16a34a; }
@@ -25,47 +25,43 @@
 </head>
 <body class="bg-slate-50 min-h-screen">
   <!-- Topbar -->
-  <header class="bg-gradient-to-r from-[var(--telcel-blue)] to-[var(--telcel-blue-700)] text-white">
+  <header class="bg-gradient-to-r from-[var(--brand-blue)] to-[var(--brand-blue-700)] text-white">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div id="btnHome" class="h-8 w-8 rounded-full bg-white/10 grid place-items-center font-black cursor-pointer hover:bg-white/20 transition" title="Ir al inicio">T</div>
+        <div id="btnHome" class="h-8 w-8 rounded-full bg-white/10 grid place-items-center font-black cursor-pointer hover:bg-white/20 transition" title="Ir al inicio">M</div>
         <div class="leading-tight">
-          <h1 class="text-lg font-semibold">PERFILACION DE PROSPECTOS</h1>
-          <p class="text-xs text-white/70">Diagnóstico rápido • Portabilidad con mismo número en 24 h</p>
+          <h1 class="text-lg font-semibold">MADA</h1>
+          <p class="text-xs text-white/70">Desarrollando el talento humano</p>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <button id="btnSheetsConfig" class="text-xs px-3 py-2 rounded-lg border border-white/25 hover:bg-white/10">Configurar Sheets</button>
-      </div>
+      <div class="text-xs opacity-0 select-none">.</div>
     </div>
   </header>
 
   <main class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
-    <!-- Steps -->
-    <ol class="mb-4 grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-      <li class="step-item bg-white rounded-xl border p-3 flex items-center gap-2"><span class="size-2 rounded-full bg-[var(--telcel-cyan)]"></span><span>1. Compañía</span></li>
-      <li class="step-item bg-white rounded-xl border p-3 flex items-center gap-2 opacity-70"><span class="size-2 rounded-full bg-slate-300"></span><span>2. Diagnóstico</span></li>
-      <li class="step-item bg-white rounded-xl border p-3 flex items-center gap-2 opacity-70"><span class="size-2 rounded-full bg-slate-300"></span><span>3. Decisión</span></li>
-      <li class="step-item bg-white rounded-xl border p-3 flex items-center gap-2 opacity-70"><span class="size-2 rounded-full bg-slate-300"></span><span>4. Captura</span></li>
-    </ol>
-
-    <!-- Start card -->
+    <!-- Portada -->
     <section id="startBlock" class="bg-white rounded-2xl shadow-sm border p-6 sm:p-8 fade-in">
       <div class="flex flex-col items-center text-center gap-4">
-        <h2 class="text-2xl font-bold text-[var(--telcel-blue)]">Iniciar diagnóstico</h2>
-        <p class="text-sm text-slate-600 max-w-prose">Encuesta anónima. Solo pediremos datos personales si la persona acepta portar. Mantén la conversación en 60–90 segundos.</p>
-        <button id="btnStart" class="px-5 py-2.5 rounded-xl bg-[var(--telcel-blue)] text-white hover:bg-[var(--telcel-blue-700)]">Comenzar</button>
+        <h2 class="text-2xl font-bold text-[var(--brand-blue)]">¿Cómo quieres continuar?</h2>
+        <p class="text-sm text-slate-600 max-w-prose">
+          Puedes hacer un diagnóstico rápido (3–5 clics) o ir directo a la ficha de captura.
+          Los datos personales solo se piden si se acepta portar.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3">
+          <button id="btnStartSurvey" class="px-5 py-2.5 rounded-xl bg-[var(--brand-blue)] text-white hover:bg-[var(--brand-blue-700)]">Comenzar encuesta</button>
+          <button id="btnSkipToCapture" class="px-5 py-2.5 rounded-xl border hover:bg-slate-50">Omitir encuesta e ir a captura</button>
+        </div>
       </div>
     </section>
 
     <!-- App -->
     <section id="mainBlock" class="hidden grid lg:grid-cols-3 gap-5 mt-4">
-      <!-- Main column -->
+      <!-- Columna principal -->
       <div class="lg:col-span-2 space-y-5">
-        <!-- Identify carrier only -->
+        <!-- Compañía -->
         <div class="bg-white rounded-2xl border shadow-sm p-5">
           <label class="block text-sm font-semibold mb-2">Compañía actual</label>
-          <select id="carrier" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--telcel-cyan)] focus:border-transparent outline-none">
+          <select id="carrier" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none">
             <option value="">Selecciona...</option>
             <option>Telcel</option>
             <option>Movistar</option>
@@ -76,10 +72,12 @@
             <option>Virgin</option>
             <option>Rincel</option>
           </select>
-          <p id="telcelNote" class="hidden mt-3 p-3 rounded-xl bg-[var(--telcel-soft)] border text-sm text-[var(--telcel-blue)]">Ya es Telcel. Deriva a upsell/recargas.</p>
+          <p id="telcelNote" class="hidden mt-3 p-3 rounded-xl bg-[var(--brand-soft)] border text-sm text-[var(--brand-blue)]">
+            Ya es Telcel. Deriva a upsell/recargas.
+          </p>
         </div>
 
-        <!-- Questions block -->
+        <!-- Encuesta (se muestra solo si el usuario la elige) -->
         <div id="questionsBlock" class="hidden bg-white rounded-2xl border shadow-sm p-5 space-y-4">
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold">Diagnóstico rápido</h3>
@@ -96,11 +94,13 @@
               <div id="pitchBox" class="opacity-80"></div>
             </div>
 
-            <!-- Recommended plan -->
-            <div id="planBox" class="p-4 rounded-xl bg-[var(--telcel-soft)] border text-sm hidden">
+            <!-- Recomendación -->
+            <div id="planBox" class="p-4 rounded-xl bg-[var(--brand-soft)] border text-sm hidden">
               <div class="flex items-center justify-between mb-2">
-                <span class="font-semibold text-[var(--telcel-blue)]">Recomendación</span>
-                <span class="inline-flex items-center gap-1 text-[var(--telcel-blue)] text-xs"><span class="size-2 rounded-full bg-[var(--telcel-cyan)]"></span> Portabilidad Plus 12 meses</span>
+                <span class="font-semibold text-[var(--brand-blue)]">Recomendación</span>
+                <span class="inline-flex items-center gap-1 text-[var(--brand-blue)] text-xs">
+                  <span class="size-2 rounded-full bg-[var(--brand-cyan)]"></span> Portabilidad Plus 12 meses
+                </span>
               </div>
               <div id="planCard"></div>
             </div>
@@ -111,16 +111,16 @@
             <button id="btnAccept" class="px-3 py-2 rounded-xl bg-emerald-600 text-white text-sm hover:bg-emerald-700">Aceptó cambio</button>
             <button id="btnReject" class="px-3 py-2 rounded-xl bg-rose-600 text-white text-sm hover:bg-rose-700">No aceptó</button>
             <div class="ml-auto">
-              <button id="btnSaveLead" class="px-3 py-2 rounded-xl text-sm border hover:bg-slate-50">Guardar lead</button>
+              <button id="btnSaveLead" class="px-3 py-2 rounded-xl text-sm border hover:bg-slate-50">Guardar lead (local)</button>
             </div>
           </div>
         </div>
 
-        <!-- Capture block -->
+        <!-- Captura -->
         <div id="captureBlock" class="hidden bg-white rounded-2xl border shadow-sm p-5 space-y-4">
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold">Ficha de captura</h3>
-            <span class="text-xs text-slate-500">Solo si aceptó portar</span>
+            <span class="text-xs text-slate-500">Solo si aceptó portar (o si saltaste la encuesta)</span>
           </div>
 
           <div class="flex flex-wrap items-center gap-4 text-sm">
@@ -129,11 +129,11 @@
             <label class="flex items-center gap-2"><input type="radio" name="capMode" value="full" class="capMode"> Datos para generar CURP</label>
           </div>
 
-          <!-- Full mode to generate CURP -->
+          <!-- Para generar CURP -->
           <div id="capFull" class="grid sm:grid-cols-2 gap-3 hidden">
-            <input id="capNombreCompleto" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--telcel-cyan)] focus:border-transparent outline-none" placeholder="Nombre completo" />
-            <input id="capFechaNacimiento" type="date" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--telcel-cyan)] focus:border-transparent outline-none" placeholder="Fecha de nacimiento" />
-            <select id="capEntidadNacimiento" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--telcel-cyan)] focus:border-transparent outline-none sm:col-span-2">
+            <input id="capNombreCompleto" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Nombre completo" />
+            <input id="capFechaNacimiento" type="date" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Fecha de nacimiento" />
+            <select id="capEntidadNacimiento" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none sm:col-span-2">
               <option value="">Entidad de nacimiento</option>
               <option>Aguascalientes</option><option>Baja California</option><option>Baja California Sur</option>
               <option>Campeche</option><option>Coahuila</option><option>Colima</option><option>Chiapas</option>
@@ -144,44 +144,42 @@
               <option>San Luis Potosí</option><option>Sinaloa</option><option>Sonora</option><option>Tabasco</option>
               <option>Tamaulipas</option><option>Tlaxcala</option><option>Veracruz</option><option>Yucatán</option><option>Zacatecas</option>
             </select>
-            <input id="capLugarNacimiento" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--telcel-cyan)] focus:border-transparent outline-none sm:col-span-2" placeholder="Lugar de nacimiento (municipio/ciudad)" />
+            <input id="capLugarNacimiento" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none sm:col-span-2" placeholder="Lugar de nacimiento (municipio/ciudad)" />
           </div>
 
-          <!-- Common fields -->
+          <!-- Campos comunes -->
           <div id="capCommon" class="grid sm:grid-cols-2 gap-3">
-            <input id="capNombre" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--telcel-cyan)] focus:border-transparent outline-none sm:col-span-2" placeholder="Nombre del cliente" />
-            <input id="capTelefono" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--telcel-cyan)] focus:border-transparent outline-none" placeholder="Teléfono (10 dígitos)" inputmode="numeric" maxlength="10" />
-            <input id="capCurp" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--telcel-cyan)] focus:border-transparent outline-none" placeholder="CURP" />
-
-            <div class="flex gap-2 items-center">
-              <input id="capICC" class="flex-1 border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--telcel-cyan)] focus:border-transparent outline-none" placeholder="ICC (SIM)" />
+            <input id="capNombre" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none sm:col-span-2" placeholder="Nombre del cliente" />
+            <input id="capTelefono" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Teléfono (10 dígitos)" inputmode="numeric" maxlength="10" />
+            <input id="capCurp" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="CURP (si ya la trae)" />
+            <div class="flex gap-2 items-center sm:col-span-2">
+              <input id="capICC" class="flex-1 border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="ICC (SIM)" />
               <button id="btnScanICC" type="button" class="px-3 py-2 rounded-xl border hover:bg-slate-50">Escanear</button>
             </div>
-
-            <input id="capNip" maxlength="4" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--telcel-cyan)] focus:border-transparent outline-none" placeholder="NIP de portabilidad (4 dígitos)" />
+            <input id="capNip" maxlength="4" class="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="NIP de portabilidad (4 dígitos)" />
           </div>
 
           <div class="flex justify-end gap-2">
             <button id="btnCancelCapture" class="px-3 py-2 rounded-xl border text-sm hover:bg-slate-50">Cancelar</button>
-            <button id="btnSaveCapture" class="px-3 py-2 rounded-xl bg-[var(--telcel-blue)] text-white text-sm hover:bg-[var(--telcel-blue-700)]">Guardar captura</button>
+            <button id="btnSaveCapture" class="px-3 py-2 rounded-xl bg-[var(--brand-blue)] text-white text-sm hover:bg-[var(--brand-blue-700)]">Guardar captura</button>
           </div>
 
           <div class="text-xs opacity-70">
-            Requeridos (Solo CURP): Nombre, Teléfono, CURP, ICC y NIP. Requeridos (Datos para generar CURP): Nombre, Teléfono, Nombre completo, Fecha y Entidad de nacimiento, ICC y NIP.
+            Requeridos (Solo CURP): Compañía, Nombre, Teléfono, CURP, ICC y NIP.  
+            Requeridos (Datos para generar CURP): Compañía, Nombre, Teléfono, Nombre completo, Fecha y Entidad de nacimiento, ICC y NIP.
           </div>
 
-          <!-- Reminder for promoter -->
-          <div class="p-3 rounded-xl bg-[var(--telcel-soft)] border text-sm mt-3">
-            <p class="font-semibold mb-1 text-[var(--telcel-blue)]">Recordatorio para el promotor</p>
-            <p>Explica al cliente: <strong>la portabilidad es un cambio de compañía conservando el mismo número</strong> y queda <strong>en un plazo de 24 horas</strong>. Solo pedimos datos personales cuando acepta portar.</p>
+          <div class="p-3 rounded-xl bg-[var(--brand-soft)] border text-sm mt-3">
+            <p class="font-semibold mb-1 text-[var(--brand-blue)]">Recordatorio para el promotor</p>
+            <p>Explica al cliente que la portabilidad conserva el mismo número y concluye en ~24 horas.</p>
           </div>
         </div>
       </div>
 
-      <!-- Sidebar -->
+      <!-- Lateral -->
       <aside class="space-y-5">
         <div class="rounded-2xl border shadow-sm overflow-hidden">
-          <div class="bg-[var(--telcel-blue)] text-white px-4 py-2 text-sm font-semibold">Debilidades típicas</div>
+          <div class="bg-[var(--brand-blue)] text-white px-4 py-2 text-sm font-semibold">Debilidades típicas</div>
           <div class="bg-white p-4">
             <ul id="weakList" class="list-disc list-inside text-sm space-y-1">
               <li class="opacity-70">Selecciona una compañía para ver enfoque.</li>
@@ -190,7 +188,7 @@
         </div>
 
         <div class="rounded-2xl border shadow-sm overflow-hidden">
-          <div class="bg-[var(--telcel-blue)] text-white px-4 py-2 text-sm font-semibold">Leads capturados</div>
+          <div class="bg-[var(--brand-blue)] text-white px-4 py-2 text-sm font-semibold">Leads capturados (local)</div>
           <div id="leadsLog" class="bg-white p-4 space-y-3 max-h-[28rem] overflow-auto">
             <div class="text-sm opacity-60">Aún no hay registros.</div>
           </div>
@@ -213,9 +211,10 @@
   </div>
 
   <script>
-    // =========================
-    //  Configuración compañías
-    // =========================
+    /* =================== CONFIG: URL FIJA PARA SHEETS =================== */
+    const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxPl3UUX16_w0JO-pHfj7okHzJj43yL54G8aeRrljKOgQcTTi7VpdLYiB4WHDP7rXfcaQ/exec';
+
+    /* =================== CUESTIONARIO (si eligen usarlo) =================== */
     const carriers = {
       Telcel:{disabled:true, note:"Cliente Telcel actual", weaknesses:["Cliente actual - upsell/recargas"]},
       Movistar:{
@@ -266,7 +265,7 @@
       Virgin:{
         weaknesses:["Velocidad variable","Cobertura media","Limitaciones ocultas"],
         questions:[
-          {id:"streaming", text:"¿Se te corta video o música?", options:["Sí, siempre","A veces","No"], weight:1.8},
+          {id:"streaming", text:"¿Se te corta el video o música?", options:["Sí, siempre","A veces","No"], weight:1.8},
           {id:"costos", text:"¿Pagas extra por datos seguido?", options:["Sí, siempre","A veces","No"], weight:1.5}
         ],
         pitch:s=> s>=2.5?"Virgin puede variar; Telcel da velocidad consistente y transparencia.":"Si buscas constancia y precios claros, Telcel tiene mejores opciones."
@@ -281,14 +280,16 @@
       }
     };
 
-    // =========================
-    //  Helpers y elementos
-    // =========================
+    // Helpers
     const el = id => document.getElementById(id);
+
+    // Elements
     const startBlock = el('startBlock');
     const mainBlock = el('mainBlock');
-    const btnStart = el('btnStart');
+    const btnStartSurvey = el('btnStartSurvey');
+    const btnSkipToCapture = el('btnSkipToCapture');
     const btnHome = el('btnHome');
+
     const carrier = el('carrier');
     const telcelNote = el('telcelNote');
     const questionsBlock = el('questionsBlock');
@@ -300,6 +301,7 @@
     const btnAccept = el('btnAccept');
     const btnReject = el('btnReject');
     const btnSaveLead = el('btnSaveLead');
+
     const captureBlock = el('captureBlock');
     const capFull = el('capFull');
     const capCurpOnlyRadios = document.querySelectorAll('.capMode');
@@ -307,6 +309,7 @@
     const capFechaNacimiento = el('capFechaNacimiento');
     const capEntidadNacimiento = el('capEntidadNacimiento');
     const capLugarNacimiento = el('capLugarNacimiento');
+
     const capNombre = el('capNombre');
     const capTelefono = el('capTelefono');
     const capCurp = el('capCurp');
@@ -314,43 +317,36 @@
     const capNip = el('capNip');
     const btnCancelCapture = el('btnCancelCapture');
     const btnSaveCapture = el('btnSaveCapture');
-    const btnSheetsConfig = el('btnSheetsConfig');
-    const planBox = el('planBox');
-    const planCard = el('planCard');
 
-    // Scanner
+    // Scanner elements
     const scanModal = el('scanModal');
     const scanVideo = el('scanVideo');
     const btnScanICC = el('btnScanICC');
     const btnCloseScan = el('btnCloseScan');
     const scanSupport = el('scanSupport');
 
-    // =========================
-    //  Estado
-    // =========================
+    // State
+    let showSurvey = false;
     let currentScore = 0;
     let currentCarrier = null;
     let leads = [];
     let currentMode = 'curp';
     let answers = {};
-    let SHEETS_WEBAPP_URL = localStorage.getItem('sheetsWebhook') || '';
-    let scanStream = null, scanning=false, detector=null;
+    let scanStream = null; let scanning=false; let detector=null;
 
-    // =========================
-    //  Inicio
-    // =========================
+    // Init
     document.addEventListener('DOMContentLoaded', () => {
       btnHome.addEventListener('click', goHome);
-      btnStart.addEventListener('click', startApp);
+      btnStartSurvey.addEventListener('click', () => startApp(true));
+      btnSkipToCapture.addEventListener('click', () => startApp(false));
+
       carrier.addEventListener('change', handleCarrierChange);
-      btnAccept.addEventListener('click', () => handleResult(true));
-      btnReject.addEventListener('click', () => handleResult(false));
-      btnSaveLead.addEventListener('click', saveLead);
-      btnCancelCapture.addEventListener('click', hideCapture);
+      btnAccept.addEventListener('click', () => { captureBlock.classList.remove('hidden'); window.scrollTo({top:captureBlock.offsetTop-12, behavior:'smooth'}); });
+      btnReject.addEventListener('click', () => alert('¡Gracias! Si cambias de opinión, aquí seguimos.'));
+      btnSaveLead.addEventListener('click', saveLeadLocal);
+
+      btnCancelCapture.addEventListener('click', () => captureBlock.classList.add('hidden'));
       btnSaveCapture.addEventListener('click', saveCapture);
-      btnSheetsConfig.addEventListener('click', setSheetsWebhook);
-      window.addEventListener('online', flushPendingSync);
-      flushPendingSync();
 
       capCurpOnlyRadios.forEach(r => r.addEventListener('change', () => { currentMode = r.value; updateCaptureMode(); }));
       capTelefono.addEventListener('input', () => { capTelefono.value = capTelefono.value.replace(/\D/g, '').slice(0,10); });
@@ -366,104 +362,28 @@
       loadSavedLeads();
     });
 
-    // =========================
-    //  Sheets webhook
-    // =========================
-    function setSheetsWebhook(){
-      const url = prompt('Pega la URL del Web App de Google Apps Script (Sheets):', SHEETS_WEBAPP_URL || '');
-      if(url !== null){
-        SHEETS_WEBAPP_URL = url.trim();
-        localStorage.setItem('sheetsWebhook', SHEETS_WEBAPP_URL);
-        alert('URL guardada. En cada guardado se enviarán los datos.');
-      }
-    }
-
-    async function pushToSheets(type, record){
-      try{
-        if(!SHEETS_WEBAPP_URL){
-          console.warn('Sheets URL no configurada');
-          return;
-        }
-        const payload = { type, ...record };
-        console.log('POST →', SHEETS_WEBAPP_URL, payload);
-        await fetch(SHEETS_WEBAPP_URL, {
-          method:'POST',
-          mode:'no-cors',
-          headers:{ 'Content-Type':'text/plain' },
-          body: JSON.stringify(payload)
-        });
-        console.log('POST enviado');
-      }catch(e){
-        console.error('Fallo POST, encolando:', e);
-        queuePending({ type, record });
-      }
-    }
-
-    function queuePending(item){
-      try{
-        const q = JSON.parse(localStorage.getItem('pendingSync')||'[]');
-        q.push(item); localStorage.setItem('pendingSync', JSON.stringify(q));
-      }catch{}
-    }
-
-    async function flushPendingSync(){
-      try{
-        if(!SHEETS_WEBAPP_URL) return;
-        const q = JSON.parse(localStorage.getItem('pendingSync')||'[]');
-        if(!q.length) return;
-        const rest=[];
-        for(const item of q){
-          try{
-            await fetch(SHEETS_WEBAPP_URL, {
-              method:'POST',
-              mode:'no-cors',
-              headers:{ 'Content-Type':'text/plain' },
-              body: JSON.stringify({ type:item.type, ...item.record })
-            });
-          }catch{ rest.push(item); }
-        }
-        localStorage.setItem('pendingSync', JSON.stringify(rest));
-      }catch{}
-    }
-
-    // =========================
-    //  Flujo UI
-    // =========================
-    function startApp(){
+    function startApp(wantSurvey){
+      showSurvey = wantSurvey;
       startBlock.classList.add('hidden');
       mainBlock.classList.remove('hidden');
       mainBlock.classList.add('fade-in');
-      updateSteps(1);
+      questionsBlock.classList.toggle('hidden', !showSurvey);
+      if(!showSurvey) { captureBlock.classList.remove('hidden'); }
       carrier.focus();
     }
 
-    function updateSteps(stepIndex){
-      const steps = document.querySelectorAll('.step-item');
-      steps.forEach((s,i)=>{
-        if(i<=stepIndex-1){ s.classList.remove('opacity-70'); s.querySelector('span').classList.add('bg-[var(--telcel-cyan)]'); }
-        else { s.classList.add('opacity-70'); }
-      });
+    function goHome(){
+      resetForm();
+      window.scrollTo({top:0, behavior:'smooth'});
     }
 
-    function goHome(){ resetForm(); window.scrollTo({top:0, behavior:'smooth'}); }
-
     function handleCarrierChange(){
-      currentCarrier = carrier.value; answers = {}; planBox.classList.add('hidden'); planCard.innerHTML='';
-      if(currentCarrier==='Telcel'){
-        telcelNote.classList.remove('hidden');
-        questionsBlock.classList.add('hidden');
-        captureBlock.classList.add('hidden');
-        updateWeaknesses(currentCarrier);
-        return;
-      } else { telcelNote.classList.add('hidden'); }
-
-      if(!carriers[currentCarrier]){ questionsBlock.classList.add('hidden'); return; }
-      questionsBlock.classList.remove('hidden');
-      captureBlock.classList.add('hidden');
-      renderQuestions();
+      currentCarrier = carrier.value; answers = {}; hideTelcelIfNeeded();
       updateWeaknesses(currentCarrier);
-      updateScore();
-      updateSteps(2);
+      if(showSurvey && carriers[currentCarrier]) { renderQuestions(); updateScore(); }
+    }
+    function hideTelcelIfNeeded(){
+      if(currentCarrier==='Telcel'){ telcelNote.classList.remove('hidden'); } else { telcelNote.classList.add('hidden'); }
     }
 
     function renderQuestions(){
@@ -475,7 +395,7 @@
         div.innerHTML = `
           <div class="font-medium mb-2">${q.text}</div>
           <div class="flex flex-wrap gap-2">
-            ${q.options.map(opt=>`<button class="btn-option px-3 py-1.5 rounded-lg border text-sm" data-id="${q.id}" data-value="${opt}">${opt}</button>`).join('')}
+            ${q.options.map((opt)=>`<button class="btn-option px-3 py-1.5 rounded-lg border text-sm" data-id="${q.id}" data-value="${opt}">${opt}</button>`).join('')}
           </div>`;
         const buttons = div.querySelectorAll('.btn-option');
         buttons.forEach(btn=> btn.addEventListener('click', ()=>{
@@ -487,28 +407,19 @@
         questionsContainer.appendChild(div);
       });
     }
-
     function updateScore(){
-      currentScore=0;
-      const qs = carriers[currentCarrier]?.questions || [];
-      qs.forEach(q=>{
-        if(answers[q.id]){
-          const idx = q.options.indexOf(answers[q.id]);
-          currentScore += (q.options.length-1-idx)*q.weight;
-        }
-      });
+      currentScore=0; const qs = carriers[currentCarrier]?.questions || [];
+      qs.forEach(q=>{ if(answers[q.id]){ const idx=q.options.indexOf(answers[q.id]); currentScore += (q.options.length-1-idx)*q.weight; }});
       scoreBox.textContent = currentScore.toFixed(2);
       if(currentScore>=4) scoreBox.className='text-base font-bold score-high';
       else if(currentScore>=2) scoreBox.className='text-base font-bold score-medium';
       else scoreBox.className='text-base font-bold score-low';
-
-      if(currentCarrier && carriers[currentCarrier]?.pitch) pitchBox.textContent = carriers[currentCarrier].pitch(currentScore);
-      else pitchBox.textContent='Selecciona compañía y responde para ver recomendaciones.';
-
+      if(currentCarrier && carriers[currentCarrier]?.pitch) pitchBox.textContent = carriers[currentCarrier].pitch(currentScore); else pitchBox.textContent='';
       const plan = recommendOffer();
-      if(plan){ planBox.classList.remove('hidden'); planCard.innerHTML = renderPlanCard(plan); }
+      const planBox = document.getElementById('planBox');
+      const planCard = document.getElementById('planCard');
+      if(plan){ planBox.classList.remove('hidden'); planCard.innerHTML = renderPlanCard(plan); } else { planBox.classList.add('hidden'); planCard.innerHTML=''; }
     }
-
     function recommendOffer(){
       const a = answers || {};
       const paysOver200 = (a['precio']==='Sí') || (a['costo']==='Sí');
@@ -516,7 +427,6 @@
       const travelOrCoverage = ['viajes','cobertura','interiores'].some(id => a[id] && a[id].startsWith('Sí'));
       return (paysOver200 || highData || travelOrCoverage) ? 'ASL150' : 'ASL100';
     }
-
     function renderPlanCard(plan){
       const is150 = plan==='ASL150';
       const title = is150? 'Amigo Sin Límite 150' : 'Amigo Sin Límite 100';
@@ -524,7 +434,7 @@
       const points = [
         'Minutos y SMS ilimitados',
         'WhatsApp y redes sociales incluidas',
-        'Mismo número, cambio en 24 horas',
+        'Mismo número, cambio en ~24h',
         'Beneficios por 12 meses al portar'
       ];
       return `
@@ -532,140 +442,126 @@
           <div class="flex items-center justify-between">
             <div>
               <div class="text-sm text-slate-500">Plan sugerido</div>
-              <div class="text-base font-semibold text-[var(--telcel-blue)]">${title}</div>
+              <div class="text-base font-semibold text-[var(--brand-blue)]">${title}</div>
             </div>
-            <div class="text-sm font-bold text-[var(--telcel-blue)]">${price}</div>
+            <div class="text-sm font-bold text-[var(--brand-blue)]">${price}</div>
           </div>
-          <ul class="mt-2 text-xs space-y-1">${points.map(p=>`<li class="flex items-start gap-2"><span class="mt-1 size-1.5 rounded-full bg-[var(--telcel-cyan)]"></span><span>${p}</span></li>`).join('')}</ul>
+          <ul class="mt-2 text-xs space-y-1">${points.map(p=>`<li class="flex items-start gap-2"><span class="mt-1 size-1.5 rounded-full bg-[var(--brand-cyan)]"></span><span>${p}</span></li>`).join('')}</ul>
         </div>`;
     }
-
     function updateWeaknesses(name){
       weakList.innerHTML='';
       const list = carriers[name]?.weaknesses || [];
-      if(list.length===0){
-        const li=document.createElement('li'); li.className='text-sm opacity-70'; li.textContent='Selecciona una compañía para ver enfoque.'; weakList.appendChild(li); return;
-      }
+      if(list.length===0){ const li=document.createElement('li'); li.className='text-sm opacity-70'; li.textContent='Selecciona una compañía para ver enfoque.'; weakList.appendChild(li); return; }
       list.forEach(w=>{ const li=document.createElement('li'); li.className='text-sm'; li.textContent=w; weakList.appendChild(li); });
     }
 
-    function handleResult(accepted){
-      if(!validateBaseInfo()) return;
-      if(accepted){
-        captureBlock.classList.remove('hidden');
-        updateSteps(4);
-        window.scrollTo({top:captureBlock.offsetTop-12, behavior:'smooth'});
-      } else {
-        saveLead();
-        resetForm();
-      }
+    function saveLeadLocal(){
+      if(!carrier.value){ alert('Selecciona una compañía'); carrier.focus(); return; }
+      const lead = { id:Date.now(), timestamp:new Date().toLocaleString(), nombre:'', telefono:'', carrier:carrier.value, score:currentScore, status:'Lead (local)', answers:JSON.stringify(answers) };
+      leads.push(lead); localStorage.setItem('leads', JSON.stringify(leads)); renderLeads(); alert('Lead guardado localmente');
     }
 
-    function saveLead(){
-      if(!validateBaseInfo()) return;
-      const lead = {
-        id:Date.now(),
-        timestamp:new Date().toLocaleString(),
-        nombre:'',
-        telefono:'',
-        carrier:currentCarrier,
-        score:currentScore,
-        status:'Lead guardado',
-        answers:JSON.stringify(answers)
-      };
-      leads.push(lead); saveLeads(); renderLeads(); alert('Lead guardado correctamente');
-      pushToSheets('lead', lead);
-    }
-
-    function hideCapture(){ captureBlock.classList.add('hidden'); }
     function updateCaptureMode(){ if(currentMode==='curp') capFull.classList.add('hidden'); else capFull.classList.remove('hidden'); }
 
     function saveCapture(){
-      if(!capNombre.value.trim()){ alert('Ingresa el nombre del cliente'); capNombre.focus(); return; }
-      if(!/^\d{10}$/.test(capTelefono.value)){ alert('Ingresa un teléfono válido de 10 dígitos'); capTelefono.focus(); return; }
+      if(!carrier.value){ alert('Selecciona la compañía'); carrier.focus(); return; }
+      if(!capNombre.value.trim()){ alert('Ingresa el nombre'); capNombre.focus(); return; }
+      if(!/^\d{10}$/.test(capTelefono.value)){ alert('Teléfono de 10 dígitos'); capTelefono.focus(); return; }
+
       if(currentMode==='curp'){
         if(!capCurp.value || !capICC.value || !capNip.value){ alert('Completa CURP, ICC y NIP'); return; }
       } else {
-        if(!capNombreCompleto.value || !capFechaNacimiento.value || !capEntidadNacimiento.value || !capICC.value || !capNip.value){ alert('Completa Nombre completo, Fecha y Entidad de nacimiento, ICC y NIP'); return; }
+        if(!capNombreCompleto.value || !capFechaNacimiento.value || !capEntidadNacimiento.value || !capICC.value || !capNip.value){
+          alert('Completa Nombre completo, Fecha y Entidad de nacimiento, ICC y NIP'); return;
+        }
       }
+
       const captureData = {
-        id:Date.now(), timestamp:new Date().toLocaleString(),
-        nombre:capNombre.value, telefono:capTelefono.value,
-        carrier:currentCarrier, score:currentScore, captureMode:currentMode,
-        nombreCompleto:capNombreCompleto.value, fechaNacimiento:capFechaNacimiento.value,
-        entidadNacimiento:capEntidadNacimiento.value, lugarNacimiento:capLugarNacimiento.value,
-        curp:capCurp.value, icc:capICC.value, nip:capNip.value,
-        status:'Portabilidad iniciada', answers:JSON.stringify(answers)
+        type:'capture',
+        timestamp:new Date().toLocaleString(),
+        carrier:carrier.value,
+        nombre:capNombre.value,
+        telefono:capTelefono.value,
+        curp:capCurp.value,
+        icc:capICC.value,
+        nip:capNip.value,
+        captureMode:currentMode,
+        nombreCompleto:capNombreCompleto.value,
+        fechaNacimiento:capFechaNacimiento.value,
+        entidadNacimiento:capEntidadNacimiento.value,
+        lugarNacimiento:capLugarNacimiento.value
       };
+
+      // Guarda local (historial lateral)
       const captures = JSON.parse(localStorage.getItem('portabilityCaptures')||'[]'); captures.push(captureData); localStorage.setItem('portabilityCaptures', JSON.stringify(captures));
-      leads.push(captureData); saveLeads(); renderLeads();
-      pushToSheets('capture', captureData);
-      hideCapture(); alert('Datos de portabilidad guardados correctamente'); resetForm();
+      leads.push({ id:Date.now(), timestamp:captureData.timestamp, nombre:captureData.nombre, telefono:captureData.telefono, carrier:captureData.carrier, score:null, status:'Portabilidad iniciada' });
+      localStorage.setItem('leads', JSON.stringify(leads));
+      renderLeads();
+
+      // ENVÍO a Sheets (solo capturas)
+      pushToSheets(captureData);
+
+      // Reset
+      captureBlock.classList.add('hidden');
+      alert('Datos de portabilidad guardados');
+      resetForm();
     }
 
-    function validateBaseInfo(){ if(!currentCarrier){ alert('Selecciona una compañía'); carrier.focus(); return false; } updateSteps(3); return true; }
-    function saveLeads(){ localStorage.setItem('leads', JSON.stringify(leads)); }
-    function loadSavedLeads(){ const saved = localStorage.getItem('leads'); if(saved){ leads = JSON.parse(saved); renderLeads(); } }
+    async function pushToSheets(record){
+      try{
+        await fetch(SHEETS_WEBAPP_URL, {
+          method:'POST',
+          mode:'no-cors',
+          headers:{ 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
+          body:'payload='+encodeURIComponent(JSON.stringify(record))
+        });
+      }catch(e){
+        console.error('Falló envío a Sheets', e);
+      }
+    }
 
+    function loadSavedLeads(){ const saved = localStorage.getItem('leads'); if(saved){ leads = JSON.parse(saved); renderLeads(); } }
     function renderLeads(){
-      leadsLog.innerHTML='';
-      if(leads.length===0){ leadsLog.innerHTML='<div class="text-sm opacity-60">Aún no hay registros.</div>'; return; }
-      const items=[...leads].reverse().slice(0,12);
-      items.forEach(lead=>{
-        const div=document.createElement('div');
-        div.className='p-3 rounded-xl border text-sm bg-white';
-        div.innerHTML=`
-          <div class='flex justify-between items-start'>
-            <div class='font-medium'>${lead.nombre||'Anónimo'}</div>
-            <div class='text-xs opacity-70'>${lead.timestamp}</div>
-          </div>
-          <div class='mt-1'>${lead.telefono||'—'} · ${lead.carrier}</div>
-          <div class='flex justify-between items-center mt-2'>
-            <span class='px-2 py-1 rounded-full text-xs ${lead.status==='Portabilidad iniciada'?'bg-blue-100 text-blue-800':'bg-slate-100 text-slate-800'}'>${lead.status}</span>
-            <span class='text-xs'>Score: ${lead.score?lead.score.toFixed(2):'N/A'}</span>
-          </div>`;
-        leadsLog.appendChild(div);
-      });
+      leadsLog.innerHTML=''; if(leads.length===0){ leadsLog.innerHTML='<div class="text-sm opacity-60">Aún no hay registros.</div>'; return; }
+      const items=[...leads].reverse().slice(0,12); items.forEach(lead=>{ const div=document.createElement('div'); div.className='p-3 rounded-xl border text-sm bg-white'; div.innerHTML=`
+        <div class='flex justify-between items-start'>
+          <div class='font-medium'>${lead.nombre||'Anónimo'}</div>
+          <div class='text-xs opacity-70'>${lead.timestamp}</div>
+        </div>
+        <div class='mt-1'>${lead.telefono||'—'} · ${lead.carrier}</div>
+        <div class='flex justify-between items-center mt-2'>
+          <span class='px-2 py-1 rounded-full text-xs ${lead.status==='Portabilidad iniciada'?'bg-blue-100 text-blue-800':'bg-slate-100 text-slate-800'}'>${lead.status}</span>
+          <span class='text-xs'>${lead.score!==null?('Score: '+lead.score):''}</span>
+        </div>`; leadsLog.appendChild(div); });
     }
 
     function resetForm(){
-      carrier.value=''; currentCarrier=null;
-      questionsBlock.classList.add('hidden'); telcelNote.classList.add('hidden'); captureBlock.classList.add('hidden');
-      currentScore=0; pitchBox.textContent=''; answers={}; planBox.classList.add('hidden'); planCard.innerHTML='';
-      startBlock.classList.remove('hidden'); mainBlock.classList.add('hidden'); updateSteps(1);
+      // portada
+      startBlock.classList.remove('hidden');
+      mainBlock.classList.add('hidden');
+      // limpiar
+      carrier.value=''; currentCarrier=null; telcelNote.classList.add('hidden');
+      questionsBlock.classList.add('hidden'); questionsContainer.innerHTML=''; answers={}; currentScore=0; pitchBox.textContent='';
+      capNombre.value=''; capTelefono.value=''; capCurp.value=''; capICC.value=''; capNip.value='';
+      capNombreCompleto.value=''; capFechaNacimiento.value=''; capEntidadNacimiento.value=''; capLugarNacimiento.value='';
+      currentMode='curp'; updateCaptureMode();
     }
 
-    // =========================
-    //  Scanner ICC
-    // =========================
+    // ICC Scanner
     async function openScanModal(){
       scanModal.style.display='flex';
       try{
-        if('BarcodeDetector' in window){
-          detector = new BarcodeDetector({formats:['code_128','ean_13','ean_8','upc_a','upc_e','code_39']});
-        } else { detector=null; }
+        if('BarcodeDetector' in window){ detector = new BarcodeDetector({formats:['code_128','ean_13','ean_8','upc_a','upc_e','code_39']}); } else { detector=null; }
         scanStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
         scanVideo.srcObject = scanStream; await scanVideo.play(); scanning=true; requestAnimationFrame(scanLoop);
       }catch(e){ alert('No se pudo acceder a la cámara. Otorga permisos o ingresa el ICC manualmente.'); closeScanModal(); }
     }
     async function scanLoop(){
-      if(!scanning) return;
-      try{
-        if(detector && scanVideo.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA){
-          const codes = await detector.detect(scanVideo);
-          if(codes && codes.length){
-            const value = codes[0].rawValue || '';
-            if(value){ capICC.value = value.trim(); closeScanModal(); return; }
-          }
-        }
-      }catch(e){}
+      if(!scanning) return; try{ if(detector && scanVideo.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA){ const codes = await detector.detect(scanVideo); if(codes && codes.length){ const value = codes[0].rawValue || ''; if(value){ capICC.value = value.trim(); closeScanModal(); return; } } } }catch(e){}
       requestAnimationFrame(scanLoop);
     }
-    function closeScanModal(){
-      scanning=false;
-      if(scanStream){ scanStream.getTracks().forEach(t=>t.stop()); scanStream=null; }
-      scanVideo.pause(); scanVideo.srcObject=null; scanModal.style.display='none';
-    }
+    function closeScanModal(){ scanning=false; if(scanStream){ scanStream.getTracks().forEach(t=>t.stop()); scanStream=null; } scanVideo.pause(); scanVideo.srcObject=null; scanModal.style.display='none'; }
   </script>
 </body>
 </html>
