@@ -1,403 +1,364 @@
-// Configuración de compañías
-const carriers = {
-  Telcel: { 
-    disabled: true, 
-    note: "Si ya es Telcel, cierra en registro y deriva a upsell/recargas.",
-    weaknesses: ["Cliente actual - enfoque en upsell/recargas"]
-  },
-  Movistar: {
-    weaknesses: ["Señal inestable en interiores o subterráneo", "Baja velocidad en hora pico", "Atención a clientes lenta"],
-    questions: [
-      { id: "cobertura", text: "¿Tu señal se cae en interiores o en el metro?", options: ["Sí, seguido", "A veces", "No"], weight: 2 },
-      { id: "velocidad", text: "En horas pico, ¿tu internet baja mucho de velocidad?", options: ["Sí", "A veces", "No"], weight: 1.5 },
-      { id: "pago", text: "¿Pagas más de $200 al mes por tus datos?", options: ["Sí", "No"], weight: 1 }
-    ],
-    pitch: s => `Traes Movistar. Con Telcel 5G podrías mejorar cobertura y mantener datos estables. ${s >= 3 ? "Te ofrezco portabilidad hoy con bono y chip sin costo en el módulo." : "Si quieres probar, tengo una promo de datos/recargas que te puede convenir."}`
-  },
-  "AT&T": {
-    weaknesses: ["Límites de velocidad en algunos planes", "Cobertura irregular fuera de zonas urbanas"],
-    questions: [
-      { id: "viajes", text: "¿Sales seguido a zonas con poca cobertura (carreteras/pueblos)?", options: ["Sí", "Rara vez", "No"], weight: 1.5 },
-      { id: "estable", text: "¿Tu conexión se mantiene estable en video/WhatsApp?", options: ["No", "A veces", "Sí"], weight: 2 }
-    ],
-    pitch: s => `Con AT&T, si batallas en estabilidad o foráneos, Telcel suele rendir mejor. ${s >= 2.5 ? "Te hago el cambio en 15 minutos, conservas tu número." : "Puedo armarte paquete de recargas para probar la red sin compromiso."}`
-  },
-  Unefon: {
-    weaknesses: ["Velocidad variable por saturación", "Soporte limitado"],
-    questions: [
-      { id: "datos", text: "¿Se te acaban los datos antes de fin de semana?", options: ["Sí", "A veces", "No"], weight: 2 },
-      { id: "apps", text: "¿WhatsApp/Instagram te cargan lento en las tardes?", options: ["Sí", "A veces", "No"], weight: 1.5 }
-    ],
-    pitch: s => `Si estás en Unefon y te faltan datos o velocidad, te paso a Telcel con más rendimiento real. ${s >= 2.5 ? "Hoy hay chip sin costo y bono por portabilidad." : "También tengo recargas combo más rendidoras."}`
-  },
-  Bait: {
-    weaknesses: ["Cobertura dependiente de Altán, huecos en interiores", "Variabilidad de velocidad"],
-    questions: [
-      { id: "interiores", text: "¿En interiores pierdes señal o baja a E/3G?", options: ["Sí", "A veces", "No"], weight: 2 },
-      { id: "llamadas", text: "¿Tus llamadas se entrecortan seguido?", options: ["Sí", "A veces", "No"], weight: 1.2 }
-    ],
-    pitch: s => `Bait funciona, pero si en tu zona hay huecos, Telcel te resuelve mejor. ${s >= 2.5 ? "Te gestiono el cambio ahora mismo." : "Te armo paquete de prueba para que compares."}`
-  },
-  "OXXO Cel": {
-    weaknesses: ["Cobertura y soporte básicos"],
-    questions: [
-      { id: "urgente", text: "¿Dependes del celular para trabajo o escuela todos los días?", options: ["Sí", "A veces", "No"], weight: 2 }
-    ],
-    pitch: s => `Si tu uso es crítico, conviene migrar a Telcel por estabilidad y soporte. ${s >= 1.5 ? "Hacemos el trámite en 15 min." : "Tengo una promo de recargas para que pruebes."}`
-  },
-  Virgin: {
-    weaknesses: ["Velocidad variable", "Cobertura media"],
-    questions: [
-      { id: "streaming", text: "¿Te corta Netflix/TikTok en HD?", options: ["Sí", "A veces", "No"], weight: 1.8 },
-      { id: "costos", text: "¿Pagas más de lo planeado por recargas extras?", options: ["Sí", "No"], weight: 1.2 }
-    ],
-    pitch: s => `Si te está saliendo caro o inestable, con Telcel puedes ganar estabilidad y rendimiento. ${s >= 2 ? "Portamos hoy con bono." : "Te doy combo de prueba sin compromiso."}`
-  }
-};
+/* =================== CONFIG: URL FIJA A TU WEB APP =================== */
+const SHEETS_WEBAPP_URL =
+  'https://script.google.com/macros/s/AKfycby1iL0kw-m2IUmlS1nnDPnQe4HVyLK6D7CfaxgXhDdCLCu2ssLnLAdhrhd__PO4q7sFfg/exec';
 
-// Utilidad para seleccionar elementos
+/* =================== (tu config de compañías tal como la tenías) =================== */
+// … todo el objeto carriers que ya tienes …
+
+/* =================== UTILIDADES / SELECTORES =================== */
 const el = id => document.getElementById(id);
 
-// Selección de elementos
+// Bloques principales
 const startBlock = el('startBlock');
-const mainBlock = el('mainBlock');
-const btnStart = el('btnStart');
-const nombre = el("nombre");
-const telefono = el("telefono");
-const carrier = el("carrier");
-const telcelNote = el("telcelNote");
-const questionsBlock = el("questionsBlock");
-const questionsContainer = el("questionsContainer");
-const scoreBox = el("scoreBox");
-const pitchBox = el("pitchBox");
-const weakList = el("weakList");
-const leadsLog = el("leadsLog");
-const btnAccept = el("btnAccept");
-const btnReject = el("btnReject");
-const btnSaveLead = el("btnSaveLead");
-const captureBlock = el("captureBlock");
-const capFull = el('capFull');
-const capCurpOnlyRadios = document.querySelectorAll('.capMode');
-const capNombreCompleto = el("capNombreCompleto");
-const capFechaNacimiento = el("capFechaNacimiento");
-const capEntidadNacimiento = el("capEntidadNacimiento");
-const capLugarNacimiento = el("capLugarNacimiento");
-const capCurp = el("capCurp");
-const capICC = el("capICC");
-const capNip = el("capNip");
-const btnCancelCapture = el("btnCancelCapture");
-const btnSaveCapture = el("btnSaveCapture");
-const exportCsv = el("exportCsv");
+const mainBlock  = el('mainBlock');
+const btnStart   = el('btnStart');
 
-// Variables de estado
-let currentScore = 0;
-let currentCarrier = null;
-let leads = [];
-let currentMode = 'full';
+// Campos de lead rápido / encuesta
+const nombre   = el('nombre');
+const telefono = el('telefono');
+const carrier  = el('carrier');
 
-// Inicialización
+const telcelNote         = el('telcelNote');
+const questionsBlock     = el('questionsBlock');
+const questionsContainer = el('questionsContainer');
+const scoreBox           = el('scoreBox');
+const pitchBox           = el('pitchBox');
+const weakList           = el('weakList');
+
+const btnAccept   = el('btnAccept');
+const btnReject   = el('btnReject');
+const btnSaveLead = el('btnSaveLead');
+
+// Captura
+const captureBlock        = el('captureBlock');
+const capCurpOnlyRadios   = document.querySelectorAll('.capMode'); // si los tienes
+const capFull             = el('capFull');                          // si lo usas
+const capNombreCompleto   = el('capNombreCompleto');                // si lo usas
+const capFechaNacimiento  = el('capFechaNacimiento');
+const capEntidadNacimiento= el('capEntidadNacimiento');
+const capLugarNacimiento  = el('capLugarNacimiento');
+const capCurp             = el('capCurp');
+const capICC              = el('capICC');
+const capNip              = el('capNip');
+const promotorInput       = el('promotor'); // opcional, si existe en tu HTML
+
+const btnCancelCapture = el('btnCancelCapture');
+const btnSaveCapture   = el('btnSaveCapture');
+
+// Export (si lo tienes)
+const exportCsv = el('exportCsv');
+
+/* =================== ESTADO =================== */
+let currentScore  = 0;
+let currentCarrier= null;
+let leads         = [];
+let currentMode   = 'full'; // si manejas modos
+
+/* =================== INIT =================== */
 document.addEventListener('DOMContentLoaded', () => {
-  // Event listeners
-  btnStart.addEventListener('click', startApp);
+  if (btnStart) btnStart.addEventListener('click', startApp);
+
   carrier.addEventListener('change', handleCarrierChange);
-  btnAccept.addEventListener('click', () => handleResult(true));
-  btnReject.addEventListener('click', () => handleResult(false));
-  btnSaveLead.addEventListener('click', showCapture);
-  btnCancelCapture.addEventListener('click', hideCapture);
-  btnSaveCapture.addEventListener('click', saveCapture);
-  exportCsv.addEventListener('click', exportToCsv);
-  
-  // Event listeners para modo de captura
-  capCurpOnlyRadios.forEach(radio => {
-    radio.addEventListener('change', () => {
-      currentMode = radio.value;
+
+  if (btnAccept)   btnAccept.addEventListener('click', () => handleResult(true));
+  if (btnReject)   btnReject.addEventListener('click', () => handleResult(false));
+  if (btnSaveLead) btnSaveLead.addEventListener('click', showCapture);
+
+  if (btnCancelCapture) btnCancelCapture.addEventListener('click', hideCapture);
+  if (btnSaveCapture)   btnSaveCapture.addEventListener('click', saveCapture);
+
+  if (exportCsv) exportCsv.addEventListener('click', exportToCsv);
+
+  // Cambios de modo (si los usas)
+  capCurpOnlyRadios.forEach(r =>
+    r.addEventListener('change', () => {
+      currentMode = r.value;
       updateCaptureMode();
+    })
+  );
+
+  // Validaciones
+  if (telefono) {
+    telefono.addEventListener('input', () => {
+      telefono.value = telefono.value.replace(/\D/g, '').slice(0, 10);
     });
-  });
-  
-  // Validación de teléfono
-  telefono.addEventListener('input', () => {
-    telefono.value = telefono.value.replace(/\D/g, '').slice(0, 10);
-  });
-  
-  // Validación de NIP
-  capNip.addEventListener('input', () => {
-    capNip.value = capNip.value.replace(/\D/g, '').slice(0, 4);
-  });
-  
-  // Cargar leads guardados
+  }
+
+  if (capNip) {
+    capNip.addEventListener('input', () => {
+      capNip.value = capNip.value.replace(/\D/g, '').slice(0, 4);
+    });
+  }
+
+  if (capICC) {
+    capICC.addEventListener('input', () => {
+      capICC.value = capICC.value.replace(/\D/g, '').slice(0, 20);
+    });
+  }
+
+  // Cargar datos locales
   loadSavedLeads();
 });
 
-// Funciones principales
-function startApp() {
-  startBlock.classList.add('hidden');
-  mainBlock.classList.remove('hidden');
-  mainBlock.classList.add('fade-in');
+/* =================== NAVEGACIÓN / ENCUESTA =================== */
+function startApp(){
+  if (startBlock) startBlock.classList.add('hidden');
+  if (mainBlock)  { mainBlock.classList.remove('hidden'); mainBlock.classList.add('fade-in'); }
 }
 
-function handleCarrierChange() {
+function handleCarrierChange(){
   currentCarrier = carrier.value;
-  
-  // Mostrar nota especial para Telcel
-  if (currentCarrier === "Telcel") {
-    telcelNote.classList.remove('hidden');
-    questionsBlock.classList.add('hidden');
+
+  if (currentCarrier === 'Telcel'){
+    telcelNote?.classList.remove('hidden');
+    questionsBlock?.classList.add('hidden');
     updateWeaknesses(currentCarrier);
     return;
   } else {
-    telcelNote.classList.add('hidden');
+    telcelNote?.classList.add('hidden');
   }
-  
-  // Verificar si la compañía existe en la configuración
-  if (!carriers[currentCarrier]) {
-    questionsBlock.classList.add('hidden');
+
+  if (!carriers[currentCarrier]){
+    questionsBlock?.classList.add('hidden');
     return;
   }
-  
-  // Mostrar preguntas y debilidades
-  questionsBlock.classList.remove('hidden');
+
+  questionsBlock?.classList.remove('hidden');
   renderQuestions();
   updateWeaknesses(currentCarrier);
 }
 
-function renderQuestions() {
+function renderQuestions(){
   questionsContainer.innerHTML = '';
   currentScore = 0;
   updateScore();
-  
-  const questions = carriers[currentCarrier]?.questions || [];
-  
-  questions.forEach(q => {
-    const questionDiv = document.createElement('div');
-    questionDiv.className = 'p-3 rounded-xl border';
-    questionDiv.innerHTML = `
+
+  const qs = carriers[currentCarrier]?.questions || [];
+  qs.forEach(q => {
+    const div = document.createElement('div');
+    div.className = 'p-3 rounded-xl border';
+    div.innerHTML = `
       <div class="font-medium mb-2">${q.text}</div>
       <div class="flex flex-wrap gap-2">
-        ${q.options.map((opt, i) => 
-          `<button class="btn-option px-3 py-1.5 rounded-lg border text-sm" data-weight="${i === 0 ? q.weight : i === 1 ? q.weight * 0.5 : 0}">${opt}</button>`
+        ${q.options.map((opt, i) =>
+          `<button class="btn-option px-3 py-1.5 rounded-lg border text-sm"
+                   data-weight="${i===0?q.weight: i===1?q.weight*0.5:0}">
+             ${opt}
+           </button>`
         ).join('')}
-      </div>
-    `;
-    
-    // Añadir event listeners a los botones
-    const buttons = questionDiv.querySelectorAll('.btn-option');
-    buttons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        // Quitar selección de otros botones en esta pregunta
-        buttons.forEach(b => b.classList.remove('selected'));
-        // Seleccionar este botón
+      </div>`;
+    div.querySelectorAll('.btn-option').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        div.querySelectorAll('.btn-option').forEach(b=>b.classList.remove('selected'));
         btn.classList.add('selected');
-        
-        // Actualizar puntuación
-        const weight = parseFloat(btn.dataset.weight);
-        currentScore += weight;
+        currentScore += parseFloat(btn.dataset.weight);
         updateScore();
       });
     });
-    
-    questionsContainer.appendChild(questionDiv);
+    questionsContainer.appendChild(div);
   });
 }
 
-function updateScore() {
+function updateScore(){
   scoreBox.textContent = currentScore.toFixed(2);
-  
-  // Actualizar pitch basado en la puntuación
-  if (currentCarrier && carriers[currentCarrier]?.pitch) {
+  if (currentCarrier && carriers[currentCarrier]?.pitch){
     pitchBox.textContent = carriers[currentCarrier].pitch(currentScore);
   } else {
-    pitchBox.textContent = "Selecciona una compañía y responde las preguntas para ver recomendaciones.";
+    pitchBox.textContent = 'Selecciona compañía y responde para ver recomendación.';
   }
 }
 
-function updateWeaknesses(carrierName) {
+function updateWeaknesses(name){
   weakList.innerHTML = '';
-  
-  if (carriers[carrierName]?.weaknesses) {
-    carriers[carrierName].weaknesses.forEach(weakness => {
-      const li = document.createElement('li');
-      li.textContent = weakness;
-      li.className = 'text-sm';
-      weakList.appendChild(li);
-    });
-  } else {
+  const list = carriers[name]?.weaknesses || [];
+  if (list.length === 0){
     const li = document.createElement('li');
-    li.textContent = 'Sin debilidades específicas identificadas.';
     li.className = 'text-sm opacity-70';
+    li.textContent = 'Sin debilidades específicas.';
     weakList.appendChild(li);
+    return;
   }
+  list.forEach(w=>{
+    const li = document.createElement('li');
+    li.className = 'text-sm';
+    li.textContent = w;
+    weakList.appendChild(li);
+  });
 }
 
-function handleResult(accepted) {
+/* =================== LEAD / CAPTURA =================== */
+function handleResult(accepted){
   const lead = {
     id: Date.now(),
     timestamp: new Date().toLocaleString(),
-    nombre: nombre.value,
-    telefono: telefono.value,
-    carrier: currentCarrier,
-    score: currentScore,
-    status: accepted ? "Aceptó" : "Rechazó"
+    nombre:   nombre?.value || '',
+    telefono: telefono?.value || '',
+    carrier:  currentCarrier || '',
+    score:    currentScore,
+    status:   accepted ? 'Aceptó' : 'Rechazó'
   };
-  
   leads.push(lead);
   saveLeads();
   renderLeads();
-  
-  // Limpiar formulario para nuevo lead
-  nombre.value = '';
-  telefono.value = '';
-  carrier.value = '';
+
+  // reset mínimos
+  if (nombre) nombre.value = '';
+  if (telefono) telefono.value = '';
+  if (carrier) carrier.value = '';
   currentCarrier = null;
-  questionsBlock.classList.add('hidden');
-  telcelNote.classList.add('hidden');
+  questionsBlock?.classList.add('hidden');
+  telcelNote?.classList.add('hidden');
   currentScore = 0;
   updateScore();
 }
 
-function showCapture() {
-  captureBlock.classList.remove('hidden');
+function showCapture(){ captureBlock?.classList.remove('hidden'); }
+function hideCapture(){ captureBlock?.classList.add('hidden'); }
+
+function updateCaptureMode(){
+  if (!capFull) return;
+  if (currentMode === 'curp') capFull.classList.add('hidden');
+  else                        capFull.classList.remove('hidden');
 }
 
-function hideCapture() {
-  captureBlock.classList.add('hidden');
-}
+async function saveCapture(){
+  // Validaciones básicas (ajústalas a tu formulario real)
+  if (!carrier.value){ alert('Selecciona la compañía'); carrier.focus(); return; }
+  if (!telefono?.value || telefono.value.length !== 10){ alert('Teléfono de 10 dígitos'); telefono.focus(); return; }
+  if (!capICC?.value || capICC.value.length < 15){ alert('ICC incompleto'); capICC.focus(); return; }
+  if (!capNip?.value || capNip.value.length !== 4){ alert('NIP de 4 dígitos'); capNip.focus(); return; }
 
-function updateCaptureMode() {
-  if (currentMode === 'curp') {
-    capFull.classList.add('hidden');
-  } else {
-    capFull.classList.remove('hidden');
-  }
-}
-
-function saveCapture() {
-  // Validación básica
-  if (currentMode === 'full') {
-    if (!capNombreCompleto.value || !capFechaNacimiento.value || !capEntidadNacimiento.value || !capCurp.value || !capICC.value || !capNip.value) {
-      alert('Por favor completa todos los campos requeridos');
-      return;
-    }
-  } else {
-    if (!capCurp.value || !capICC.value || !capNip.value) {
-      alert('Por favor completa CURP, ICC y NIP');
-      return;
-    }
-  }
-  
+  // Estructura de la captura
   const captureData = {
     id: Date.now(),
     timestamp: new Date().toLocaleString(),
-    nombre: nombre.value,
-    telefono: telefono.value,
-    carrier: currentCarrier,
-    captureMode: currentMode,
-    nombreCompleto: capNombreCompleto.value,
-    fechaNacimiento: capFechaNacimiento.value,
-    entidadNacimiento: capEntidadNacimiento.value,
-    lugarNacimiento: capLugarNacimiento.value,
-    curp: capCurp.value,
-    icc: capICC.value,
-    nip: capNip.value
+    // lead básico (si usas estos campos arriba)
+    nombre:   nombre?.value || '',
+    telefono: telefono?.value || '',
+    carrier:  carrier.value || '',
+
+    // datos de captura
+    captureMode:        currentMode,
+    nombreCompleto:     capNombreCompleto?.value || '',
+    fechaNacimiento:    capFechaNacimiento?.value  || '',
+    entidadNacimiento:  capEntidadNacimiento?.value|| '',
+    lugarNacimiento:    capLugarNacimiento?.value  || '',
+    curp:               capCurp?.value || '',
+    icc:                capICC?.value || '',
+    nip:                capNip?.value || '',
+    promotor:           promotorInput?.value || ''
   };
-  
-  // Guardar en localStorage
-  let captures = JSON.parse(localStorage.getItem('portabilityCaptures') || '[]');
+
+  // Guarda local (para historial lateral)
+  const captures = JSON.parse(localStorage.getItem('portabilityCaptures') || '[]');
   captures.push(captureData);
   localStorage.setItem('portabilityCaptures', JSON.stringify(captures));
-  
-  // Añadir a leads
+
+  // Añade a leads
   leads.push({
     id: captureData.id,
     timestamp: captureData.timestamp,
     nombre: captureData.nombre,
     telefono: captureData.telefono,
     carrier: captureData.carrier,
-    score: currentScore,
-    status: "Portabilidad iniciada"
+    score:    currentScore,
+    status:   'Portabilidad iniciada'
   });
-  
   saveLeads();
   renderLeads();
+
+  // ======= AQUÍ SE ENVÍA A GOOGLE SHEETS =======
+  const sheetRecord = {
+    // Usa solo los campos que tu Apps Script espera
+    fecha:    captureData.timestamp,
+    numero:   captureData.telefono,
+    nombre:   captureData.nombre,
+    apPaterno: '',         // rellénalo si tienes campos separados
+    apMaterno: '',         // idem
+    curp:     captureData.curp || '',
+    icc:      captureData.icc,
+    nip:      captureData.nip,
+    carrier:  captureData.carrier,
+    // si también guardas estos (no estorban si tu doPost los ignora):
+    promotor: captureData.promotor,
+    fechaNacimiento:   captureData.fechaNacimiento,
+    entidadNacimiento: captureData.entidadNacimiento,
+    lugarNacimiento:   captureData.lugarNacimiento
+  };
+  pushToSheets(sheetRecord);
+
+  // Reset de captura mínima
   hideCapture();
-  
-  // Limpiar formulario de captura
-  capNombreCompleto.value = '';
-  capFechaNacimiento.value = '';
-  capEntidadNacimiento.value = '';
-  capLugarNacimiento.value = '';
-  capCurp.value = '';
-  capICC.value = '';
-  capNip.value = '';
-  
-  alert('Datos de portabilidad guardados correctamente');
+  if (capNombreCompleto)    capNombreCompleto.value = '';
+  if (capFechaNacimiento)   capFechaNacimiento.value = '';
+  if (capEntidadNacimiento) capEntidadNacimiento.value = '';
+  if (capLugarNacimiento)   capLugarNacimiento.value = '';
+  if (capCurp)              capCurp.value = '';
+  if (capICC)               capICC.value = '';
+  if (capNip)               capNip.value = '';
+  if (promotorInput)        promotorInput.value = '';
+
+  alert('Datos guardados. (También se enviaron a Sheets)');
 }
 
-function saveLeads() {
-  localStorage.setItem('leads', JSON.stringify(leads));
-}
-
-function loadSavedLeads() {
-  const savedLeads = localStorage.getItem('leads');
-  if (savedLeads) {
-    leads = JSON.parse(savedLeads);
-    renderLeads();
+/* ====== POST A APPS SCRIPT ====== */
+async function pushToSheets(record){
+  try{
+    await fetch(SHEETS_WEBAPP_URL, {
+      method: 'POST',
+      mode:   'no-cors', // evita CORS; la respuesta será "opaque"
+      headers:{ 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
+      body:   'payload=' + encodeURIComponent(JSON.stringify(record))
+    });
+  }catch(err){
+    console.error('Error enviando a Sheets:', err);
   }
 }
 
-function renderLeads() {
+/* =================== PERSISTENCIA LOCAL =================== */
+function saveLeads(){ localStorage.setItem('leads', JSON.stringify(leads)); }
+
+function loadSavedLeads(){
+  const saved = localStorage.getItem('leads');
+  if (saved){ leads = JSON.parse(saved); renderLeads(); }
+}
+
+function renderLeads(){
   leadsLog.innerHTML = '';
-  
-  if (leads.length === 0) {
+  if (leads.length === 0){
     leadsLog.innerHTML = '<div class="text-sm opacity-60">Aún no hay registros.</div>';
     return;
   }
-  
-  // Mostrar los últimos 10 leads primero
-  const recentLeads = [...leads].reverse().slice(0, 10);
-  
-  recentLeads.forEach(lead => {
-    const leadDiv = document.createElement('div');
-    leadDiv.className = 'p-3 rounded-xl border text-sm';
-    leadDiv.innerHTML = `
+  [...leads].reverse().slice(0,10).forEach(lead=>{
+    const div = document.createElement('div');
+    div.className = 'p-3 rounded-xl border text-sm bg-white';
+    div.innerHTML = `
       <div class="flex justify-between items-start">
-        <div class="font-medium">${lead.nombre || 'Sin nombre'}</div>
+        <div class="font-medium">${lead.nombre || 'Anónimo'}</div>
         <div class="text-xs opacity-70">${lead.timestamp}</div>
       </div>
-      <div class="mt-1">${lead.telefono}</div>
+      <div class="mt-1">${lead.telefono || '—'} · ${lead.carrier || ''}</div>
       <div class="flex justify-between items-center mt-2">
-        <span class="px-2 py-1 rounded-full text-xs ${lead.status === 'Aceptó' ? 'bg-emerald-100 text-emerald-800' : lead.status === 'Portabilidad iniciada' ? 'bg-blue-100 text-blue-800' : 'bg-rose-100 text-rose-800'}">${lead.status}</span>
-        <span class="text-xs">${lead.carrier} → ${lead.score.toFixed(2)}</span>
-      </div>
-    `;
-    leadsLog.appendChild(leadDiv);
+        <span class="px-2 py-1 rounded-full text-xs ${
+          lead.status==='Portabilidad iniciada' ? 'bg-blue-100 text-blue-800'
+        : lead.status==='Aceptó'               ? 'bg-emerald-100 text-emerald-800'
+                                               : 'bg-rose-100 text-rose-800'}">${lead.status}</span>
+        <span class="text-xs">${lead.score!=null?('Score: '+lead.score.toFixed(2)) : ''}</span>
+      </div>`;
+    leadsLog.appendChild(div);
   });
 }
 
-function exportToCsv() {
-  if (leads.length === 0) {
-    alert('No hay datos para exportar');
-    return;
-  }
-  
-  // Encabezados CSV
+/* =================== EXPORT CSV (opcional) =================== */
+function exportToCsv(){
+  if (leads.length===0){ alert('No hay datos para exportar'); return; }
   let csv = 'Fecha,Nombre,Teléfono,Compañía,Puntuación,Resultado\n';
-  
-  // Datos
-  leads.forEach(lead => {
-    csv += `"${lead.timestamp}","${lead.nombre || ''}","${lead.telefono}","${lead.carrier}","${lead.score}","${lead.status}"\n`;
+  leads.forEach(l=>{
+    csv += `"${l.timestamp}","${l.nombre||''}","${l.telefono||''}","${l.carrier||''}","${l.score||0}","${l.status||''}"\n`;
   });
-  
-  // Crear y descargar archivo
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  
-  link.setAttribute('href', url);
-  link.setAttribute('download', `leads-encuesta-${new Date().toISOString().slice(0, 10)}.csv`);
-  link.style.visibility = 'hidden';
-  
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `leads-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
