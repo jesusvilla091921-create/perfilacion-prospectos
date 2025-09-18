@@ -192,9 +192,7 @@
       <h3 class="text-center text-xl font-bold text-[var(--brand-blue)]">¡Felicidades! Has creado tu ficha con éxito</h3>
       <p class="text-center text-slate-600 text-sm mt-1">Toma captura de esta tarjeta para el grupo.</p>
 
-      <div class="mt-4 p-4 rounded-xl bg-white border font-mono text-[15px] leading-7" id="okDetails">
-        <!-- se llena por JS -->
-      </div>
+      <div class="mt-4 p-4 rounded-xl bg-white border font-mono text-[15px] leading-7" id="okDetails"></div>
 
       <div class="mt-4 text-center">
         <button id="okClose" class="px-4 py-2 rounded-xl bg-[var(--brand-blue)] text-white hover:bg-[var(--brand-blue-700)]">Listo</button>
@@ -217,7 +215,7 @@
 
   <script>
     /* =================== ENDPOINT (Apps Script) =================== */
-    const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycby1iL0kw-m2IUmlS1nnDPnQe4HVyLK6D7CfaxgXhDdCLCu2ssLnLAdhrhd__PO4q7sFfg/exec';
+    const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzlkpHJBTczYuvt5BUorbU_laYowoReZLgY3VaU3SBcaKaNY5p4TC_zpiyaJIeV-OPujA/exec';
 
     /* =================== Encuesta simple =================== */
     const carriers = {
@@ -372,6 +370,7 @@
         questionsContainer.appendChild(div);
       });
     }
+
     function updateScore(){
       currentScore=0; const qs = carriers[currentCarrier]?.questions || [];
       qs.forEach(q=>{ if(answers[q.id]){ const idx=q.options.indexOf(answers[q.id]); currentScore += (q.options.length-1-idx)*q.weight; }});
@@ -379,9 +378,10 @@
       const planBox = document.getElementById('planBox');
       const planCard = document.getElementById('planCard');
       pitchBox.textContent = carriers[currentCarrier]?.pitch ? carriers[currentCarrier].pitch(currentScore) : '';
-      const plan = currentScore>=3 ? 'ASL150':'ASL100';
-      if(currentCarrier){ planBox.classList.remove('hidden'); planCard.innerHTML = renderPlanCard(plan); } else { planBox.classList.add('hidden'); planCard.innerHTML=''; }
+      const plan = currentCarrier ? (currentScore>=3 ? 'ASL150':'ASL100') : null;
+      if(plan){ planBox.classList.remove('hidden'); planCard.innerHTML = renderPlanCard(plan); } else { planBox.classList.add('hidden'); planCard.innerHTML=''; }
     }
+
     function renderPlanCard(code){
       const is150 = code==='ASL150';
       const title = is150? 'Amigo Sin Límite 150' : 'Amigo Sin Límite 100';
@@ -400,6 +400,7 @@
     }
 
     function loadSavedLeads(){ const saved = localStorage.getItem('leads'); if(saved){ leads = JSON.parse(saved); renderLeads(); } }
+
     function renderLeads(){
       const box = leadsLog; box.innerHTML=''; if(leads.length===0){ box.innerHTML='<div class="text-sm opacity-60">Aún no hay registros.</div>'; return; }
       [...leads].reverse().slice(0,12).forEach(lead=>{
@@ -439,13 +440,13 @@
         promotor:capPromotor.value.trim()
       };
 
-      // Guardado local breve (para lista lateral)
+      // Guardado local breve (panel lateral)
       const captures = JSON.parse(localStorage.getItem('portabilityCaptures')||'[]'); captures.push(record);
       localStorage.setItem('portabilityCaptures', JSON.stringify(captures));
       leads.push({ id:Date.now(), timestamp:record.timestamp, nombre:`${record.nombre} ${record.apPaterno}`, telefono:record.telefono, carrier:record.carrier, status:'Portabilidad iniciada' });
       localStorage.setItem('leads', JSON.stringify(leads)); renderLeads();
 
-      // Envío a Sheets (no-cors por Apps Script)
+      // Envío a Sheets
       pushToSheets(record);
 
       // Modal éxito para screenshot
