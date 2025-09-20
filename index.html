@@ -19,12 +19,8 @@
     .btn-option.selected{ background:var(--brand-blue); color:#fff; border-color:transparent }
     .backdrop{ position:fixed; inset:0; background:rgb(0 0 0 /.6); display:none; align-items:center; justify-content:center; z-index:50 }
     .glass{ background:rgb(255 255 255 /.78); backdrop-filter:blur(12px) }
-
-    /* ===== Modal estilo BES ===== */
-    .resume-title{ letter-spacing:.02em; }
-    .field-label{ font-size:14px; color:rgb(30 58 138); font-weight:600; }
-    .value{ font-weight:600; color:#0f172a; }
-    .badge-red{ width:22px; height:22px; background:#b91c1c; border-radius:4px; display:inline-block; }
+    .kv dt{ color:#334155; font-weight:600; font-size:.9rem }
+    .kv dd{ color:#0f172a; font-weight:500 }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -128,10 +124,6 @@
               <label class="block text-sm font-medium mb-1">Apellido materno</label>
               <input id="capApMaterno" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none"/>
             </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Teléfono (10 dígitos)</label>
-              <input id="capTelefono" inputmode="numeric" maxlength="10" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none"/>
-            </div>
 
             <div>
               <label class="block text-sm font-medium mb-1">Fecha de nacimiento</label>
@@ -139,7 +131,12 @@
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Lugar de nacimiento</label>
-              <input id="capLugarNac" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Ciudad, Estado"/>
+              <input id="capLugarNac" placeholder="Municipio / Ciudad" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none"/>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">Teléfono (10 dígitos)</label>
+              <input id="capTelefono" inputmode="numeric" maxlength="10" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none"/>
             </div>
 
             <div class="sm:col-span-2">
@@ -171,7 +168,7 @@
           </div>
 
           <div class="text-xs opacity-70">
-            Se guardan en Sheets: Fecha de captura, Número, Nombre, Ap. paterno, Ap. materno, <b>Fecha nac.</b>, <b>Lugar nac.</b>, CURP (si aplica), ICC, NIP y Carrier.
+            Se guardan: Fecha de captura, Número, Nombre, Ap. paterno, Ap. materno, <strong>Fecha y Lugar de nacimiento</strong>, CURP (si aplica), ICC, NIP y Carrier.
           </div>
         </div>
       </div>
@@ -197,24 +194,34 @@
     </section>
   </main>
 
-  <!-- Modal estilo BES -->
+  <!-- Modal "Resumen del trámite" -->
   <div id="okModal" class="backdrop">
-    <div class="glass rounded-2xl shadow-2xl w-[94%] max-w-xl p-5 border">
-      <div class="flex items-center gap-2 text-[var(--brand-blue)] mb-2">
-        <div class="h-8 w-8 rounded-lg bg-[var(--brand-blue)]/10 grid place-items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.09 15.09 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24 11.36 11.36 0 003.56.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.36 11.36 0 00.57 3.56 1 1 0 01-.25 1.02l-2.2 2.21z"/></svg>
-        </div>
-        <div class="font-semibold">Confirma Solicitud Prepago BES</div>
+    <div class="glass rounded-2xl shadow-2xl w-[92%] max-w-md border bg-white">
+      <div class="px-5 pt-5 pb-3 border-b">
+        <h3 class="text-center text-xl font-bold text-[var(--brand-blue)]">RESUMEN DEL TRÁMITE</h3>
       </div>
 
-      <h2 class="text-center text-xl font-bold resume-title text-slate-800 mb-2">RESUMEN DEL TRÁMITE</h2>
+      <div class="p-5 space-y-5">
+        <!-- Cabecera estilo oferta/promoción -->
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <div class="text-slate-500 font-semibold">Oferta</div>
+            <div class="font-medium">Amigo Chip Portabilidad Sin Límite (Recarga)</div>
+          </div>
+          <div>
+            <div class="text-slate-500 font-semibold">Promoción</div>
+            <div class="font-medium">Portabilidad +</div>
+          </div>
+        </div>
 
-      <!-- se llena por JS -->
-      <div id="okDetails" class="text-[15px] leading-7"></div>
+        <!-- Datos clave -->
+        <dl class="kv grid grid-cols-1 gap-3 text-[15px]" id="okDetails">
+          <!-- Se llena por JS en <dd> -->
+        </dl>
 
-      <div class="grid grid-cols-2 gap-3 mt-5">
-        <button id="okBack" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border">REGRESAR</button>
-        <button id="okConfirm" class="px-4 py-2 rounded-xl bg-[var(--brand-blue)] text-white hover:bg-[var(--brand-blue-700)]">CONFIRMAR</button>
+        <div class="text-center pt-1">
+          <button id="okClose" class="px-4 py-2 rounded-xl bg-[var(--brand-blue)] text-white hover:bg-[var(--brand-blue-700)]">Confirmar</button>
+        </div>
       </div>
     </div>
   </div>
@@ -236,7 +243,7 @@
     /* =================== ENDPOINT (Apps Script) =================== */
     const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbznCd5Fs1amwdyHolpwze5yOzsw7OrTI_06DtZXkK0wqBEAdpJFijr_bgtiAjVTK6fwjA/exec';
 
-    /* =================== Encuesta simple =================== */
+    /* =================== Encuesta simple (puedes ampliar) =================== */
     const carriers = {
       Telcel:{disabled:true, note:"Cliente Telcel actual", weaknesses:["Cliente actual - upsell/recargas"]},
       Movistar:{
@@ -286,19 +293,20 @@
     const capNombre = el('capNombre');
     const capApPaterno = el('capApPaterno');
     const capApMaterno = el('capApMaterno');
+    const capFechaNac = el('capFechaNac');
+    const capLugarNac = el('capLugarNac');
     const capTelefono = el('capTelefono');
     const capCurp = el('capCurp');
     const capICC = el('capICC');
     const capNip = el('capNip');
     const capPromotor = el('capPromotor');
-    const capFechaNac = el('capFechaNac');
-    const capLugarNac = el('capLugarNac');
     const btnCancelCapture = el('btnCancelCapture');
     const btnSaveCapture = el('btnSaveCapture');
 
-    // Modal estilo BES
+    // Success modal
     const okModal = el('okModal');
     const okDetails = el('okDetails');
+    const okClose = el('okClose');
 
     // Scanner elements
     const scanModal = el('scanModal');
@@ -331,6 +339,8 @@
       capTelefono.addEventListener('input', () => { capTelefono.value = capTelefono.value.replace(/\D/g, '').slice(0,10); });
       capICC.addEventListener('input', () => { capICC.value = capICC.value.replace(/\D/g, '').slice(0,20); });
       capNip.addEventListener('input', () => { capNip.value = capNip.value.replace(/\D/g, '').slice(0,4); });
+
+      okClose.addEventListener('click', ()=>{ okModal.style.display='none'; resetForm(); });
 
       // Scanner
       btnScanICC.addEventListener('click', openScanModal);
@@ -437,8 +447,6 @@
       if(!capApPaterno.value.trim()){ alert('Ingresa apellido paterno'); capApPaterno.focus(); return; }
       if(!capApMaterno.value.trim()){ alert('Ingresa apellido materno'); capApMaterno.focus(); return; }
       if(!/^\d{10}$/.test(capTelefono.value)){ alert('Teléfono de 10 dígitos'); capTelefono.focus(); return; }
-      if(!capFechaNac.value){ alert('Selecciona la fecha de nacimiento'); capFechaNac.focus(); return; }
-      if(!capLugarNac.value.trim()){ alert('Ingresa el lugar de nacimiento'); capLugarNac.focus(); return; }
       if(!/^\d{20}$/.test(capICC.value)){ alert('ICC debe tener 20 dígitos'); capICC.focus(); return; }
       if(!/^\d{4}$/.test(capNip.value)){ alert('NIP de 4 dígitos'); capNip.focus(); return; }
       if(!capPromotor.value.trim()){ alert('Ingresa el nombre del promotor'); capPromotor.focus(); return; }
@@ -450,9 +458,9 @@
         nombre:capNombre.value.trim(),
         apPaterno:capApPaterno.value.trim(),
         apMaterno:capApMaterno.value.trim(),
+        fechaNacimiento:capFechaNac.value.trim(),
+        lugarNacimiento:capLugarNac.value.trim(),
         telefono:capTelefono.value.trim(),
-        fechaNacimiento:capFechaNac.value,       // <-- NUEVO
-        lugarNacimiento:capLugarNac.value.trim(),// <-- NUEVO
         curp:capCurp.value.trim(),
         icc:capICC.value.trim(),
         nip:capNip.value.trim(),
@@ -468,82 +476,19 @@
       // Envío a Sheets
       pushToSheets(record);
 
-      // ===== Modal estilo BES =====
-      const oferta = 'Amigo Chip Portabilidad Sin Límite (Recarga)';
-      const promo  = 'Portabilidad +';
-      okDetails.innerHTML = `
-        <div class="grid grid-cols-3 gap-y-3">
-          <div>
-            <div class="field-label">Teléfono</div>
-            <div class="value">${record.telefono}</div>
-          </div>
-          <div>
-            <div class="field-label">Id Port</div>
-            <div class="value">${record.nip}</div>
-          </div>
-          <div class="flex items-end justify-end">
-            <div class="field-label mr-2">Valor Cliente</div>
-            <span class="badge-red"></span>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <div class="field-label">Oferta</div>
-          <div class="value">${oferta}</div>
-        </div>
-
-        <div class="mt-3">
-          <div class="field-label">Promoción</div>
-          <div class="value">${promo}</div>
-        </div>
-
-        <div class="mt-4 grid sm:grid-cols-2 gap-4">
-          <div>
-            <div class="field-label">Nombre</div>
-            <div class="value">${record.nombre || '—'}</div>
-          </div>
-          <div>
-            <div class="field-label">Apellido Paterno</div>
-            <div class="value">${record.apPaterno || '—'}</div>
-          </div>
-          <div>
-            <div class="field-label">Apellido Materno</div>
-            <div class="value">${record.apMaterno || '—'}</div>
-          </div>
-        </div>
-
-        <div class="mt-3 grid sm:grid-cols-2 gap-4">
-          <div>
-            <div class="field-label">Fecha de nacimiento</div>
-            <div class="value">${new Date(record.fechaNacimiento).toLocaleDateString()}</div>
-          </div>
-          <div>
-            <div class="field-label">Lugar de nacimiento</div>
-            <div class="value">${record.lugarNacimiento}</div>
-          </div>
-        </div>
-
-        <div class="mt-3 grid sm:grid-cols-2 gap-4">
-          <div>
-            <div class="field-label">CURP</div>
-            <div class="value break-all">${record.curp || '—'}</div>
-          </div>
-          <div>
-            <div class="field-label">ICCID</div>
-            <div class="value break-all">${record.icc}</div>
-          </div>
-        </div>
-      `;
+      // Tarjeta “Resumen del trámite”
+      okDetails.innerHTML = [
+        ['Teléfono', record.telefono],
+        ['Nombre', record.nombre],
+        ['Apellido Paterno', record.apPaterno],
+        ['Apellido Materno', record.apMaterno],
+        ['Fecha de nacimiento', record.fechaNacimiento || '—'],
+        ['Lugar de nacimiento', record.lugarNacimiento || '—'],
+        ['CURP', record.curp || '—'],
+        ['ICC', record.icc],
+        ['NIP', record.nip]
+      ].map(([k,v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
       okModal.style.display='flex';
-
-      // Acciones del modal
-      document.getElementById('okBack').onclick = () => {
-        okModal.style.display = 'none';
-      };
-      document.getElementById('okConfirm').onclick = () => {
-        okModal.style.display = 'none';
-        resetForm();
-      };
     }
 
     async function pushToSheets(payload){
@@ -562,8 +507,7 @@
       mainBlock.classList.add('hidden');
       carrier.value=''; currentCarrier=null; telcelNote.classList.add('hidden');
       questionsBlock.classList.add('hidden'); questionsContainer.innerHTML=''; answers={}; currentScore=0; pitchBox.textContent='';
-      capNombre.value=''; capApPaterno.value=''; capApMaterno.value=''; capTelefono.value=''; capCurp.value=''; capICC.value=''; capNip.value=''; capPromotor.value='';
-      capFechaNac.value=''; capLugarNac.value='';
+      [capNombre,capApPaterno,capApMaterno,capFechaNac,capLugarNac,capTelefono,capCurp,capICC,capNip,capPromotor].forEach(i=>{ if(i) i.value=''; });
       captureBlock.classList.add('hidden');
     }
 
