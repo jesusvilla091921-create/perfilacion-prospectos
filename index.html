@@ -1,302 +1,769 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="light" class="h-full bg-slate-50 transition-colors duration-300">
+<html lang="es" class="h-full bg-slate-50">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MADA · Portabilidad</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    <meta name="theme-color" content="#003b8f">
-    <link rel="manifest" href="manifest.json">
-    <style>
-        /* Estilos base para dark mode y transiciones suaves */
-        .dark .bg-slate-50 { background-color: #0f172a; } /* dark:bg-slate-900 */
-        .dark .text-slate-800 { color: #e2e8f0; } /* dark:text-slate-200 */
-        .dark .bg-white { background-color: #1e293b; border-color: #334155; } /* dark:bg-slate-800 */
-        .dark .shadow-sm { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.1), 0 1px 1px -1px rgb(0 0 0 / 0.1); }
-        .dark .text-slate-900 { color: #f8fafc; }
-        .dark .text-slate-600 { color: #cbd5e1; }
-        .dark .border-slate-100 { border-color: #334155; }
-        .dark .border-slate-200 { border-color: #475569; }
-        .dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: #475569; }
-        .dark .hover\:bg-slate-50:hover { background-color: #334155; }
-        .dark .bg-slate-50 { background-color: #334155; }
-
-        /* Estilo para inputs en dark mode */
-        .dark input, .dark select {
-            background-color: #1e293b;
-            border-color: #475569;
-            color: #f8fafc;
-        }
-
-        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
-        .glass { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-
-        /* Clases de animación 'Framer Motion Style' (usando transiciones CSS nativas) */
-        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
-        .fade-out { animation: fadeOut 0.3s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
-
-        .modal-enter { opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; }
-        .modal-enter-active { opacity: 1; transform: scale(1); }
-        .modal-exit { opacity: 1; transition: opacity 0.3s ease, transform 0.3s ease; }
-        .modal-exit-active { opacity: 0; transform: scale(0.95); }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MADA · Portabilidad</title>
+  <!-- TailwindCSS vía CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="theme-color" content="#003b8f">
+  <style>
+    /* Utilidades mínimas adicionales */
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+    .glass { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  </style>
 </head>
-<body class="h-full text-slate-800 transition-colors duration-300">
-    <div id="appContainer" class="min-h-screen flex flex-col">
-        <header class="bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white shadow-lg">
-            <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="h-10 w-10 rounded-xl bg-[#00aeef] flex items-center justify-center font-bold text-[#0a2f6b]">M</div>
-                    <div>
-                        <h1 class="text-xl font-semibold tracking-wide">MADA · Portabilidad</h1>
-                        <p class="text-white/80 text-sm" data-i18n="header_subtitle">Flujo de perfilación y captura</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button id="btnToggleTheme" class="p-2 rounded-full hover:bg-white/10 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path id="themeIcon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"></path>
-                        </svg>
-                    </button>
-                    <button id="btnToggleLang" class="p-2 rounded-full hover:bg-white/10 transition text-sm font-medium" data-lang-current="es">EN</button>
-                </div>
-            </div>
-        </header>
-
-        <main class="flex-1">
-            <div class="max-w-7xl mx-auto px-4 py-6 lg:py-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <section class="lg:col-span-2 space-y-6">
-
-                    <div id="portada" class="rounded-2xl bg-white shadow-lg p-6 border border-slate-100 transition-all duration-300">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div>
-                                <h2 class="text-2xl font-semibold text-slate-900 dark:text-white" data-i18n="welcome_title">Bienvenido</h2>
-                                <p class="text-slate-600 dark:text-slate-400 mt-1" data-i18n="welcome_subtitle">Elige cómo quieres empezar.</p>
-                            </div>
-                        </div>
-                        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <button id="btnStartSurvey" class="w-full rounded-xl bg-[#003b8f] text-white py-4 px-5 font-medium hover:bg-[#0a2f6b] focus:outline-none focus:ring-2 focus:ring-[#00aeef] transition" data-i18n="start_survey_btn">Comenzar encuesta</button>
-                            <button id="btnGoCapture" class="w-full rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-4 px-5 font-medium text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-[#00aeef] transition" data-i18n="go_capture_btn">Ir directo a captura</button>
-                        </div>
-                    </div>
-
-                    <div id="encuestaCard" class="hidden rounded-2xl bg-white shadow-lg border border-slate-100 transition-all duration-300">
-                        <div class="p-5 rounded-t-2xl bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white">
-                            <h3 class="text-lg font-semibold" data-i18n="survey_title">Diagnóstico rápido</h3>
-                            <p class="text-white/80 text-sm" data-i18n="survey_subtitle">Selecciona la compañía y responde 3–4 preguntas.</p>
-                        </div>
-                        <div class="p-6 space-y-6">
-                            <div id="notaTelcel" class="hidden border border-cyan-200 dark:border-cyan-700 rounded-xl p-4 bg-cyan-50 dark:bg-cyan-900 text-cyan-900 dark:text-cyan-200">
-                                <span data-i18n="telcel_note">Cliente Telcel actual: derivar a upsell/recargas. No aplica diagnóstico.</span>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="current_company_label">Compañía objetivo</label>
-                                <div class="flex flex-wrap gap-2" id="companyButtons"></div>
-                            </div>
-
-                            <div id="surveyQuestions" class="hidden space-y-4">
-                                </div>
-
-                            <div id="surveyResult" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-slate-200 dark:border-slate-700 rounded-xl fade-in">
-                                <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-                                    <div class="text-sm text-slate-600 dark:text-slate-400" data-i18n="score_severity_label">Score de severidad</div>
-                                    <div id="scoreValue" class="text-3xl font-semibold mt-1 text-slate-900 dark:text-white">0.00</div>
-                                </div>
-                                <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4 md:col-span-2">
-                                    <div class="text-sm text-slate-600 dark:text-slate-400" data-i18n="suggested_pitch_label">Pitch sugerido</div>
-                                    <div id="pitchValue" class="mt-1 font-medium text-slate-900 dark:text-white">—</div>
-                                </div>
-                                <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4 md:col-span-3">
-                                    <div class="text-sm text-slate-600 dark:text-slate-400" data-i18n="plan_recommendation_label">Recomendación de plan</div>
-                                    <div id="planValue" class="mt-1 font-semibold text-[#0a2f6b] dark:text-[#00aeef]">—</div>
-                                </div>
-                            </div>
-
-                            <div class="flex flex-wrap gap-3">
-                                <button id="btnAceptaCambio" class="hidden rounded-xl bg-[#003b8f] text-white py-2.5 px-4 hover:bg-[#0a2f6b] transition" data-i18n="accept_change_btn">Aceptó cambio</button>
-                                <button id="btnNoAcepta" class="hidden rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-2.5 px-4 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition" data-i18n="not_accept_btn">No aceptó</button>
-                                <button id="btnIrFicha" class="hidden rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-2.5 px-4 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition" data-i18n="go_to_capture_btn">Ir a ficha</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="fichaCard" class="hidden rounded-2xl bg-white shadow-lg border border-slate-100 transition-all duration-300">
-                        <div class="p-5 rounded-t-2xl bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white flex items-center justify-between">
-                            <div>
-                                <h3 class="text-lg font-semibold" data-i18n="capture_title">Ficha de captura</h3>
-                                <p class="text-white/80 text-sm" data-i18n="capture_subtitle">Valida los campos antes de crear la ficha.</p>
-                            </div>
-                        </div>
-
-                        <form id="captureForm" class="p-6 space-y-6">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="plaza_label">Plaza <span class="text-red-500">*</span></label>
-                                    <select id="plaza" required class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition">
-                                        <option value="" data-i18n="select_option">Selecciona</option>
-                                        <option value="MONTERREY">MONTERREY</option>
-                                        <option value="MANTE">MANTE</option>
-                                        <option value="REYNOSA">REYNOSA</option>
-                                        <option value="MATAMOROS">MATAMOROS</option>
-                                        <option value="SALTILLO">SALTILLO</option>
-                                        <option value="CHIHUAHUA">CHIHUAHUA</option>
-                                        <option value="DELICIAS">DELICIAS</option>
-                                        <option value="CUAUHTEMOC">CUAUHTEMOC</option>
-                                        <option value="TAMPICO">TAMPICO</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="carrier_label">Compañía actual (Carrier) <span class="text-red-500">*</span></label>
-                                    <select id="carrier" required class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition">
-                                        <option value="" data-i18n="select_option">Selecciona</option>
-                                        <option>Telcel</option><option>Movistar</option><option>AT&T</option><option>Unefon</option>
-                                        <option>Bait</option><option>OXXO Cel</option><option>Virgin</option><option>Rincel</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="promoter_label">Promotor (opcional)</label>
-                                    <input id="promotor" type="text" class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition" placeholder="Nombre del promotor" data-i18n-placeholder="promoter_placeholder">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="full_name_label">Nombre completo <span class="text-red-500">*</span></label>
-                                    <input id="nombreCompleto" type="text" required class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition" placeholder="Nombre y apellidos" data-i18n-placeholder="full_name_placeholder">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="phone_label">Teléfono (10 dígitos) <span class="text-red-500">*</span></label>
-                                    <input id="telefono" inputmode="numeric" pattern="[0-9]*" maxlength="10" required class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition" placeholder="Ej. 8112345678" data-i18n-placeholder="phone_placeholder">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="dob_label">Fecha de nacimiento <span class="text-red-500">*</span></label>
-                                    <input id="fechaNacimiento" type="date" required class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition">
-                                </div>
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="pob_label">Estado de nacimiento <span class="text-red-500">*</span></label>
-                                    <select id="estadoNacimiento" required class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition">
-                                        <option value="" data-i18n="select_option">Selecciona</option>
-                                        </select>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="curp_label">CURP (opcional)</label>
-                                    <input id="curp" type="text" class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition" placeholder="En mayúsculas" data-i18n-placeholder="curp_placeholder">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="icc_label">ICC (20 dígitos) <span class="text-red-500">*</span></label>
-                                    <div class="flex gap-2">
-                                        <input id="icc" inputmode="numeric" pattern="[0-9]*" maxlength="20" required class="mt-1 flex-1 rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition" placeholder="Escanéalo o escríbelo" data-i18n-placeholder="icc_placeholder">
-                                        <button type="button" id="btnScanICC" class="mt-1 rounded-xl bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-200 px-3 text-sm hover:bg-slate-100 dark:hover:bg-slate-600 transition" data-i18n="scan_btn">Escanear</button>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="nip_label">NIP (4 dígitos) <span class="text-red-500">*</span></label>
-                                    <input id="nip" inputmode="numeric" pattern="[0-9]*" maxlength="4" required class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition" placeholder="Ej. 1234" data-i18n-placeholder="nip_placeholder">
-                                </div>
-                            </div>
-
-                            <input id="estatus" type="hidden" value="Portabilidad iniciada" />
-
-                            <div class="pt-2">
-                                <button id="btnCrearFicha" type="submit" class="rounded-xl bg-[#003b8f] text-white py-3 px-6 font-medium hover:bg-[#0a2f6b] focus:outline-none focus:ring-2 focus:ring-[#00aeef] transition" data-i18n="create_ticket_btn">Crear ficha</button>
-                                <button type="button" id="btnBackHome" class="ml-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-3 px-6 font-medium text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition" data-i18n="back_home_btn">Volver a portada</button>
-                            </div>
-                        </form>
-                    </div>
-                </section>
-
-                <aside class="lg:col-span-1">
-                    <div class="rounded-2xl bg-white shadow-lg border border-slate-100 dark:border-slate-700 transition-all duration-300">
-                        <div class="p-5 rounded-t-2xl bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white">
-                            <h3 class="text-lg font-semibold" data-i18n="local_leads_title">Leads capturados (local)</h3>
-                            <p class="text-white/80 text-sm" data-i18n="local_leads_subtitle">Últimos 12 registros</p>
-                        </div>
-                        <div id="leadsList" class="p-4 divide-y divide-slate-100 dark:divide-slate-700">
-                            <div class="text-slate-500 dark:text-slate-400 text-sm" data-i18n="no_leads">Sin registros todavía.</div>
-                        </div>
-                        <div class="p-4">
-                            <button id="btnClearLeads" class="w-full rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-2.5 px-4 text-sm text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition" data-i18n="clear_leads_btn">Limpiar lista local</button>
-                        </div>
-                    </div>
-                </aside>
-            </div>
-        </main>
-
-        <button id="helpButton" class="fixed bottom-6 right-6 h-12 w-12 rounded-full bg-[#00aeef] text-white flex items-center justify-center shadow-lg z-40 hover:bg-[#003b8f] transition-all duration-300">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9.247a1 1 0 011.644 0l3.054 4.581a1 1 0 01-.823 1.583H6.71a1 1 0 01-.823-1.583l3.054-4.581zM12 18h.01"></path>
-            </svg>
-        </button>
-
-    </div>
-
-    <div id="ticketOverlay" class="fixed inset-0 bg-slate-900/40 glass hidden items-center justify-center p-4 z-50 modal-exit-active transition-all duration-300">
-        <div id="ticketModal" class="w-full max-w-lg rounded-2xl overflow-hidden shadow-xl bg-white dark:bg-slate-800 modal-enter-active transition-all duration-300">
-            <div class="p-5 bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white">
-                <h3 class="text-lg font-semibold" data-i18n="ticket_title">Ficha creada</h3>
-                <p class="text-white/80 text-sm" data-i18n="ticket_subtitle">Guarda un screenshot si lo requieres.</p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-6 space-y-3">
-                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
-                    <div class="text-sm text-slate-600 dark:text-slate-400" data-i18n="phone_nip_label">Teléfono • NIP</div>
-                    <div id="tkn_tel_nip" class="mono font-semibold text-slate-900 dark:text-white"></div>
-                </div>
-                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
-                    <div class="text-sm text-slate-600 dark:text-slate-400">ICC</div>
-                    <div id="tkn_icc" class="mono font-semibold text-slate-900 dark:text-white"></div>
-                </div>
-                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
-                    <div class="text-sm text-slate-600 dark:text-slate-400" data-i18n="full_name_label">Nombre completo</div>
-                    <div id="tkn_nombre" class="font-semibold text-slate-900 dark:text-white"></div>
-                </div>
-                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
-                    <div class="text-sm text-slate-600 dark:text-slate-400" data-i18n="plaza_carrier_label">Plaza • Carrier</div>
-                    <div id="tkn_plaza_carrier" class="font-semibold text-slate-900 dark:text-white"></div>
-                </div>
-                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
-                    <div class="text-sm text-slate-600 dark:text-slate-400" data-i18n="birth_label">Nacimiento</div>
-                    <div id="tkn_nacimiento" class="font-semibold text-slate-900 dark:text-white"></div>
-                </div>
-                <div class="flex items-center justify-between">
-                    <div class="text-sm text-slate-600 dark:text-slate-400" data-i18n="promoter_label">Promotor</div>
-                    <div id="tkn_promotor" class="font-semibold text-slate-900 dark:text-white">—</div>
-                </div>
-            </div>
-            <div class="bg-slate-50 dark:bg-slate-700 p-4 flex justify-end">
-                <button id="btnCloseTicket" class="rounded-xl bg-[#003b8f] text-white py-2.5 px-4 hover:bg-[#0a2f6b] transition" data-i18n="ready_btn">Listo</button>
-            </div>
+<body class="h-full text-slate-800">
+  <div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white">
+      <div class="max-w-7xl mx-auto px-4 py-5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-xl bg-[#00aeef] flex items-center justify-center font-bold text-[#0a2f6b]">M</div>
+          <div>
+            <h1 class="text-xl font-semibold tracking-wide">MADA · Portabilidad</h1>
+            <p class="text-white/80 text-sm">Flujo de perfilación y captura</p>
+          </div>
         </div>
-    </div>
+        <div class="hidden sm:block text-white/80 text-sm">Corporativo · Operación en campo</div>
+      </div>
+    </header>
 
-    <div id="scanOverlay" class="fixed inset-0 bg-slate-900/50 glass hidden items-center justify-center p-4 z-50 modal-exit-active transition-all duration-300">
-        <div id="scanModal" class="w-full max-w-md rounded-2xl overflow-hidden shadow-xl bg-white dark:bg-slate-800 modal-enter-active transition-all duration-300">
-            <div class="p-4 bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white flex items-center justify-between">
-                <h3 class="font-semibold" data-i18n="scan_icc_title">Escanear ICC</h3>
-                <button id="btnCloseScan" class="text-sm underline" data-i18n="close_btn">Cerrar</button>
+    <!-- Contenido -->
+    <main class="flex-1">
+      <div class="max-w-7xl mx-auto px-4 py-6 lg:py-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Columna principal (2/3) -->
+        <section class="lg:col-span-2 space-y-6">
+
+          <!-- Portada -->
+          <div id="portada" class="rounded-2xl bg-white shadow-sm p-6 border border-slate-100">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h2 class="text-2xl font-semibold text-slate-900">Bienvenido</h2>
+                <p class="text-slate-600 mt-1">Elige cómo quieres empezar.</p>
+              </div>
             </div>
-            <div class="p-4 space-y-3">
-                <div id="scanSupport" class="text-sm text-slate-600 dark:text-slate-400"></div>
-                <video id="scanVideo" class="w-full rounded-xl bg-black aspect-[3/4]" autoplay muted playsinline></video>
-                <div id="scanResultText" class="text-center font-bold text-[#003b8f] mono"></div>
-                <div class="text-sm text-slate-500 dark:text-slate-400" data-i18n="scan_tip">Apunta al código de barras (Code128/EAN). Si no aparece, escribe el ICC manualmente.</div>
+            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <button id="btnStartSurvey" class="w-full rounded-xl bg-[#003b8f] text-white py-4 px-5 font-medium hover:bg-[#0a2f6b] focus:outline-none focus:ring-2 focus:ring-[#00aeef]">Comenzar encuesta</button>
+              <button id="btnGoCapture" class="w-full rounded-xl bg-white border border-slate-200 py-4 px-5 font-medium hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#00aeef]">Ir directo a captura</button>
             </div>
-            <div class="p-4 bg-slate-50 dark:bg-slate-700 flex justify-end">
-                <button id="btnStopScan" class="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 py-2 px-4 text-sm text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 transition" data-i18n="stop_btn">Detener</button>
+          </div>
+
+          <!-- Encuesta / Diagnóstico -->
+          <div id="encuestaCard" class="hidden rounded-2xl bg-white shadow-sm border border-slate-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white">
+              <h3 class="text-lg font-semibold">Diagnóstico rápido</h3>
+              <p class="text-white/80 text-sm">Selecciona la compañía y responde 3–4 preguntas.</p>
             </div>
+            <div class="p-6 space-y-6">
+              <!-- Nota Telcel -->
+              <div id="notaTelcel" class="hidden border border-cyan-200 rounded-xl p-4 bg-cyan-50 text-cyan-900">
+                Cliente Telcel actual: derivar a upsell/recargas. No aplica diagnóstico.
+              </div>
+
+              <!-- Selector de compañía -->
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-slate-700">Compañía objetivo</label>
+                <div class="flex flex-wrap gap-2" id="companyButtons"></div>
+              </div>
+
+              <!-- Preguntas -->
+              <div id="surveyQuestions" class="hidden space-y-4"></div>
+
+              <!-- Score + Pitch -->
+              <div id="surveyResult" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="rounded-xl border border-slate-200 p-4">
+                  <div class="text-sm text-slate-600">Score de severidad</div>
+                  <div id="scoreValue" class="text-3xl font-semibold mt-1">0.00</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 p-4 md:col-span-2">
+                  <div class="text-sm text-slate-600">Pitch sugerido</div>
+                  <div id="pitchValue" class="mt-1 font-medium">—</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 p-4 md:col-span-3">
+                  <div class="text-sm text-slate-600">Recomendación de plan</div>
+                  <div id="planValue" class="mt-1 font-semibold text-[#0a2f6b]">—</div>
+                </div>
+              </div>
+
+              <!-- Acciones -->
+              <div class="flex flex-wrap gap-3">
+                <button id="btnAceptaCambio" class="hidden rounded-xl bg-[#003b8f] text-white py-2.5 px-4 hover:bg-[#0a2f6b]">Aceptó cambio</button>
+                <button id="btnNoAcepta" class="hidden rounded-xl bg-white border border-slate-200 py-2.5 px-4 hover:bg-slate-50">No aceptó</button>
+                <button id="btnIrFicha" class="hidden rounded-xl bg-white border border-slate-200 py-2.5 px-4 hover:bg-slate-50">Ir a ficha</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ficha de captura -->
+          <div id="fichaCard" class="hidden rounded-2xl bg-white shadow-sm border border-slate-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white flex items-center justify-between">
+              <div>
+                <h3 class="text-lg font-semibold">Ficha de captura</h3>
+                <p class="text-white/80 text-sm">Valida los campos antes de crear la ficha.</p>
+              </div>
+            </div>
+
+            <form id="captureForm" class="p-6 space-y-6">
+              <!-- Grupo 1 -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-slate-700">Plaza <span class="text-red-500">*</span></label>
+                  <select id="plaza" required class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]">
+                    <option value="">Selecciona</option>
+                    <option>MONTERREY</option>
+                    <option>MANTE</option>
+                    <option>REYNOSA</option>
+                    <option>MATAMOROS</option>
+                    <option>SALTILLO</option>
+                    <option>CHIHUAHUA</option>
+                    <option>DELICIAS</option>
+                    <option>CUAHUTEMOC</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700">Compañía actual (Carrier) <span class="text-red-500">*</span></label>
+                  <select id="carrier" required class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]">
+                    <option value="">Selecciona</option>
+                    <option>Telcel</option>
+                    <option>Movistar</option>
+                    <option>AT&T</option>
+                    <option>Unefon</option>
+                    <option>Bait</option>
+                    <option>OXXO Cel</option>
+                    <option>Virgin</option>
+                    <option>Rincel</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700">Promotor (opcional)</label>
+                  <input id="promotor" type="text" class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]" placeholder="Nombre del promotor">
+                </div>
+              </div>
+
+              <!-- Grupo 2 -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-slate-700">Nombre completo <span class="text-red-500">*</span></label>
+                  <input id="nombreCompleto" type="text" required class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]" placeholder="Nombre y apellidos">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700">Teléfono (10 dígitos) <span class="text-red-500">*</span></label>
+                  <input id="telefono" inputmode="numeric" pattern="[0-9]*" maxlength="10" required class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]" placeholder="Ej. 8112345678">
+                </div>
+              </div>
+
+              <!-- Grupo 3 -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-slate-700">Fecha de nacimiento <span class="text-red-500">*</span></label>
+                  <input id="fechaNacimiento" type="date" required class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]">
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-slate-700">Estado de nacimiento <span class="text-red-500">*</span></label>
+                  <select id="estadoNacimiento" required class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]">
+                    <option value="">Selecciona</option>
+                    <option>Aguascalientes</option>
+                    <option>Baja California</option>
+                    <option>Baja California Sur</option>
+                    <option>Campeche</option>
+                    <option>Coahuila</option>
+                    <option>Colima</option>
+                    <option>Chiapas</option>
+                    <option>Chihuahua</option>
+                    <option>Ciudad de México</option>
+                    <option>Durango</option>
+                    <option>Guanajuato</option>
+                    <option>Guerrero</option>
+                    <option>Hidalgo</option>
+                    <option>Jalisco</option>
+                    <option>México</option>
+                    <option>Michoacán</option>
+                    <option>Morelos</option>
+                    <option>Nayarit</option>
+                    <option>Nuevo León</option>
+                    <option>Oaxaca</option>
+                    <option>Puebla</option>
+                    <option>Querétaro</option>
+                    <option>Quintana Roo</option>
+                    <option>San Luis Potosí</option>
+                    <option>Sinaloa</option>
+                    <option>Sonora</option>
+                    <option>Tabasco</option>
+                    <option>Tamaulipas</option>
+                    <option>Tlaxcala</option>
+                    <option>Veracruz</option>
+                    <option>Yucatán</option>
+                    <option>Zacatecas</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Grupo 4 -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-slate-700">CURP (opcional)</label>
+                  <input id="curp" type="text" class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]" placeholder="En mayúsculas">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700">ICC (20 dígitos) <span class="text-red-500">*</span></label>
+                  <div class="flex gap-2">
+                    <input id="icc" inputmode="numeric" pattern="[0-9]*" maxlength="20" required class="mt-1 flex-1 rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]" placeholder="Escanéalo o escríbelo">
+                    <button type="button" id="btnScanICC" class="mt-1 rounded-xl border border-slate-200 px-3 text-sm hover:bg-slate-50">Escanear</button>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700">NIP (4 dígitos) <span class="text-red-500">*</span></label>
+                  <input id="nip" inputmode="numeric" pattern="[0-9]*" maxlength="4" required class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]" placeholder="Ej. 1234">
+                </div>
+              </div>
+
+              <!-- Hidden Estatus -->
+              <input id="estatus" type="hidden" value="Portabilidad iniciada" />
+
+              <!-- Botón crear -->
+              <div class="pt-2">
+                <button id="btnCrearFicha" type="submit" class="rounded-xl bg-[#003b8f] text-white py-3 px-6 font-medium hover:bg-[#0a2f6b] focus:outline-none focus:ring-2 focus:ring-[#00aeef]">Crear ficha</button>
+                <button type="button" id="btnBackHome" class="ml-2 rounded-xl bg-white border border-slate-200 py-3 px-6 font-medium hover:bg-slate-50">Volver a portada</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- Panel lateral: Leads capturados (local) -->
+        <aside class="lg:col-span-1">
+          <div class="rounded-2xl bg-white shadow-sm border border-slate-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white">
+              <h3 class="text-lg font-semibold">Leads capturados (local)</h3>
+              <p class="text-white/80 text-sm">Últimos 12 registros</p>
+            </div>
+            <div id="leadsList" class="p-4 divide-y divide-slate-100">
+              <div class="text-slate-500 text-sm">Sin registros todavía.</div>
+            </div>
+            <div class="p-4">
+              <button id="btnClearLeads" class="w-full rounded-xl bg-white border border-slate-200 py-2.5 px-4 text-sm hover:bg-slate-50">Limpiar lista local</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Ticket -->
+  <div id="ticketOverlay" class="hidden fixed inset-0 bg-slate-900/40 glass flex items-center justify-center p-4 z-50">
+    <div class="w-full max-w-lg rounded-2xl overflow-hidden shadow-xl">
+      <div class="p-5 bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white">
+        <h3 class="text-lg font-semibold">Ficha creada</h3>
+        <p class="text-white/80 text-sm">Guarda un screenshot si lo requieres.</p>
+      </div>
+      <div class="bg-white p-6 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="text-sm text-slate-600">Teléfono • NIP</div>
+          <div id="tkn_tel_nip" class="mono font-semibold text-slate-900"></div>
         </div>
+        <div class="flex items-center justify-between">
+          <div class="text-sm text-slate-600">ICC</div>
+          <div id="tkn_icc" class="mono font-semibold text-slate-900"></div>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="text-sm text-slate-600">Nombre completo</div>
+          <div id="tkn_nombre" class="font-semibold text-slate-900"></div>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="text-sm text-slate-600">Plaza • Carrier</div>
+          <div id="tkn_plaza_carrier" class="font-semibold text-slate-900"></div>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="text-sm text-slate-600">Nacimiento</div>
+          <div id="tkn_nacimiento" class="font-semibold text-slate-900"></div>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="text-sm text-slate-600">Promotor</div>
+          <div id="tkn_promotor" class="font-semibold text-slate-900">—</div>
+        </div>
+      </div>
+      <div class="bg-slate-50 p-4 flex justify-end">
+        <button id="btnCloseTicket" class="rounded-xl bg-[#003b8f] text-white py-2.5 px-4 hover:bg-[#0a2f6b]">Listo</button>
+      </div>
     </div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script src="app.js"></script>
+  <!-- Modal Scanner -->
+  <div id="scanOverlay" class="hidden fixed inset-0 bg-slate-900/50 glass flex items-center justify-center p-4 z-50">
+    <div class="w-full max-w-md rounded-2xl overflow-hidden shadow-xl bg-white">
+      <div class="p-4 bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white flex items-center justify-between">
+        <h3 class="font-semibold">Escanear ICC</h3>
+        <button id="btnCloseScan" class="text-sm underline">Cerrar</button>
+      </div>
+      <div class="p-4 space-y-3">
+        <div id="scanSupport" class="text-sm text-slate-600"></div>
+        <video id="scanVideo" class="w-full rounded-xl bg-black aspect-[3/4]" autoplay muted playsinline></video>
+        <div class="text-sm text-slate-500">Apunta al código de barras (Code128/EAN). Si no aparece, escribe el ICC manualmente.</div>
+      </div>
+      <div class="p-4 bg-slate-50 flex justify-end">
+        <button id="btnStopScan" class="rounded-xl bg-white border border-slate-200 py-2 px-4 text-sm hover:bg-slate-100">Detener</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==============================
+    // 🔧 CONFIGURACIÓN EDITABLE
+    // ==============================
+    // ⚠️ Pega aquí tu URL de Web App de Google Apps Script
+    const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/MI_ID/exec';
+
+    // Plazas válidas (para UI y consistencia con backend)
+    const VALID_PLAZAS = ['MONTERREY','MANTE','REYNOSA','MATAMOROS','SALTILLO','CHIHUAHUA','DELICIAS','CUAHUTEMOC'];
+
+    // ==============================
+    // 🧠 Encuesta (modelo y lógica)
+    // ==============================
+    const COMPANIES = ['Movistar','AT&T','Unefon','Bait','OXXO Cel','Virgin','Rincel','Telcel']; // Telcel mostrará nota
+    const COMPANY_QUESTIONS = {
+      'Movistar': [
+        { q: '¿Se te corta la señal en interiores?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
+        { q: '¿Tus datos rinden menos de lo esperado?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
+        { q: '¿Llamadas con eco o retraso?', options: [{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
+      ],
+      'AT&T': [
+        { q: '¿Te quedas sin cobertura en traslados?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
+        { q: '¿Te limitan apps o redes sociales?', options: [{t:'Sí',w:0.8},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
+        { q: '¿Sientes lentitud en horas pico?', options: [{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
+      ],
+      'Unefon': [
+        { q: '¿Cambios de velocidad inesperados?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
+        { q: '¿Cobertura irregular en tu colonia?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
+        { q: '¿Problemas para compartir internet?', options: [{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
+      ],
+      'Bait': [
+        { q: '¿Te falla en interiores (centros comerciales)?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
+        { q: '¿Ves baja velocidad por la tarde-noche?', options: [{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
+        { q: '¿Pierdes señal en carretera?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
+      ],
+      'OXXO Cel': [
+        { q: '¿Redes sociales cargan lento?', options: [{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
+        { q: '¿Se cae la llamada seguido?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
+        { q: '¿Descargas tardan demasiado?', options: [{t:'Sí',w:0.8},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
+      ],
+      'Virgin': [
+        { q: '¿Apps bancarias fallan fuera de casa?', options: [{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
+        { q: '¿Mala señal en oficinas/escuela?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
+        { q: '¿Sufres latencia en videollamadas?', options: [{t:'Sí',w:0.8},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
+      ],
+      'Rincel': [
+        { q: '¿Se pierde señal al entrar a edificios?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
+        { q: '¿Internet intermitente?', options: [{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
+        { q: '¿Dificultad para hotspot?', options: [{t:'Sí',w:0.8},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
+      ],
+      'Telcel': [] // Telcel no muestra encuesta
+    };
+
+    function planByScore(score) {
+      // Regla simple y clara
+      if (score >= 2.4) return 'Amigo Sin Límite 150';
+      if (score >= 1.6) return 'Amigo Sin Límite 100';
+      return 'Amigo Sin Límite 80';
+    }
+    function pitchByCompanyAndScore(company, score) {
+      const alta = 'Veo varios puntos de dolor. Con Telcel mejoras cobertura en interiores y estabilidad en horas pico.';
+      const media = 'Hay áreas de mejora. Con Telcel ganas estabilidad y mejor rendimiento en apps.';
+      const baja = 'Tu experiencia es decente, pero con Telcel puedes asegurar señal donde hoy te falla.';
+      if (score >= 2.4) return `${alta} (${company})`;
+      if (score >= 1.6) return `${media} (${company})`;
+      return `${baja} (${company})`;
+    }
+
+    // ==============================
+    // 🧩 Utilidades UI
+    // ==============================
+    const $ = (id) => document.getElementById(id);
+    function show(id) { $(id).classList.remove('hidden'); }
+    function hide(id) { $(id).classList.add('hidden'); }
+    function focusAndAlert(el, msg) {
+      alert(msg);
+      el.focus();
+    }
+    function onlyDigits(str) { return (str || '').replace(/\D+/g, ''); }
+    function last6(str) { const s = String(str||''); return s.slice(-6).padStart(6,'•'); }
+
+    // ==============================
+    // 🚦 Navegación
+    // ==============================
+    const btnStartSurvey = $('btnStartSurvey');
+    const btnGoCapture   = $('btnGoCapture');
+    const portada        = $('portada');
+    const encuestaCard   = $('encuestaCard');
+    const fichaCard      = $('fichaCard');
+    const notaTelcel     = $('notaTelcel');
+    const surveyQuestions= $('surveyQuestions');
+    const surveyResult   = $('surveyResult');
+    const scoreValue     = $('scoreValue');
+    const pitchValue     = $('pitchValue');
+    const planValue      = $('planValue');
+    const companyButtons = $('companyButtons');
+    const btnAceptaCambio= $('btnAceptaCambio');
+    const btnNoAcepta    = $('btnNoAcepta');
+    const btnIrFicha     = $('btnIrFicha');
+    const btnBackHome    = $('btnBackHome');
+
+    let currentCompany = null;
+    let currentAnswers = []; // guarda pesos seleccionados
+
+    function renderCompanyButtons() {
+      companyButtons.innerHTML = '';
+      COMPANIES.forEach(c => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'rounded-xl border border-slate-200 px-3 py-1.5 text-sm hover:bg-slate-50';
+        b.textContent = c;
+        b.addEventListener('click', () => selectCompany(c));
+        companyButtons.appendChild(b);
+      });
+    }
+
+    function selectCompany(company) {
+      currentCompany = company;
+      currentAnswers = [];
+      surveyQuestions.innerHTML = '';
+      scoreValue.textContent = '0.00';
+      pitchValue.textContent = '—';
+      planValue.textContent  = '—';
+      hide('surveyResult');
+      show('btnIrFicha'); show('btnNoAcepta'); show('btnAceptaCambio');
+
+      if (company === 'Telcel') {
+        show('notaTelcel');
+        hide('surveyQuestions');
+        return;
+      }
+      hide('notaTelcel');
+      const qs = COMPANY_QUESTIONS[company] || [];
+      if (!qs.length) { hide('surveyQuestions'); return; }
+      show('surveyQuestions');
+      qs.forEach((item, idx) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'rounded-xl border border-slate-200 p-4';
+        const title = document.createElement('div');
+        title.className = 'font-medium';
+        title.textContent = `${idx+1}. ${item.q}`;
+        const options = document.createElement('div');
+        options.className = 'mt-3 flex flex-wrap gap-2';
+        item.options.forEach(opt => {
+          const ob = document.createElement('button');
+          ob.type = 'button';
+          ob.className = 'rounded-lg bg-white border border-slate-200 px-3 py-1.5 text-sm hover:bg-slate-50';
+          ob.textContent = opt.t;
+          ob.addEventListener('click', () => {
+            currentAnswers[idx] = opt.w;
+            // resaltar selección
+            [...options.children].forEach(ch => ch.classList.remove('ring-2','ring-[#00aeef]'));
+            ob.classList.add('ring-2','ring-[#00aeef]');
+            // actualizar score
+            const sum = (currentAnswers.filter(x=>typeof x==='number').reduce((a,b)=>a+b,0));
+            const count = currentAnswers.filter(x=>typeof x==='number').length;
+            const score = count ? (sum) : 0;
+            scoreValue.textContent = score.toFixed(2);
+            pitchValue.textContent = pitchByCompanyAndScore(company, score);
+            planValue.textContent = planByScore(score);
+            show('surveyResult');
+          });
+          options.appendChild(ob);
+        });
+        wrapper.appendChild(title);
+        wrapper.appendChild(options);
+        surveyQuestions.appendChild(wrapper);
+      });
+    }
+
+    btnStartSurvey.addEventListener('click', () => {
+      hide('portada'); show('encuestaCard'); hide('fichaCard');
+      renderCompanyButtons();
+      // por defecto, sin compañía seleccionada
+      surveyQuestions.innerHTML = '';
+      hide('surveyQuestions'); hide('surveyResult');
+      hide('notaTelcel');
+      show('btnAceptaCambio'); show('btnNoAcepta'); show('btnIrFicha');
+    });
+
+    btnGoCapture.addEventListener('click', () => {
+      hide('portada'); show('fichaCard'); hide('encuestaCard');
+    });
+
+    btnAceptaCambio.addEventListener('click', () => {
+      show('fichaCard'); // se abre debajo
+      // si seleccionó compañía distinta de Telcel, seteamos carrier por conveniencia
+      if (currentCompany && currentCompany !== 'Telcel') {
+        $('carrier').value = 'Telcel'; // cambiamos a Telcel como destino comercial
+      }
+    });
+
+    btnNoAcepta.addEventListener('click', () => {
+      alert('Gracias');
+    });
+
+    btnIrFicha.addEventListener('click', () => {
+      hide('encuestaCard'); show('fichaCard');
+    });
+
+    btnBackHome.addEventListener('click', () => {
+      show('portada'); hide('encuestaCard'); hide('fichaCard');
+      resetForm();
+    });
+
+    // ==============================
+    // 📝 Captura y validación
+    // ==============================
+    const captureForm = $('captureForm');
+
+    function normalizeInputs() {
+      const telEl = $('telefono');
+      const iccEl = $('icc');
+      const nipEl = $('nip');
+      const curpEl= $('curp');
+
+      telEl.value = onlyDigits(telEl.value).slice(0,10);
+      iccEl.value = onlyDigits(iccEl.value).slice(0,20);
+      nipEl.value = onlyDigits(nipEl.value).slice(0,4);
+      if (curpEl.value) curpEl.value = curpEl.value.toUpperCase().trim();
+    }
+
+    function validateForm() {
+      const plaza = $('plaza');
+      const carrier = $('carrier');
+      const nombreCompleto = $('nombreCompleto');
+      const telefono = $('telefono');
+      const fechaNacimiento = $('fechaNacimiento');
+      const estadoNacimiento = $('estadoNacimiento');
+      const icc = $('icc');
+      const nip = $('nip');
+
+      if (!plaza.value) return focusAndAlert(plaza,'Selecciona una plaza.');
+      if (!VALID_PLAZAS.includes(plaza.value)) return focusAndAlert(plaza,'Plaza inválida. Selecciona una válida.');
+      if (!carrier.value) return focusAndAlert(carrier,'Selecciona la compañía actual.');
+      if (!nombreCompleto.value.trim()) return focusAndAlert(nombreCompleto,'Escribe el nombre completo.');
+      if (onlyDigits(telefono.value).length !== 10) return focusAndAlert(telefono,'El teléfono debe tener 10 dígitos.');
+      if (!fechaNacimiento.value) return focusAndAlert(fechaNacimiento,'Selecciona la fecha de nacimiento.');
+      if (!estadoNacimiento.value) return focusAndAlert(estadoNacimiento,'Selecciona el estado de nacimiento.');
+      if (onlyDigits(icc.value).length !== 20) return focusAndAlert(icc,'El ICC debe tener 20 dígitos.');
+      if (onlyDigits(nip.value).length !== 4) return focusAndAlert(nip,'El NIP debe tener 4 dígitos.');
+      return true;
+    }
+
+    function resetForm() {
+      captureForm.reset();
+      $('estatus').value = 'Portabilidad iniciada';
+    }
+
+    // ==============================
+    // 📤 Envío al backend (GAS)
+    // ==============================
+    async function sendToSheets(record) {
+      const body = 'payload=' + encodeURIComponent(JSON.stringify(record));
+      const res = await fetch(SHEETS_WEBAPP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json().catch(() => ({}));
+      return data;
+    }
+
+    captureForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      normalizeInputs();
+      if (!validateForm()) return;
+
+      const record = {
+        type: 'capture',
+        timestamp: new Date().toISOString(),
+        plaza: $('plaza').value,
+        carrier: $('carrier').value,
+        nombreCompleto: $('nombreCompleto').value.trim(),
+        telefono: onlyDigits($('telefono').value),
+        fechaNacimiento: $('fechaNacimiento').value, // YYYY-MM-DD
+        estadoNacimiento: $('estadoNacimiento').value,
+        curp: ($('curp').value || '').toUpperCase().trim(),
+        icc: onlyDigits($('icc').value).slice(0,20),
+        nip: onlyDigits($('nip').value).slice(0,4),
+        promotor: $('promotor').value.trim(),
+        estatus: $('estatus').value || 'Portabilidad iniciada'
+      };
+
+      try {
+        await sendToSheets(record);
+        addLeadLocal(record);
+        openTicket(record);
+      } catch(err) {
+        console.error(err);
+        alert('No se pudo enviar a Sheets. Inténtalo de nuevo.');
+      }
+    });
+
+    // ==============================
+    // 🎫 Ticket (modal)
+    // ==============================
+    const ticketOverlay = $('ticketOverlay');
+    $('btnCloseTicket').addEventListener('click', () => {
+      ticketOverlay.classList.add('hidden');
+      resetForm();
+      show('portada'); hide('encuestaCard'); hide('fichaCard');
+    });
+    function openTicket(rec) {
+      $('tkn_tel_nip').textContent = `${rec.telefono} • ${rec.nip}`;
+      $('tkn_icc').textContent = rec.icc;
+      $('tkn_nombre').textContent = rec.nombreCompleto || '—';
+      $('tkn_plaza_carrier').textContent = `${rec.plaza} • ${rec.carrier}`;
+      $('tkn_nacimiento').textContent = `${rec.fechaNacimiento} • ${rec.estadoNacimiento}`;
+      $('tkn_promotor').textContent = rec.promotor || '—';
+      ticketOverlay.classList.remove('hidden');
+    }
+
+    // ==============================
+    // 💾 LocalStorage (leads)
+    // ==============================
+    const LEADS_KEY = 'mada_porta_leads';
+    function getLeads() {
+      try { return JSON.parse(localStorage.getItem(LEADS_KEY)) || []; }
+      catch { return []; }
+    }
+    function setLeads(arr) {
+      localStorage.setItem(LEADS_KEY, JSON.stringify(arr));
+      renderLeads();
+    }
+    function addLeadLocal(rec) {
+      const resumen = {
+        ts: new Date().toLocaleString(),
+        nombre: rec.nombreCompleto,
+        telefono: rec.telefono,
+        carrier: rec.carrier,
+        plaza: rec.plaza,
+        icc6: last6(rec.icc),
+        estatus: rec.estatus || 'Portabilidad iniciada'
+      };
+      const list = getLeads();
+      list.unshift(resumen);
+      setLeads(list.slice(0,12));
+    }
+    function badgeClass(estatus) {
+      if (!estatus) return 'bg-blue-100 text-blue-800';
+      const e = estatus.toLowerCase();
+      if (e.includes('confirmado')) return 'bg-green-100 text-green-800';
+      if (e.includes('rechaz')) return 'bg-red-100 text-red-800';
+      return 'bg-blue-100 text-blue-800';
+    }
+    function renderLeads() {
+      const list = getLeads();
+      const cont = $('leadsList');
+      cont.innerHTML = '';
+      if (!list.length) {
+        cont.innerHTML = '<div class="text-slate-500 text-sm">Sin registros todavía.</div>';
+        return;
+      }
+      list.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'py-3';
+        row.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="font-medium">${item.nombre}</div>
+            <span class="text-xs px-2 py-0.5 rounded-full ${badgeClass(item.estatus)}">${item.estatus}</span>
+          </div>
+          <div class="text-sm text-slate-600">${item.plaza} • ${item.carrier}</div>
+          <div class="text-sm text-slate-600">Tel: ${item.telefono} · ICC: ${item.icc6}</div>
+          <div class="text-xs text-slate-500 mt-1">${item.ts}</div>
+        `;
+        cont.appendChild(row);
+      });
+    }
+    $('btnClearLeads').addEventListener('click', () => {
+      if (confirm('¿Limpiar lista local de leads?')) {
+        setLeads([]);
+      }
+    });
+    renderLeads();
+
+    // ==============================
+    // 📷 Scanner ICC (BarcodeDetector)
+    // ==============================
+    const scanOverlay = $('scanOverlay');
+    const scanVideo = $('scanVideo');
+    const scanSupport = $('scanSupport');
+    const btnScanICC = $('btnScanICC');
+    const btnCloseScan = $('btnCloseScan');
+    const btnStopScan = $('btnStopScan');
+    let mediaStream = null;
+    let barcodeDetector = null;
+    let scanLoopActive = false;
+
+    btnScanICC.addEventListener('click', async () => {
+      showScanModal();
+      if ('BarcodeDetector' in window) {
+        try {
+          barcodeDetector = new BarcodeDetector({ formats: ['code_128','ean_13','ean_8','upc_a','upc_e','code_39'] });
+          scanSupport.textContent = 'Soporte nativo disponible. Escaneando...';
+        } catch {
+          barcodeDetector = null;
+          scanSupport.textContent = 'Error iniciando BarcodeDetector. Ingrese ICC manualmente.';
+        }
+      } else {
+        scanSupport.textContent = 'Sin soporte nativo. Ingrese ICC manualmente.';
+      }
+      await startCamera();
+      if (barcodeDetector) startScanLoop();
+    });
+
+    btnCloseScan.addEventListener('click', closeScanModal);
+    btnStopScan.addEventListener('click', closeScanModal);
+
+    function showScanModal() {
+      scanOverlay.classList.remove('hidden');
+    }
+    function closeScanModal() {
+      scanOverlay.classList.add('hidden');
+      stopCamera();
+      scanLoopActive = false;
+    }
+    async function startCamera() {
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        scanVideo.srcObject = mediaStream;
+        await scanVideo.play();
+      } catch (e) {
+        scanSupport.textContent = 'No se pudo acceder a la cámara. Ingresa ICC manualmente.';
+      }
+    }
+    function stopCamera() {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(t => t.stop());
+        mediaStream = null;
+      }
+      scanVideo.pause();
+      scanVideo.srcObject = null;
+    }
+    async function startScanLoop() {
+      scanLoopActive = true;
+      while (scanLoopActive && barcodeDetector && scanVideo.readyState >= 2) {
+        try {
+          const barcodes = await barcodeDetector.detect(scanVideo);
+          if (barcodes && barcodes.length) {
+            const raw = barcodes[0].rawValue || '';
+            const digits = onlyDigits(raw);
+            if (digits.length >= 18) {
+              $('icc').value = digits.slice(0,20);
+              closeScanModal();
+              break;
+            }
+          }
+        } catch (e) {
+          console.debug('scan error', e);
+        }
+        await new Promise(r => setTimeout(r, 200));
+      }
+    }
+
+    // Inicio en portada
+    show('portada');
+  </script>
 </body>
 </html>
