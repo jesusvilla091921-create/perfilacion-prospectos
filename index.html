@@ -1,109 +1,302 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <base target="_top">
-    <title>Panel de Control Sencillo</title>
+<html lang="es" data-theme="light" class="h-full bg-slate-50 transition-colors duration-300">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MADA · Portabilidad</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <meta name="theme-color" content="#003b8f">
+    <link rel="manifest" href="manifest.json">
     <style>
-      /* ------------------------------------- */
-      /* CSS para el diseño visual del Dashboard */
-      /* ------------------------------------- */
-      body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        margin: 0;
-        background-color: #f4f7f9;
-      }
-      .header {
-        background-color: #2196F3; /* Azul primario de Material Design */
-        color: white;
-        padding: 25px;
-        text-align: center;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      }
-      .container {
-        display: flex;
-        flex-wrap: wrap;
-        padding: 20px;
-        gap: 20px;
-        justify-content: center;
-      }
-      .card {
-        background-color: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        padding: 30px;
-        width: 100%;
-        max-width: 300px;
-        text-align: center;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-      }
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-      }
-      .value {
-        font-size: 3em;
-        font-weight: 700;
-        color: #2196F3;
-        margin-top: 10px;
-      }
-      .label {
-        color: #607D8B;
-        font-size: 1.1em;
-        margin-bottom: 5px;
-        text-transform: uppercase;
-      }
+        /* Estilos base para dark mode y transiciones suaves */
+        .dark .bg-slate-50 { background-color: #0f172a; } /* dark:bg-slate-900 */
+        .dark .text-slate-800 { color: #e2e8f0; } /* dark:text-slate-200 */
+        .dark .bg-white { background-color: #1e293b; border-color: #334155; } /* dark:bg-slate-800 */
+        .dark .shadow-sm { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.1), 0 1px 1px -1px rgb(0 0 0 / 0.1); }
+        .dark .text-slate-900 { color: #f8fafc; }
+        .dark .text-slate-600 { color: #cbd5e1; }
+        .dark .border-slate-100 { border-color: #334155; }
+        .dark .border-slate-200 { border-color: #475569; }
+        .dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: #475569; }
+        .dark .hover\:bg-slate-50:hover { background-color: #334155; }
+        .dark .bg-slate-50 { background-color: #334155; }
+
+        /* Estilo para inputs en dark mode */
+        .dark input, .dark select {
+            background-color: #1e293b;
+            border-color: #475569;
+            color: #f8fafc;
+        }
+
+        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+        .glass { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+
+        /* Clases de animación 'Framer Motion Style' (usando transiciones CSS nativas) */
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .fade-out { animation: fadeOut 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
+
+        .modal-enter { opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; }
+        .modal-enter-active { opacity: 1; transform: scale(1); }
+        .modal-exit { opacity: 1; transition: opacity 0.3s ease, transform 0.3s ease; }
+        .modal-exit-active { opacity: 0; transform: scale(0.95); }
     </style>
-  </head>
-  <body>
-    <div class="header">
-      <h1>Panel de Métricas Clave</h1>
-      <p>Dashboard impulsado por Google Apps Script</p>
+</head>
+<body class="h-full text-slate-800 transition-colors duration-300">
+    <div id="appContainer" class="min-h-screen flex flex-col">
+        <header class="bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-xl bg-[#00aeef] flex items-center justify-center font-bold text-[#0a2f6b]">M</div>
+                    <div>
+                        <h1 class="text-xl font-semibold tracking-wide">MADA · Portabilidad</h1>
+                        <p class="text-white/80 text-sm" data-i18n="header_subtitle">Flujo de perfilación y captura</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button id="btnToggleTheme" class="p-2 rounded-full hover:bg-white/10 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path id="themeIcon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"></path>
+                        </svg>
+                    </button>
+                    <button id="btnToggleLang" class="p-2 rounded-full hover:bg-white/10 transition text-sm font-medium" data-lang-current="es">EN</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1">
+            <div class="max-w-7xl mx-auto px-4 py-6 lg:py-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <section class="lg:col-span-2 space-y-6">
+
+                    <div id="portada" class="rounded-2xl bg-white shadow-lg p-6 border border-slate-100 transition-all duration-300">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div>
+                                <h2 class="text-2xl font-semibold text-slate-900 dark:text-white" data-i18n="welcome_title">Bienvenido</h2>
+                                <p class="text-slate-600 dark:text-slate-400 mt-1" data-i18n="welcome_subtitle">Elige cómo quieres empezar.</p>
+                            </div>
+                        </div>
+                        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <button id="btnStartSurvey" class="w-full rounded-xl bg-[#003b8f] text-white py-4 px-5 font-medium hover:bg-[#0a2f6b] focus:outline-none focus:ring-2 focus:ring-[#00aeef] transition" data-i18n="start_survey_btn">Comenzar encuesta</button>
+                            <button id="btnGoCapture" class="w-full rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-4 px-5 font-medium text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-[#00aeef] transition" data-i18n="go_capture_btn">Ir directo a captura</button>
+                        </div>
+                    </div>
+
+                    <div id="encuestaCard" class="hidden rounded-2xl bg-white shadow-lg border border-slate-100 transition-all duration-300">
+                        <div class="p-5 rounded-t-2xl bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white">
+                            <h3 class="text-lg font-semibold" data-i18n="survey_title">Diagnóstico rápido</h3>
+                            <p class="text-white/80 text-sm" data-i18n="survey_subtitle">Selecciona la compañía y responde 3–4 preguntas.</p>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div id="notaTelcel" class="hidden border border-cyan-200 dark:border-cyan-700 rounded-xl p-4 bg-cyan-50 dark:bg-cyan-900 text-cyan-900 dark:text-cyan-200">
+                                <span data-i18n="telcel_note">Cliente Telcel actual: derivar a upsell/recargas. No aplica diagnóstico.</span>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="current_company_label">Compañía objetivo</label>
+                                <div class="flex flex-wrap gap-2" id="companyButtons"></div>
+                            </div>
+
+                            <div id="surveyQuestions" class="hidden space-y-4">
+                                </div>
+
+                            <div id="surveyResult" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-slate-200 dark:border-slate-700 rounded-xl fade-in">
+                                <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                                    <div class="text-sm text-slate-600 dark:text-slate-400" data-i18n="score_severity_label">Score de severidad</div>
+                                    <div id="scoreValue" class="text-3xl font-semibold mt-1 text-slate-900 dark:text-white">0.00</div>
+                                </div>
+                                <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4 md:col-span-2">
+                                    <div class="text-sm text-slate-600 dark:text-slate-400" data-i18n="suggested_pitch_label">Pitch sugerido</div>
+                                    <div id="pitchValue" class="mt-1 font-medium text-slate-900 dark:text-white">—</div>
+                                </div>
+                                <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4 md:col-span-3">
+                                    <div class="text-sm text-slate-600 dark:text-slate-400" data-i18n="plan_recommendation_label">Recomendación de plan</div>
+                                    <div id="planValue" class="mt-1 font-semibold text-[#0a2f6b] dark:text-[#00aeef]">—</div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap gap-3">
+                                <button id="btnAceptaCambio" class="hidden rounded-xl bg-[#003b8f] text-white py-2.5 px-4 hover:bg-[#0a2f6b] transition" data-i18n="accept_change_btn">Aceptó cambio</button>
+                                <button id="btnNoAcepta" class="hidden rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-2.5 px-4 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition" data-i18n="not_accept_btn">No aceptó</button>
+                                <button id="btnIrFicha" class="hidden rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-2.5 px-4 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition" data-i18n="go_to_capture_btn">Ir a ficha</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="fichaCard" class="hidden rounded-2xl bg-white shadow-lg border border-slate-100 transition-all duration-300">
+                        <div class="p-5 rounded-t-2xl bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold" data-i18n="capture_title">Ficha de captura</h3>
+                                <p class="text-white/80 text-sm" data-i18n="capture_subtitle">Valida los campos antes de crear la ficha.</p>
+                            </div>
+                        </div>
+
+                        <form id="captureForm" class="p-6 space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="plaza_label">Plaza <span class="text-red-500">*</span></label>
+                                    <select id="plaza" required class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition">
+                                        <option value="" data-i18n="select_option">Selecciona</option>
+                                        <option value="MONTERREY">MONTERREY</option>
+                                        <option value="MANTE">MANTE</option>
+                                        <option value="REYNOSA">REYNOSA</option>
+                                        <option value="MATAMOROS">MATAMOROS</option>
+                                        <option value="SALTILLO">SALTILLO</option>
+                                        <option value="CHIHUAHUA">CHIHUAHUA</option>
+                                        <option value="DELICIAS">DELICIAS</option>
+                                        <option value="CUAUHTEMOC">CUAUHTEMOC</option>
+                                        <option value="TAMPICO">TAMPICO</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="carrier_label">Compañía actual (Carrier) <span class="text-red-500">*</span></label>
+                                    <select id="carrier" required class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition">
+                                        <option value="" data-i18n="select_option">Selecciona</option>
+                                        <option>Telcel</option><option>Movistar</option><option>AT&T</option><option>Unefon</option>
+                                        <option>Bait</option><option>OXXO Cel</option><option>Virgin</option><option>Rincel</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="promoter_label">Promotor (opcional)</label>
+                                    <input id="promotor" type="text" class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition" placeholder="Nombre del promotor" data-i18n-placeholder="promoter_placeholder">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="full_name_label">Nombre completo <span class="text-red-500">*</span></label>
+                                    <input id="nombreCompleto" type="text" required class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition" placeholder="Nombre y apellidos" data-i18n-placeholder="full_name_placeholder">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="phone_label">Teléfono (10 dígitos) <span class="text-red-500">*</span></label>
+                                    <input id="telefono" inputmode="numeric" pattern="[0-9]*" maxlength="10" required class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition" placeholder="Ej. 8112345678" data-i18n-placeholder="phone_placeholder">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="dob_label">Fecha de nacimiento <span class="text-red-500">*</span></label>
+                                    <input id="fechaNacimiento" type="date" required class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="pob_label">Estado de nacimiento <span class="text-red-500">*</span></label>
+                                    <select id="estadoNacimiento" required class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition">
+                                        <option value="" data-i18n="select_option">Selecciona</option>
+                                        </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="curp_label">CURP (opcional)</label>
+                                    <input id="curp" type="text" class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition" placeholder="En mayúsculas" data-i18n-placeholder="curp_placeholder">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="icc_label">ICC (20 dígitos) <span class="text-red-500">*</span></label>
+                                    <div class="flex gap-2">
+                                        <input id="icc" inputmode="numeric" pattern="[0-9]*" maxlength="20" required class="mt-1 flex-1 rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition" placeholder="Escanéalo o escríbelo" data-i18n-placeholder="icc_placeholder">
+                                        <button type="button" id="btnScanICC" class="mt-1 rounded-xl bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-200 px-3 text-sm hover:bg-slate-100 dark:hover:bg-slate-600 transition" data-i18n="scan_btn">Escanear</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" data-i18n="nip_label">NIP (4 dígitos) <span class="text-red-500">*</span></label>
+                                    <input id="nip" inputmode="numeric" pattern="[0-9]*" maxlength="4" required class="mt-1 w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 focus:ring-[#00aeef] focus:border-[#00aeef] transition" placeholder="Ej. 1234" data-i18n-placeholder="nip_placeholder">
+                                </div>
+                            </div>
+
+                            <input id="estatus" type="hidden" value="Portabilidad iniciada" />
+
+                            <div class="pt-2">
+                                <button id="btnCrearFicha" type="submit" class="rounded-xl bg-[#003b8f] text-white py-3 px-6 font-medium hover:bg-[#0a2f6b] focus:outline-none focus:ring-2 focus:ring-[#00aeef] transition" data-i18n="create_ticket_btn">Crear ficha</button>
+                                <button type="button" id="btnBackHome" class="ml-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-3 px-6 font-medium text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition" data-i18n="back_home_btn">Volver a portada</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <aside class="lg:col-span-1">
+                    <div class="rounded-2xl bg-white shadow-lg border border-slate-100 dark:border-slate-700 transition-all duration-300">
+                        <div class="p-5 rounded-t-2xl bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white">
+                            <h3 class="text-lg font-semibold" data-i18n="local_leads_title">Leads capturados (local)</h3>
+                            <p class="text-white/80 text-sm" data-i18n="local_leads_subtitle">Últimos 12 registros</p>
+                        </div>
+                        <div id="leadsList" class="p-4 divide-y divide-slate-100 dark:divide-slate-700">
+                            <div class="text-slate-500 dark:text-slate-400 text-sm" data-i18n="no_leads">Sin registros todavía.</div>
+                        </div>
+                        <div class="p-4">
+                            <button id="btnClearLeads" class="w-full rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-2.5 px-4 text-sm text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition" data-i18n="clear_leads_btn">Limpiar lista local</button>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </main>
+
+        <button id="helpButton" class="fixed bottom-6 right-6 h-12 w-12 rounded-full bg-[#00aeef] text-white flex items-center justify-center shadow-lg z-40 hover:bg-[#003b8f] transition-all duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9.247a1 1 0 011.644 0l3.054 4.581a1 1 0 01-.823 1.583H6.71a1 1 0 01-.823-1.583l3.054-4.581zM12 18h.01"></path>
+            </svg>
+        </button>
+
     </div>
 
-    <div class="container">
-      <div class="card">
-        <div class="label">Usuarios Activos</div>
-        <div class="value" id="metric1">1,234</div>
-      </div>
-
-      <div class="card">
-        <div class="label">Ventas Mensuales ($)</div>
-        <div class="value" id="metric2">$5,678</div>
-      </div>
-
-      <div class="card">
-        <div class="label">Tickets Resueltos</div>
-        <div class="value" id="metric3">42</div>
-      </div>
+    <div id="ticketOverlay" class="fixed inset-0 bg-slate-900/40 glass hidden items-center justify-center p-4 z-50 modal-exit-active transition-all duration-300">
+        <div id="ticketModal" class="w-full max-w-lg rounded-2xl overflow-hidden shadow-xl bg-white dark:bg-slate-800 modal-enter-active transition-all duration-300">
+            <div class="p-5 bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white">
+                <h3 class="text-lg font-semibold" data-i18n="ticket_title">Ficha creada</h3>
+                <p class="text-white/80 text-sm" data-i18n="ticket_subtitle">Guarda un screenshot si lo requieres.</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+                    <div class="text-sm text-slate-600 dark:text-slate-400" data-i18n="phone_nip_label">Teléfono • NIP</div>
+                    <div id="tkn_tel_nip" class="mono font-semibold text-slate-900 dark:text-white"></div>
+                </div>
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+                    <div class="text-sm text-slate-600 dark:text-slate-400">ICC</div>
+                    <div id="tkn_icc" class="mono font-semibold text-slate-900 dark:text-white"></div>
+                </div>
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+                    <div class="text-sm text-slate-600 dark:text-slate-400" data-i18n="full_name_label">Nombre completo</div>
+                    <div id="tkn_nombre" class="font-semibold text-slate-900 dark:text-white"></div>
+                </div>
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+                    <div class="text-sm text-slate-600 dark:text-slate-400" data-i18n="plaza_carrier_label">Plaza • Carrier</div>
+                    <div id="tkn_plaza_carrier" class="font-semibold text-slate-900 dark:text-white"></div>
+                </div>
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+                    <div class="text-sm text-slate-600 dark:text-slate-400" data-i18n="birth_label">Nacimiento</div>
+                    <div id="tkn_nacimiento" class="font-semibold text-slate-900 dark:text-white"></div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-slate-600 dark:text-slate-400" data-i18n="promoter_label">Promotor</div>
+                    <div id="tkn_promotor" class="font-semibold text-slate-900 dark:text-white">—</div>
+                </div>
+            </div>
+            <div class="bg-slate-50 dark:bg-slate-700 p-4 flex justify-end">
+                <button id="btnCloseTicket" class="rounded-xl bg-[#003b8f] text-white py-2.5 px-4 hover:bg-[#0a2f6b] transition" data-i18n="ready_btn">Listo</button>
+            </div>
+        </div>
     </div>
 
-    <script>
-      // -------------------------------------
-      // JavaScript del lado del cliente
-      // -------------------------------------
-      
-      // Función que se ejecutaría al cargar la página
-      function loadDashboard() {
-        console.log('Dashboard cargado. Si el script getDashboardData existe, se usaría aquí.');
-        
-        // --- CÓDIGO PARA OBTENER DATOS DE APPS SCRIPT ---
-        /* // Descomenta esto si usas la función getDashboardData() en Code.gs
-        google.script.run
-          .withSuccessHandler(updateDashboard)
-          .getDashboardData();
-        */
-      }
-      
-      // Función para actualizar los elementos del DOM con datos
-      function updateDashboard(data) {
-        // Ejemplo de cómo se actualizaría el dashboard con datos reales
-        document.getElementById('metric1').innerText = data.activeUsers.toLocaleString();
-        document.getElementById('metric2').innerText = '$' + data.sales.toLocaleString();
-        // ...y así sucesivamente
-      }
+    <div id="scanOverlay" class="fixed inset-0 bg-slate-900/50 glass hidden items-center justify-center p-4 z-50 modal-exit-active transition-all duration-300">
+        <div id="scanModal" class="w-full max-w-md rounded-2xl overflow-hidden shadow-xl bg-white dark:bg-slate-800 modal-enter-active transition-all duration-300">
+            <div class="p-4 bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white flex items-center justify-between">
+                <h3 class="font-semibold" data-i18n="scan_icc_title">Escanear ICC</h3>
+                <button id="btnCloseScan" class="text-sm underline" data-i18n="close_btn">Cerrar</button>
+            </div>
+            <div class="p-4 space-y-3">
+                <div id="scanSupport" class="text-sm text-slate-600 dark:text-slate-400"></div>
+                <video id="scanVideo" class="w-full rounded-xl bg-black aspect-[3/4]" autoplay muted playsinline></video>
+                <div id="scanResultText" class="text-center font-bold text-[#003b8f] mono"></div>
+                <div class="text-sm text-slate-500 dark:text-slate-400" data-i18n="scan_tip">Apunta al código de barras (Code128/EAN). Si no aparece, escribe el ICC manualmente.</div>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-700 flex justify-end">
+                <button id="btnStopScan" class="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 py-2 px-4 text-sm text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 transition" data-i18n="stop_btn">Detener</button>
+            </div>
+        </div>
+    </div>
 
-      // Llama a la función principal cuando la página está lista
-      window.onload = loadDashboard;
-    </script>
-  </body>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="app.js"></script>
+</body>
 </html>
