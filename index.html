@@ -25,7 +25,7 @@
   <header class="brand-grad text-white">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="h-9 w-9 rounded-xl bg-white/10 grid place-items-center font-black">M</div>
+        <button id="btnHome" class="h-9 w-9 rounded-xl bg-white/10 grid place-items-center font-black">M</button>
         <div>
           <h1 class="text-xl font-semibold tracking-tight">MADA · Portabilidad</h1>
           <p class="text-xs text-white/80">Perfilación, encuesta y ficha de captura</p>
@@ -38,7 +38,24 @@
   </header>
 
   <main class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
-    <div class="grid lg:grid-cols-3 gap-6">
+    <!-- Portada con 2 botones -->
+    <section id="startBlock" class="card rounded-2xl p-8 text-center space-y-4">
+      <h2 class="text-2xl font-bold text-[var(--brand)]">¿Cómo quieres continuar?</h2>
+      <p class="text-slate-600 max-w-prose mx-auto">
+        Puedes hacer un diagnóstico rápido con la encuesta o ir directo a la ficha de captura.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <button id="btnStartSurvey" class="px-5 py-3 rounded-xl bg-[var(--brand)] text-white hover:bg-[var(--brand-2)]">
+          Comenzar encuesta
+        </button>
+        <button id="btnSkipToCapture" class="px-5 py-3 rounded-xl border hover:bg-slate-50">
+          Ir directo a ficha
+        </button>
+      </div>
+    </section>
+
+    <!-- App -->
+    <section id="mainBlock" class="hidden grid lg:grid-cols-3 gap-6">
       <!-- Columna izquierda -->
       <section class="lg:col-span-2 space-y-6">
         <!-- Paso 1: compañía y plaza -->
@@ -122,7 +139,7 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium mb-1">Estatus del trámite (solo para control interno)</label>
+              <label class="block text-sm font-medium mb-1">Estatus del trámite (solo para Sheets)</label>
               <select id="capEstatus" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent outline-none">
                 <option>Portabilidad iniciada</option>
                 <option>Capturado</option>
@@ -209,7 +226,7 @@
           </div>
         </div>
       </aside>
-    </div>
+    </section>
   </main>
 
   <!-- Modal Ticket (ficha para screenshot) -->
@@ -303,9 +320,16 @@
     };
 
     /* ========= Elementos ========= */
+    const startBlock = el('startBlock');
+    const mainBlock  = el('mainBlock');
+    const btnStartSurvey   = el('btnStartSurvey');
+    const btnSkipToCapture = el('btnSkipToCapture');
+    const btnHome = el('btnHome');
+
     const carrier = el('carrier'); const plaza = el('plaza'); const telcelNote = el('telcelNote');
 
     // Encuesta
+    const surveyBlock = el('surveyBlock');
     const questionsContainer = el('questionsContainer');
     const scoreBox = el('scoreBox'); const pitchBox = el('pitchBox');
     const planBox = el('planBox'); const planCard = el('planCard');
@@ -336,17 +360,22 @@
     let scanStream=null, scanning=false, detector=null;
 
     // Estado
-    let answers = {}; let currentCarrier=null; let currentScore=0; let leads=[];
+    let answers = {}; let currentCarrier=null; let currentScore=0; let leads=[]; let showSurvey=false;
 
     document.addEventListener('DOMContentLoaded', () => {
+      // Portada
+      btnStartSurvey.addEventListener('click', () => startApp(true));
+      btnSkipToCapture.addEventListener('click', () => startApp(false));
+      btnHome.addEventListener('click', goHome);
+
       carrier.addEventListener('change', handleCarrierChange);
       capTelefono.addEventListener('input', ()=> capTelefono.value = capTelefono.value.replace(/\D/g,'').slice(0,10));
       capICC.addEventListener('input',      ()=> capICC.value      = capICC.value.replace(/\D/g,'').slice(0,20));
       capNip.addEventListener('input',      ()=> capNip.value      = capNip.value.replace(/\D/g,'').slice(0,4));
 
-      btnAccept.addEventListener('click', () => { captureBlock.scrollIntoView({behavior:'smooth', block:'start'}); capNombreCompleto.focus(); });
+      btnAccept.addEventListener('click', () => { captureBlock.classList.remove('hidden'); captureBlock.scrollIntoView({behavior:'smooth'}); capNombreCompleto.focus(); });
       btnReject.addEventListener('click', () => alert('¡Gracias! Si cambias de opinión, aquí seguimos.'));
-      btnGoCapture.addEventListener('click', () => { captureBlock.scrollIntoView({behavior:'smooth', block:'start'}); });
+      btnGoCapture.addEventListener('click', () => { captureBlock.classList.remove('hidden'); captureBlock.scrollIntoView({behavior:'smooth'}); });
 
       btnSaveCapture.addEventListener('click', saveCapture);
       btnCancelCapture.addEventListener('click', resetForm);
@@ -361,9 +390,27 @@
         : 'Sin soporte nativo. Si no detecta, ingresa el ICC manualmente.';
 
       loadSavedLeads();
-      // Oculta ficha al inicio; encuesta muestra mensaje hasta que elijan compañía
-      if(!carrier.value){ questionsContainer.innerHTML=''; surveyHint.textContent='Selecciona la compañía para continuar'; }
+      surveyBlock.classList.remove('hidden'); // visible por defecto dentro del modo "encuesta"
+      captureBlock.classList.remove('hidden'); // lo controlamos con showSurvey
+      goHome(); // iniciar en portada
     });
+
+    function startApp(wantSurvey){
+      showSurvey = wantSurvey;
+      startBlock.classList.add('hidden');
+      mainBlock.classList.remove('hidden');
+      // Mostrar/ocultar bloques según elección
+      surveyBlock.classList.toggle('hidden', !showSurvey);
+      captureBlock.classList.toggle('hidden', showSurvey); // si hay encuesta, ocultamos captura hasta que decidan
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function goHome(){
+      // Vuelve a portada y limpia
+      resetForm();
+      mainBlock.classList.add('hidden');
+      startBlock.classList.remove('hidden');
+    }
 
     /* ====== Encuesta ====== */
     function handleCarrierChange(){
@@ -396,7 +443,7 @@
     function updateScore(){
       currentScore=0;
       const qs = carriers[currentCarrier]?.questions || [];
-      qs.forEach(q=>{ if(answers[q.id]){ const idx=q.options.indexOf(answers[q.id]); currentScore += (q.options.length-1-idx)*q.weight; }});      
+      qs.forEach(q=>{ if(answers[q.id]){ const idx=q.options.indexOf(answers[q.id]); currentScore += (q.options.length-1-idx)*q.weight; }});
       scoreBox.textContent = currentScore.toFixed(2);
       pitchBox.textContent = carriers[currentCarrier]?.pitch ? carriers[currentCarrier].pitch(currentScore) : '';
       const plan = currentScore>=3 ? 'ASL150':'ASL100';
@@ -445,7 +492,6 @@
 
     /* ====== Guardar ficha ====== */
     async function saveCapture(){
-      // Validaciones mínimas
       if(!carrier.value){ alert('Selecciona la compañía'); carrier.focus(); return; }
       if(!plaza.value){ alert('Selecciona la plaza'); plaza.focus(); return; }
       if(!capNombreCompleto.value.trim()){ alert('Ingresa el nombre completo'); capNombreCompleto.focus(); return; }
@@ -468,7 +514,7 @@
         icc:capICC.value.trim(),
         nip:capNip.value.trim(),
         promotor:capPromotor.value.trim(),
-        estatus:capEstatus.value // -> solo para Sheets y panel lateral, NO en la ficha
+        estatus:capEstatus.value // -> solo Sheets y panel lateral
       };
 
       // Local
@@ -503,11 +549,17 @@
 
     function resetForm(){
       carrier.value=''; plaza.value='';
+      // encuesta
       questionsContainer.innerHTML=''; answers={}; currentScore=0; scoreBox.textContent='0.00'; pitchBox.textContent=''; planCard.innerHTML=''; planBox.classList.add('hidden'); surveyHint.textContent='Selecciona la compañía para continuar';
+      // captura
       capNombreCompleto.value=''; capTelefono.value=''; capFechaNacimiento.value='';
       capEstadoNacimiento.value=''; capCurp.value=''; capICC.value=''; capNip.value='';
       capPromotor.value=''; capEstatus.value='Portabilidad iniciada';
       telcelNote.classList.add('hidden');
+
+      // visibilidad según elección
+      surveyBlock.classList.toggle('hidden', !showSurvey);
+      captureBlock.classList.toggle('hidden', showSurvey);
       window.scrollTo({top:0, behavior:'smooth'});
     }
 
