@@ -22,8 +22,8 @@
 
     /* ===== Modal estilo BES ===== */
     .resume-title{ letter-spacing:.02em; }
-    .field-label{ font-size:14px; color:rgb(30 58 138); font-weight:600; }   /* azul */
-    .value{ font-weight:600; color:#0f172a; }                                /* slate-900 */
+    .field-label{ font-size:14px; color:rgb(30 58 138); font-weight:600; }
+    .value{ font-weight:600; color:#0f172a; }
     .badge-red{ width:22px; height:22px; background:#b91c1c; border-radius:4px; display:inline-block; }
   </style>
 </head>
@@ -133,6 +133,15 @@
               <input id="capTelefono" inputmode="numeric" maxlength="10" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none"/>
             </div>
 
+            <div>
+              <label class="block text-sm font-medium mb-1">Fecha de nacimiento</label>
+              <input id="capFechaNac" type="date" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none"/>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Lugar de nacimiento</label>
+              <input id="capLugarNac" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none" placeholder="Ciudad, Estado"/>
+            </div>
+
             <div class="sm:col-span-2">
               <label class="block text-sm font-medium mb-1">CURP (opcional)</label>
               <input id="capCurp" class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[var(--brand-cyan)] focus:border-transparent outline-none"/>
@@ -162,7 +171,7 @@
           </div>
 
           <div class="text-xs opacity-70">
-            Se guardan en Sheets: Fecha de captura, Número, Nombre, Ap. paterno, Ap. materno, CURP (si aplica), ICC, NIP y Carrier.
+            Se guardan en Sheets: Fecha de captura, Número, Nombre, Ap. paterno, Ap. materno, <b>Fecha nac.</b>, <b>Lugar nac.</b>, CURP (si aplica), ICC, NIP y Carrier.
           </div>
         </div>
       </div>
@@ -282,6 +291,8 @@
     const capICC = el('capICC');
     const capNip = el('capNip');
     const capPromotor = el('capPromotor');
+    const capFechaNac = el('capFechaNac');
+    const capLugarNac = el('capLugarNac');
     const btnCancelCapture = el('btnCancelCapture');
     const btnSaveCapture = el('btnSaveCapture');
 
@@ -426,6 +437,8 @@
       if(!capApPaterno.value.trim()){ alert('Ingresa apellido paterno'); capApPaterno.focus(); return; }
       if(!capApMaterno.value.trim()){ alert('Ingresa apellido materno'); capApMaterno.focus(); return; }
       if(!/^\d{10}$/.test(capTelefono.value)){ alert('Teléfono de 10 dígitos'); capTelefono.focus(); return; }
+      if(!capFechaNac.value){ alert('Selecciona la fecha de nacimiento'); capFechaNac.focus(); return; }
+      if(!capLugarNac.value.trim()){ alert('Ingresa el lugar de nacimiento'); capLugarNac.focus(); return; }
       if(!/^\d{20}$/.test(capICC.value)){ alert('ICC debe tener 20 dígitos'); capICC.focus(); return; }
       if(!/^\d{4}$/.test(capNip.value)){ alert('NIP de 4 dígitos'); capNip.focus(); return; }
       if(!capPromotor.value.trim()){ alert('Ingresa el nombre del promotor'); capPromotor.focus(); return; }
@@ -438,6 +451,8 @@
         apPaterno:capApPaterno.value.trim(),
         apMaterno:capApMaterno.value.trim(),
         telefono:capTelefono.value.trim(),
+        fechaNacimiento:capFechaNac.value,       // <-- NUEVO
+        lugarNacimiento:capLugarNac.value.trim(),// <-- NUEVO
         curp:capCurp.value.trim(),
         icc:capICC.value.trim(),
         nip:capNip.value.trim(),
@@ -450,7 +465,7 @@
       leads.push({ id:Date.now(), timestamp:record.timestamp, nombre:`${record.nombre} ${record.apPaterno}`, telefono:record.telefono, carrier:record.carrier, status:'Portabilidad iniciada' });
       localStorage.setItem('leads', JSON.stringify(leads)); renderLeads();
 
-      // Envío a Sheets (no-cors por Apps Script)
+      // Envío a Sheets
       pushToSheets(record);
 
       // ===== Modal estilo BES =====
@@ -499,6 +514,17 @@
 
         <div class="mt-3 grid sm:grid-cols-2 gap-4">
           <div>
+            <div class="field-label">Fecha de nacimiento</div>
+            <div class="value">${new Date(record.fechaNacimiento).toLocaleDateString()}</div>
+          </div>
+          <div>
+            <div class="field-label">Lugar de nacimiento</div>
+            <div class="value">${record.lugarNacimiento}</div>
+          </div>
+        </div>
+
+        <div class="mt-3 grid sm:grid-cols-2 gap-4">
+          <div>
             <div class="field-label">CURP</div>
             <div class="value break-all">${record.curp || '—'}</div>
           </div>
@@ -512,11 +538,11 @@
 
       // Acciones del modal
       document.getElementById('okBack').onclick = () => {
-        okModal.style.display = 'none';        // vuelve a la ficha por si quieres editar
+        okModal.style.display = 'none';
       };
       document.getElementById('okConfirm').onclick = () => {
         okModal.style.display = 'none';
-        resetForm();                            // listo para el siguiente cliente
+        resetForm();
       };
     }
 
@@ -537,6 +563,7 @@
       carrier.value=''; currentCarrier=null; telcelNote.classList.add('hidden');
       questionsBlock.classList.add('hidden'); questionsContainer.innerHTML=''; answers={}; currentScore=0; pitchBox.textContent='';
       capNombre.value=''; capApPaterno.value=''; capApMaterno.value=''; capTelefono.value=''; capCurp.value=''; capICC.value=''; capNip.value=''; capPromotor.value='';
+      capFechaNac.value=''; capLugarNac.value='';
       captureBlock.classList.add('hidden');
     }
 
