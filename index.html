@@ -19,6 +19,12 @@
     .btn-option.selected{ background:var(--brand-blue); color:#fff; border-color:transparent }
     .backdrop{ position:fixed; inset:0; background:rgb(0 0 0 /.6); display:none; align-items:center; justify-content:center; z-index:50 }
     .glass{ background:rgb(255 255 255 /.78); backdrop-filter:blur(12px) }
+
+    /* ===== Modal estilo BES ===== */
+    .resume-title{ letter-spacing:.02em; }
+    .field-label{ font-size:14px; color:rgb(30 58 138); font-weight:600; }   /* azul */
+    .value{ font-weight:600; color:#0f172a; }                                /* slate-900 */
+    .badge-red{ width:22px; height:22px; background:#b91c1c; border-radius:4px; display:inline-block; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -182,21 +188,24 @@
     </section>
   </main>
 
-  <!-- Modal de éxito para screenshot -->
+  <!-- Modal estilo BES -->
   <div id="okModal" class="backdrop">
-    <div class="glass rounded-2xl shadow-2xl w-[92%] max-w-md p-5 border">
-      <div class="mx-auto mb-3 size-12 rounded-full grid place-items-center bg-emerald-100 text-emerald-700">
-        <svg xmlns="http://www.w3.org/2000/svg" class="size-7" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2 4.8 12l1.4-1.4L9 13.4l8.8-8.8L19.2 6z"/></svg>
-      </div>
-      <h3 class="text-center text-xl font-bold text-[var(--brand-blue)]">¡Felicidades! Has creado tu ficha con éxito</h3>
-      <p class="text-center text-slate-600 text-sm mt-1">Toma captura de esta tarjeta para el grupo.</p>
-
-      <div class="mt-4 p-4 rounded-xl bg-white border font-mono text-[15px] leading-7" id="okDetails">
-        <!-- se llena por JS -->
+    <div class="glass rounded-2xl shadow-2xl w-[94%] max-w-xl p-5 border">
+      <div class="flex items-center gap-2 text-[var(--brand-blue)] mb-2">
+        <div class="h-8 w-8 rounded-lg bg-[var(--brand-blue)]/10 grid place-items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.09 15.09 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24 11.36 11.36 0 003.56.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.36 11.36 0 00.57 3.56 1 1 0 01-.25 1.02l-2.2 2.21z"/></svg>
+        </div>
+        <div class="font-semibold">Confirma Solicitud Prepago BES</div>
       </div>
 
-      <div class="mt-4 text-center">
-        <button id="okClose" class="px-4 py-2 rounded-xl bg-[var(--brand-blue)] text-white hover:bg-[var(--brand-blue-700)]">Listo</button>
+      <h2 class="text-center text-xl font-bold resume-title text-slate-800 mb-2">RESUMEN DEL TRÁMITE</h2>
+
+      <!-- se llena por JS -->
+      <div id="okDetails" class="text-[15px] leading-7"></div>
+
+      <div class="grid grid-cols-2 gap-3 mt-5">
+        <button id="okBack" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border">REGRESAR</button>
+        <button id="okConfirm" class="px-4 py-2 rounded-xl bg-[var(--brand-blue)] text-white hover:bg-[var(--brand-blue-700)]">CONFIRMAR</button>
       </div>
     </div>
   </div>
@@ -276,10 +285,9 @@
     const btnCancelCapture = el('btnCancelCapture');
     const btnSaveCapture = el('btnSaveCapture');
 
-    // Success modal
+    // Modal estilo BES
     const okModal = el('okModal');
     const okDetails = el('okDetails');
-    const okClose = el('okClose');
 
     // Scanner elements
     const scanModal = el('scanModal');
@@ -312,8 +320,6 @@
       capTelefono.addEventListener('input', () => { capTelefono.value = capTelefono.value.replace(/\D/g, '').slice(0,10); });
       capICC.addEventListener('input', () => { capICC.value = capICC.value.replace(/\D/g, '').slice(0,20); });
       capNip.addEventListener('input', () => { capNip.value = capNip.value.replace(/\D/g, '').slice(0,4); });
-
-      okClose.addEventListener('click', ()=>{ okModal.style.display='none'; resetForm(); });
 
       // Scanner
       btnScanICC.addEventListener('click', openScanModal);
@@ -447,14 +453,71 @@
       // Envío a Sheets (no-cors por Apps Script)
       pushToSheets(record);
 
-      // Modal éxito para screenshot
-      const telNip = `${record.telefono} - ${record.nip}`;
-      okDetails.innerHTML =
-        `<div><span class="font-semibold">Número:</span> ${telNip}</div>
-         <div><span class="font-semibold">ICC:</span> ${record.icc}</div>
-         ${record.curp ? `<div><span class="font-semibold">CURP:</span> ${record.curp}</div>` : ``}
-         <div><span class="font-semibold">Promotor:</span> ${record.promotor}</div>`;
+      // ===== Modal estilo BES =====
+      const oferta = 'Amigo Chip Portabilidad Sin Límite (Recarga)';
+      const promo  = 'Portabilidad +';
+      okDetails.innerHTML = `
+        <div class="grid grid-cols-3 gap-y-3">
+          <div>
+            <div class="field-label">Teléfono</div>
+            <div class="value">${record.telefono}</div>
+          </div>
+          <div>
+            <div class="field-label">Id Port</div>
+            <div class="value">${record.nip}</div>
+          </div>
+          <div class="flex items-end justify-end">
+            <div class="field-label mr-2">Valor Cliente</div>
+            <span class="badge-red"></span>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="field-label">Oferta</div>
+          <div class="value">${oferta}</div>
+        </div>
+
+        <div class="mt-3">
+          <div class="field-label">Promoción</div>
+          <div class="value">${promo}</div>
+        </div>
+
+        <div class="mt-4 grid sm:grid-cols-2 gap-4">
+          <div>
+            <div class="field-label">Nombre</div>
+            <div class="value">${record.nombre || '—'}</div>
+          </div>
+          <div>
+            <div class="field-label">Apellido Paterno</div>
+            <div class="value">${record.apPaterno || '—'}</div>
+          </div>
+          <div>
+            <div class="field-label">Apellido Materno</div>
+            <div class="value">${record.apMaterno || '—'}</div>
+          </div>
+        </div>
+
+        <div class="mt-3 grid sm:grid-cols-2 gap-4">
+          <div>
+            <div class="field-label">CURP</div>
+            <div class="value break-all">${record.curp || '—'}</div>
+          </div>
+          <div>
+            <div class="field-label">ICCID</div>
+            <div class="value break-all">${record.icc}</div>
+          </div>
+        </div>
+      `;
       okModal.style.display='flex';
+
+      // Acciones del modal
+      document.getElementById('okBack').onclick = () => {
+        okModal.style.display = 'none';        // vuelve a la ficha por si quieres editar
+      };
+      document.getElementById('okConfirm').onclick = () => {
+        okModal.style.display = 'none';
+        resetForm();                            // listo para el siguiente cliente
+      };
     }
 
     async function pushToSheets(payload){
