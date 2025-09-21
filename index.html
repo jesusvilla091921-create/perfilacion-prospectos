@@ -45,12 +45,43 @@
             </div>
           </div>
 
-          <!-- Encuesta (placeholder para crecer después) -->
+          <!-- Encuesta -->
           <div id="encuesta" class="hidden rounded-2xl bg-white shadow-sm p-6 border border-slate-100">
             <h2 class="text-lg font-semibold text-slate-700">Diagnóstico rápido</h2>
-            <p class="text-slate-600 mt-2">Módulo listo para integrar preguntas y scoring. Puedes saltar directo a la ficha.</p>
+
+            <!-- Selección de compañía -->
             <div class="mt-4">
-              <button id="irAFichaDesdeEncuesta" class="px-5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50">Ir a ficha</button>
+              <label class="block text-sm font-medium text-slate-600">Selecciona compañía actual</label>
+              <select id="encuestaCarrier" class="mt-1 w-full rounded-lg border-slate-300">
+                <option value="">Seleccione...</option>
+                <option value="Telcel">Telcel</option>
+                <option value="Movistar">Movistar</option>
+                <option value="AT&T">AT&amp;T</option>
+                <option value="Unefon">Unefon</option>
+                <option value="Bait">Bait</option>
+                <option value="OXXO Cel">OXXO Cel</option>
+                <option value="Virgin">Virgin</option>
+                <option value="Rincel">Rincel</option>
+              </select>
+              <p id="notaTelcel" class="hidden mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">Cliente <b>Telcel</b> actual: derivar a <b>upsell/recargas</b>.</p>
+            </div>
+
+            <!-- Preguntas -->
+            <div id="encuestaContent" class="mt-5 space-y-4"></div>
+
+            <!-- Resultado -->
+            <div id="encuestaResultado" class="mt-5 hidden">
+              <div class="rounded-xl border border-slate-200 p-4">
+                <p class="text-sm text-slate-600">Score de severidad:</p>
+                <p class="text-2xl font-semibold text-[#003b8f]"><span id="scoreVal">0.00</span></p>
+                <p id="pitchVal" class="mt-2 text-slate-700"></p>
+                <p id="planVal" class="mt-1 text-[#003b8f] font-semibold"></p>
+              </div>
+              <div class="flex flex-wrap gap-3 mt-4">
+                <button id="aceptaCambio" class="px-4 py-2 bg-[#0a2f6b] text-white rounded-lg">Aceptar cambio</button>
+                <button id="rechazaCambio" class="px-4 py-2 bg-slate-300 text-slate-800 rounded-lg">No aceptar</button>
+                <button id="irAFichaDesdeEncuesta" class="px-4 py-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">Ir a ficha</button>
+              </div>
             </div>
           </div>
 
@@ -134,7 +165,10 @@
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-slate-600">ICC (20 dígitos) <span class="text-red-500">*</span></label>
-                  <input type="text" id="icc" maxlength="20" inputmode="numeric" pattern="[0-9]*" required class="w-full rounded-lg border-slate-300" placeholder="Escríbelo o escanéalo" />
+                  <div class="flex gap-2">
+                    <input type="text" id="icc" maxlength="20" inputmode="numeric" pattern="[0-9]*" required class="w-full rounded-lg border-slate-300" placeholder="Escríbelo o escanéalo" />
+                    <button type="button" id="btnScanICC" class="px-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-50">Escanear</button>
+                  </div>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-slate-600">NIP (4 dígitos) <span class="text-red-500">*</span></label>
@@ -178,21 +212,177 @@
     </div>
   </div>
 
+  <!-- Modal Scanner ICC -->
+  <div id="scanModal" class="hidden fixed inset-0 bg-black/50 z-50 items-center justify-center">
+    <div class="glass bg-white rounded-2xl shadow-lg w-full max-w-md p-5">
+      <h3 class="text-lg font-semibold text-[#0a2f6b]">Escanear ICC</h3>
+      <p id="scanHint" class="text-sm text-slate-600 mt-1">Apunta la cámara al código (Code128/EAN). </p>
+      <div class="mt-3 rounded-xl overflow-hidden bg-black aspect-video">
+        <video id="scanVideo" autoplay playsinline class="w-full h-full object-cover"></video>
+      </div>
+      <div id="scanFallback" class="hidden mt-3 text-amber-700 bg-amber-50 border border-amber-200 p-3 rounded-lg">
+        Sin soporte nativo de <code>BarcodeDetector</code>. Ingrese el ICC manualmente.
+      </div>
+      <div class="mt-4 flex justify-end gap-2">
+        <button id="cerrarScan" class="px-4 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-50">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- JS embebido -->
   <script>
     // ====== CONFIG ======
     const SHEETS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbybcdCYQtssors41pDr-XnUsVy0sOP0uMQlOMYRGiWok7jRu3Da4jW_bCSQ_hcx6W7c7g/exec";
     const VALID_PLAZAS = ['MONTERREY','MANTE','REYNOSA','MATAMOROS','SALTILLO','CHIHUAHUA','DELICIAS','CUAHUTEMOC','TAMPICO'];
 
-    // ====== Navegación ======
+    // ====== Navegación portada ======
     const portada  = document.getElementById("portada");
     const encuesta = document.getElementById("encuesta");
     const ficha    = document.getElementById("ficha");
     document.getElementById("btnEncuesta").onclick = () => { portada.classList.add("hidden"); encuesta.classList.remove("hidden"); };
     document.getElementById("btnFicha").onclick    = () => { portada.classList.add("hidden"); ficha.classList.remove("hidden"); };
-    document.getElementById("irAFichaDesdeEncuesta").onclick = () => { encuesta.classList.add("hidden"); ficha.classList.remove("hidden"); };
 
-    // ====== Helpers ======
+    // ====== Encuesta: definición ======
+    // Para cada compañía: 3-4 preguntas con pesos distintos por opción.
+    // Opciones: Sí / A veces / No  => pesos 1.0 / 0.5 / 0.0 por simplicidad (modulables por pregunta).
+    const QUESTION_BANK = {
+      "Movistar": [
+        { q: "¿Se te corta la señal en tu zona?", weights: { "Sí":1.0, "A veces":0.6, "No":0.0 } },
+        { q: "¿Tus datos se acaban antes de fin de mes?", weights: { "Sí":1.0, "A veces":0.5, "No":0.0 } },
+        { q: "¿Has tenido problemas con la portabilidad o servicio al cliente?", weights: { "Sí":0.8, "A veces":0.4, "No":0.0 } },
+        { q: "¿Pagas más de lo que usas realmente?", weights: { "Sí":0.7, "A veces":0.4, "No":0.0 } },
+      ],
+      "AT&T": [
+        { q: "¿La cobertura dentro de edificios es deficiente?", weights: { "Sí":1.0, "A veces":0.5, "No":0.0 } },
+        { q: "¿La velocidad de datos te resulta lenta?", weights: { "Sí":0.9, "A veces":0.5, "No":0.0 } },
+        { q: "¿Tu factura sube por cargos extra?", weights: { "Sí":0.7, "A veces":0.4, "No":0.0 } },
+      ],
+      "Unefon": [
+        { q: "¿Se te corta la señal frecuentemente?", weights: { "Sí":1.0, "A veces":0.6, "No":0.0 } },
+        { q: "¿La red se satura en horas pico?", weights: { "Sí":0.8, "A veces":0.5, "No":0.0 } },
+        { q: "¿Te limitan apps o velocidad?", weights: { "Sí":0.8, "A veces":0.4, "No":0.0 } },
+      ],
+      "Bait": [
+        { q: "¿La cobertura fuera de ciudad es irregular?", weights: { "Sí":1.0, "A veces":0.5, "No":0.0 } },
+        { q: "¿Notas caídas de red en tienda o interiores?", weights: { "Sí":0.9, "A veces":0.5, "No":0.0 } },
+        { q: "¿El soporte tarda en responder?", weights: { "Sí":0.7, "A veces":0.4, "No":0.0 } },
+      ],
+      "OXXO Cel": [
+        { q: "¿Sientes la red inestable en tu colonia?", weights: { "Sí":1.0, "A veces":0.6, "No":0.0 } },
+        { q: "¿Se te terminan los megas rápido?", weights: { "Sí":0.9, "A veces":0.5, "No":0.0 } },
+        { q: "¿Requieres WhatsApp/Redes ilimitadas y no las tienes?", weights: { "Sí":0.8, "A veces":0.5, "No":0.0 } },
+      ],
+      "Virgin": [
+        { q: "¿Tienes zonas muertas en casa/trabajo?", weights: { "Sí":1.0, "A veces":0.6, "No":0.0 } },
+        { q: "¿Te quedas sin datos antes de tiempo?", weights: { "Sí":0.9, "A veces":0.5, "No":0.0 } },
+        { q: "¿No te alcanza la vigencia de tus paquetes?", weights: { "Sí":0.7, "A veces":0.4, "No":0.0 } },
+      ],
+      "Rincel": [
+        { q: "¿Se cae la red en eventos o multitudes?", weights: { "Sí":1.0, "A veces":0.6, "No":0.0 } },
+        { q: "¿La atención a clientes no resuelve?", weights: { "Sí":0.9, "A veces":0.5, "No":0.0 } },
+        { q: "¿El costo/beneficio no te convence?", weights: { "Sí":0.8, "A veces":0.4, "No":0.0 } },
+      ],
+    };
+
+    // Pitch y plan según score (0–100)
+    function planSugerido(score, carrier) {
+      let plan = score >= 70 ? "Amigo Sin Límite 150" :
+                 score >= 40 ? "Amigo Sin Límite 100" : "Amigo Sin Límite 80";
+      const pitch = score >= 70
+        ? `Tu experiencia con ${carrier} muestra varios dolores. Con Telcel obtienes mejor cobertura y más gigas por tu uso real.`
+        : score >= 40
+          ? `Hay señales de mejora posible. Cambiando a Telcel tienes red más estable y beneficios sociales ilimitados.`
+          : `Vas relativamente bien, pero puedes mejorar cobertura y apps ilimitadas con un paquete adecuado en Telcel.`;
+      return { plan, pitch };
+    }
+
+    const encuestaCarrier = document.getElementById("encuestaCarrier");
+    const encuestaContent = document.getElementById("encuestaContent");
+    const encuestaResultado = document.getElementById("encuestaResultado");
+    const scoreVal = document.getElementById("scoreVal");
+    const pitchVal = document.getElementById("pitchVal");
+    const planVal = document.getElementById("planVal");
+    const notaTelcel = document.getElementById("notaTelcel");
+
+    encuestaCarrier.addEventListener("change", () => {
+      const c = encuestaCarrier.value;
+      encuestaContent.innerHTML = "";
+      encuestaResultado.classList.add("hidden");
+      notaTelcel.classList.add("hidden");
+      if (!c) return;
+
+      if (c === "Telcel") {
+        notaTelcel.classList.remove("hidden");
+        return;
+      }
+
+      // Render preguntas
+      const qs = QUESTION_BANK[c] || [];
+      qs.forEach((item, idx) => {
+        const id = `q_${idx}`;
+        const block = document.createElement("div");
+        block.className = "rounded-xl border border-slate-200 p-4";
+        block.innerHTML = `
+          <p class="font-medium text-slate-700">${item.q}</p>
+          <div class="mt-2 flex gap-2 flex-wrap">
+            ${["Sí","A veces","No"].map(lbl => `
+              <button type="button" data-q="${idx}" data-a="${lbl}"
+                class="ans px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50">${lbl}</button>
+            `).join("")}
+          </div>
+        `;
+        encuestaContent.appendChild(block);
+      });
+
+      // Escucha clics y recalcula score
+      encuestaContent.querySelectorAll(".ans").forEach(btn => {
+        btn.addEventListener("click", () => {
+          // marcar seleccionado
+          const parent = btn.closest("div");
+          parent.querySelectorAll(".ans").forEach(b => b.classList.remove("!bg-[#003b8f]","!text-white","!border-[#003b8f]"));
+          btn.classList.add("!bg-[#003b8f]","!text-white","!border-[#003b8f]");
+
+          // calcular score
+          const answers = [];
+          encuestaContent.querySelectorAll(".ans").forEach(b => {
+            const sel = b.classList.contains("!bg-[#003b8f]");
+            if (sel) answers.push({ idx: Number(b.dataset.q), a: b.dataset.a });
+          });
+
+          if (!answers.length) return;
+          // promedio ponderado simple
+          let sum = 0, count = 0;
+          const qsNow = QUESTION_BANK[c] || [];
+          answers.forEach(ans => {
+            const w = qsNow[ans.idx]?.weights?.[ans.a] ?? 0;
+            sum += w * 100;
+            count += 1;
+          });
+          const score = count ? (sum / count) : 0;
+          scoreVal.textContent = score.toFixed(2);
+          const { plan, pitch } = planSugerido(score, c);
+          pitchVal.textContent = pitch;
+          planVal.textContent = `Recomendación de plan: ${plan}`;
+          encuestaResultado.classList.remove("hidden");
+        });
+      });
+    });
+
+    // Acciones encuesta
+    document.getElementById("aceptaCambio").onclick = () => {
+      encuesta.classList.add("hidden");
+      ficha.classList.remove("hidden");
+    };
+    document.getElementById("rechazaCambio").onclick = () => alert("Gracias");
+    document.getElementById("irAFichaDesdeEncuesta").onclick = () => {
+      encuesta.classList.add("hidden");
+      ficha.classList.remove("hidden");
+      // si eligieron una compañía en encuesta, la ponemos en la ficha
+      const c = encuestaCarrier.value;
+      if (c) document.getElementById("carrier").value = c;
+    };
+
+    // ====== Helpers comunes ======
     const onlyDigits = (s) => String(s || "").replace(/\D+/g, "");
     const toUpper    = (s) => String(s || "").toUpperCase().trim();
 
@@ -239,6 +429,74 @@
       };
     }
 
+    // ====== Escáner ICC ======
+    const scanModal = document.getElementById("scanModal");
+    const scanVideo = document.getElementById("scanVideo");
+    const scanFallback = document.getElementById("scanFallback");
+    const scanHint = document.getElementById("scanHint");
+    let scanStream = null, rafId = null, detector = null, scanning = false;
+
+    async function startScan() {
+      scanModal.classList.remove("hidden");
+      scanModal.classList.add("flex");
+      scanFallback.classList.add("hidden");
+      scanHint.textContent = "Apunta la cámara al código (Code128/EAN).";
+
+      if (!("BarcodeDetector" in window)) {
+        scanFallback.classList.remove("hidden");
+        scanHint.textContent = "Sin soporte nativo. Ingrese el ICC manualmente.";
+        return;
+      }
+
+      try {
+        detector = new BarcodeDetector({ formats: ['code_128','ean_13','ean_8','upc_a','upc_e','code_39'] });
+      } catch {
+        scanFallback.classList.remove("hidden");
+        scanHint.textContent = "Sin soporte nativo. Ingrese el ICC manualmente.";
+        return;
+      }
+
+      try {
+        scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        scanVideo.srcObject = scanStream;
+        scanning = true;
+        const tick = async () => {
+          if (!scanning) return;
+          try {
+            const barcodes = await detector.detect(scanVideo);
+            if (barcodes && barcodes.length) {
+              const raw = barcodes[0].rawValue || "";
+              const digits = raw.replace(/\D+/g,"").slice(0,20);
+              if (digits.length >= 18) { // aceptamos 18–20 y truncamos a 20
+                document.getElementById("icc").value = digits.slice(0,20);
+                stopScan();
+              }
+            }
+          } catch (e) { /* silencioso */ }
+          rafId = requestAnimationFrame(tick);
+        };
+        rafId = requestAnimationFrame(tick);
+      } catch (err) {
+        console.error(err);
+        scanFallback.classList.remove("hidden");
+        scanHint.textContent = "No fue posible usar la cámara. Ingrese manualmente.";
+      }
+    }
+
+    function stopScan() {
+      scanning = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      if (scanStream) {
+        scanStream.getTracks().forEach(t => t.stop());
+        scanStream = null;
+      }
+      scanModal.classList.add("hidden");
+      scanModal.classList.remove("flex");
+    }
+
+    document.getElementById("btnScanICC").onclick = startScan;
+    document.getElementById("cerrarScan").onclick = stopScan;
+
     // ====== Envío a GAS ======
     document.getElementById("formFicha").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -246,12 +504,12 @@
       const plaza            = document.getElementById("plaza").value.trim();
       const carrier          = document.getElementById("carrier").value.trim();
       const nombreCompleto   = document.getElementById("nombreCompleto").value.trim();
-      const telefono         = onlyDigits(document.getElementById("telefono").value).slice(0,10);
+      const telefono         = (String(document.getElementById("telefono").value).replace(/\D+/g,"")).slice(0,10);
       const fechaNacimiento  = document.getElementById("fechaNacimiento").value;
       const estadoNacimiento = document.getElementById("estadoNacimiento").value.trim();
-      const curp             = toUpper(document.getElementById("curp").value);
-      const icc              = onlyDigits(document.getElementById("icc").value).slice(0,20);
-      const nip              = onlyDigits(document.getElementById("nip").value).slice(0,4);
+      const curp             = (document.getElementById("curp").value || "").toUpperCase().trim();
+      const icc              = (String(document.getElementById("icc").value).replace(/\D+/g,"")).slice(0,20);
+      const nip              = (String(document.getElementById("nip").value).replace(/\D+/g,"")).slice(0,4);
       const promotor         = document.getElementById("promotor").value.trim();
 
       // Validaciones rápidas (alineadas al backend)
