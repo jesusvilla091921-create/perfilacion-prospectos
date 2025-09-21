@@ -8,7 +8,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <meta name="theme-color" content="#003b8f">
   <style>
-    /* Utilidades mínimas adicionales */
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
     .glass { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
   </style>
@@ -29,10 +28,9 @@
       </div>
     </header>
 
-    <!-- Contenido -->
     <main class="flex-1">
       <div class="max-w-7xl mx-auto px-4 py-6 lg:py-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Columna principal (2/3) -->
+        <!-- Col principal -->
         <section class="lg:col-span-2 space-y-6">
 
           <!-- Portada -->
@@ -49,28 +47,24 @@
             </div>
           </div>
 
-          <!-- Encuesta / Diagnóstico -->
+          <!-- Encuesta -->
           <div id="encuestaCard" class="hidden rounded-2xl bg-white shadow-sm border border-slate-100">
             <div class="p-5 rounded-t-2xl bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white">
               <h3 class="text-lg font-semibold">Diagnóstico rápido</h3>
               <p class="text-white/80 text-sm">Selecciona la compañía y responde 3–4 preguntas.</p>
             </div>
             <div class="p-6 space-y-6">
-              <!-- Nota Telcel -->
               <div id="notaTelcel" class="hidden border border-cyan-200 rounded-xl p-4 bg-cyan-50 text-cyan-900">
                 Cliente Telcel actual: derivar a upsell/recargas. No aplica diagnóstico.
               </div>
 
-              <!-- Selector de compañía -->
               <div class="space-y-2">
                 <label class="block text-sm font-medium text-slate-700">Compañía objetivo</label>
                 <div class="flex flex-wrap gap-2" id="companyButtons"></div>
               </div>
 
-              <!-- Preguntas -->
               <div id="surveyQuestions" class="hidden space-y-4"></div>
 
-              <!-- Score + Pitch -->
               <div id="surveyResult" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="rounded-xl border border-slate-200 p-4">
                   <div class="text-sm text-slate-600">Score de severidad</div>
@@ -86,7 +80,6 @@
                 </div>
               </div>
 
-              <!-- Acciones -->
               <div class="flex flex-wrap gap-3">
                 <button id="btnAceptaCambio" class="hidden rounded-xl bg-[#003b8f] text-white py-2.5 px-4 hover:bg-[#0a2f6b]">Aceptó cambio</button>
                 <button id="btnNoAcepta" class="hidden rounded-xl bg-white border border-slate-200 py-2.5 px-4 hover:bg-slate-50">No aceptó</button>
@@ -105,7 +98,6 @@
             </div>
 
             <form id="captureForm" class="p-6 space-y-6">
-              <!-- Grupo 1 -->
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label class="block text-sm font-medium text-slate-700">Plaza <span class="text-red-500">*</span></label>
@@ -119,6 +111,7 @@
                     <option>CHIHUAHUA</option>
                     <option>DELICIAS</option>
                     <option>CUAHUTEMOC</option>
+                    <option>TAMPICO</option>
                   </select>
                 </div>
                 <div>
@@ -141,7 +134,6 @@
                 </div>
               </div>
 
-              <!-- Grupo 2 -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-medium text-slate-700">Nombre completo <span class="text-red-500">*</span></label>
@@ -153,7 +145,6 @@
                 </div>
               </div>
 
-              <!-- Grupo 3 -->
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label class="block text-sm font-medium text-slate-700">Fecha de nacimiento <span class="text-red-500">*</span></label>
@@ -199,7 +190,6 @@
                 </div>
               </div>
 
-              <!-- Grupo 4 -->
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label class="block text-sm font-medium text-slate-700">CURP (opcional)</label>
@@ -218,10 +208,8 @@
                 </div>
               </div>
 
-              <!-- Hidden Estatus -->
               <input id="estatus" type="hidden" value="Portabilidad iniciada" />
 
-              <!-- Botón crear -->
               <div class="pt-2">
                 <button id="btnCrearFicha" type="submit" class="rounded-xl bg-[#003b8f] text-white py-3 px-6 font-medium hover:bg-[#0a2f6b] focus:outline-none focus:ring-2 focus:ring-[#00aeef]">Crear ficha</button>
                 <button type="button" id="btnBackHome" class="ml-2 rounded-xl bg-white border border-slate-200 py-3 px-6 font-medium hover:bg-slate-50">Volver a portada</button>
@@ -230,7 +218,7 @@
           </div>
         </section>
 
-        <!-- Panel lateral: Leads capturados (local) -->
+        <!-- Panel lateral -->
         <aside class="lg:col-span-1">
           <div class="rounded-2xl bg-white shadow-sm border border-slate-100">
             <div class="p-5 rounded-t-2xl bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white">
@@ -310,16 +298,16 @@
     // ==============================
     // 🔧 CONFIGURACIÓN EDITABLE
     // ==============================
-    // ⚠️ Pega aquí tu URL de Web App de Google Apps Script
-    const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/MI_ID/exec';
+    // URL Web App GAS (tuya):
+    const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyUQi2oa1tfGFKr7QnZVvhGw_P1BMqNnEITjxSj5XVz0DSwS3-OU3zf78OW8CIrbsEu/exec';
 
-    // Plazas válidas (para UI y consistencia con backend)
-    const VALID_PLAZAS = ['MONTERREY','MANTE','REYNOSA','MATAMOROS','SALTILLO','CHIHUAHUA','DELICIAS','CUAHUTEMOC'];
+    // Plazas válidas (incluye TAMPICO)
+    const VALID_PLAZAS = ['MONTERREY','MANTE','REYNOSA','MATAMOROS','SALTILLO','CHIHUAHUA','DELICIAS','CUAHUTEMOC','TAMPICO'];
 
     // ==============================
-    // 🧠 Encuesta (modelo y lógica)
+    // 🧠 Encuesta
     // ==============================
-    const COMPANIES = ['Movistar','AT&T','Unefon','Bait','OXXO Cel','Virgin','Rincel','Telcel']; // Telcel mostrará nota
+    const COMPANIES = ['Movistar','AT&T','Unefon','Bait','OXXO Cel','Virgin','Rincel','Telcel'];
     const COMPANY_QUESTIONS = {
       'Movistar': [
         { q: '¿Se te corta la señal en interiores?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
@@ -356,11 +344,10 @@
         { q: '¿Internet intermitente?', options: [{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
         { q: '¿Dificultad para hotspot?', options: [{t:'Sí',w:0.8},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
       ],
-      'Telcel': [] // Telcel no muestra encuesta
+      'Telcel': []
     };
 
     function planByScore(score) {
-      // Regla simple y clara
       if (score >= 2.4) return 'Amigo Sin Límite 150';
       if (score >= 1.6) return 'Amigo Sin Límite 100';
       return 'Amigo Sin Límite 80';
@@ -374,22 +361,15 @@
       return `${baja} (${company})`;
     }
 
-    // ==============================
-    // 🧩 Utilidades UI
-    // ==============================
+    // Utilidades
     const $ = (id) => document.getElementById(id);
     function show(id) { $(id).classList.remove('hidden'); }
     function hide(id) { $(id).classList.add('hidden'); }
-    function focusAndAlert(el, msg) {
-      alert(msg);
-      el.focus();
-    }
+    function focusAndAlert(el, msg) { alert(msg); el.focus(); }
     function onlyDigits(str) { return (str || '').replace(/\D+/g, ''); }
     function last6(str) { const s = String(str||''); return s.slice(-6).padStart(6,'•'); }
 
-    // ==============================
-    // 🚦 Navegación
-    // ==============================
+    // Navegación
     const btnStartSurvey = $('btnStartSurvey');
     const btnGoCapture   = $('btnGoCapture');
     const portada        = $('portada');
@@ -408,7 +388,7 @@
     const btnBackHome    = $('btnBackHome');
 
     let currentCompany = null;
-    let currentAnswers = []; // guarda pesos seleccionados
+    let currentAnswers = [];
 
     function renderCompanyButtons() {
       companyButtons.innerHTML = '';
@@ -456,10 +436,8 @@
           ob.textContent = opt.t;
           ob.addEventListener('click', () => {
             currentAnswers[idx] = opt.w;
-            // resaltar selección
             [...options.children].forEach(ch => ch.classList.remove('ring-2','ring-[#00aeef]'));
             ob.classList.add('ring-2','ring-[#00aeef]');
-            // actualizar score
             const sum = (currentAnswers.filter(x=>typeof x==='number').reduce((a,b)=>a+b,0));
             const count = currentAnswers.filter(x=>typeof x==='number').length;
             const score = count ? (sum) : 0;
@@ -479,7 +457,6 @@
     btnStartSurvey.addEventListener('click', () => {
       hide('portada'); show('encuestaCard'); hide('fichaCard');
       renderCompanyButtons();
-      // por defecto, sin compañía seleccionada
       surveyQuestions.innerHTML = '';
       hide('surveyQuestions'); hide('surveyResult');
       hide('notaTelcel');
@@ -491,43 +468,29 @@
     });
 
     btnAceptaCambio.addEventListener('click', () => {
-      show('fichaCard'); // se abre debajo
-      // si seleccionó compañía distinta de Telcel, seteamos carrier por conveniencia
+      show('fichaCard');
       if (currentCompany && currentCompany !== 'Telcel') {
-        $('carrier').value = 'Telcel'; // cambiamos a Telcel como destino comercial
+        $('carrier').value = 'Telcel';
       }
     });
 
-    btnNoAcepta.addEventListener('click', () => {
-      alert('Gracias');
-    });
+    btnNoAcepta.addEventListener('click', () => { alert('Gracias'); });
+    btnIrFicha.addEventListener('click', () => { hide('encuestaCard'); show('fichaCard'); });
+    btnBackHome.addEventListener('click', () => { show('portada'); hide('encuestaCard'); hide('fichaCard'); resetForm(); });
 
-    btnIrFicha.addEventListener('click', () => {
-      hide('encuestaCard'); show('fichaCard');
-    });
-
-    btnBackHome.addEventListener('click', () => {
-      show('portada'); hide('encuestaCard'); hide('fichaCard');
-      resetForm();
-    });
-
-    // ==============================
-    // 📝 Captura y validación
-    // ==============================
+    // Validación
     const captureForm = $('captureForm');
-
+    function onlyDigits(str){ return (str||'').replace(/\D+/g,''); }
     function normalizeInputs() {
       const telEl = $('telefono');
       const iccEl = $('icc');
       const nipEl = $('nip');
       const curpEl= $('curp');
-
       telEl.value = onlyDigits(telEl.value).slice(0,10);
       iccEl.value = onlyDigits(iccEl.value).slice(0,20);
       nipEl.value = onlyDigits(nipEl.value).slice(0,4);
       if (curpEl.value) curpEl.value = curpEl.value.toUpperCase().trim();
     }
-
     function validateForm() {
       const plaza = $('plaza');
       const carrier = $('carrier');
@@ -537,7 +500,6 @@
       const estadoNacimiento = $('estadoNacimiento');
       const icc = $('icc');
       const nip = $('nip');
-
       if (!plaza.value) return focusAndAlert(plaza,'Selecciona una plaza.');
       if (!VALID_PLAZAS.includes(plaza.value)) return focusAndAlert(plaza,'Plaza inválida. Selecciona una válida.');
       if (!carrier.value) return focusAndAlert(carrier,'Selecciona la compañía actual.');
@@ -549,15 +511,12 @@
       if (onlyDigits(nip.value).length !== 4) return focusAndAlert(nip,'El NIP debe tener 4 dígitos.');
       return true;
     }
-
     function resetForm() {
       captureForm.reset();
       $('estatus').value = 'Portabilidad iniciada';
     }
 
-    // ==============================
-    // 📤 Envío al backend (GAS)
-    // ==============================
+    // Envío a GAS
     async function sendToSheets(record) {
       const body = 'payload=' + encodeURIComponent(JSON.stringify(record));
       const res = await fetch(SHEETS_WEBAPP_URL, {
@@ -582,7 +541,7 @@
         carrier: $('carrier').value,
         nombreCompleto: $('nombreCompleto').value.trim(),
         telefono: onlyDigits($('telefono').value),
-        fechaNacimiento: $('fechaNacimiento').value, // YYYY-MM-DD
+        fechaNacimiento: $('fechaNacimiento').value,
         estadoNacimiento: $('estadoNacimiento').value,
         curp: ($('curp').value || '').toUpperCase().trim(),
         icc: onlyDigits($('icc').value).slice(0,20),
@@ -601,9 +560,7 @@
       }
     });
 
-    // ==============================
-    // 🎫 Ticket (modal)
-    // ==============================
+    // Ticket
     const ticketOverlay = $('ticketOverlay');
     $('btnCloseTicket').addEventListener('click', () => {
       ticketOverlay.classList.add('hidden');
@@ -620,18 +577,10 @@
       ticketOverlay.classList.remove('hidden');
     }
 
-    // ==============================
-    // 💾 LocalStorage (leads)
-    // ==============================
+    // LocalStorage
     const LEADS_KEY = 'mada_porta_leads';
-    function getLeads() {
-      try { return JSON.parse(localStorage.getItem(LEADS_KEY)) || []; }
-      catch { return []; }
-    }
-    function setLeads(arr) {
-      localStorage.setItem(LEADS_KEY, JSON.stringify(arr));
-      renderLeads();
-    }
+    function getLeads() { try { return JSON.parse(localStorage.getItem(LEADS_KEY)) || []; } catch { return []; } }
+    function setLeads(arr) { localStorage.setItem(LEADS_KEY, JSON.stringify(arr)); renderLeads(); }
     function addLeadLocal(rec) {
       const resumen = {
         ts: new Date().toLocaleString(),
@@ -676,16 +625,10 @@
         cont.appendChild(row);
       });
     }
-    $('btnClearLeads').addEventListener('click', () => {
-      if (confirm('¿Limpiar lista local de leads?')) {
-        setLeads([]);
-      }
-    });
+    $('btnClearLeads').addEventListener('click', () => { if (confirm('¿Limpiar lista local de leads?')) setLeads([]); });
     renderLeads();
 
-    // ==============================
-    // 📷 Scanner ICC (BarcodeDetector)
-    // ==============================
+    // Scanner ICC
     const scanOverlay = $('scanOverlay');
     const scanVideo = $('scanVideo');
     const scanSupport = $('scanSupport');
@@ -716,14 +659,8 @@
     btnCloseScan.addEventListener('click', closeScanModal);
     btnStopScan.addEventListener('click', closeScanModal);
 
-    function showScanModal() {
-      scanOverlay.classList.remove('hidden');
-    }
-    function closeScanModal() {
-      scanOverlay.classList.add('hidden');
-      stopCamera();
-      scanLoopActive = false;
-    }
+    function showScanModal() { scanOverlay.classList.remove('hidden'); }
+    function closeScanModal() { scanOverlay.classList.add('hidden'); stopCamera(); scanLoopActive = false; }
     async function startCamera() {
       try {
         mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
@@ -734,12 +671,8 @@
       }
     }
     function stopCamera() {
-      if (mediaStream) {
-        mediaStream.getTracks().forEach(t => t.stop());
-        mediaStream = null;
-      }
-      scanVideo.pause();
-      scanVideo.srcObject = null;
+      if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+      scanVideo.pause(); scanVideo.srcObject = null;
     }
     async function startScanLoop() {
       scanLoopActive = true;
@@ -755,16 +688,12 @@
               break;
             }
           }
-        } catch (e) {
-          console.debug('scan error', e);
-        }
+        } catch (e) { console.debug('scan error', e); }
         await new Promise(r => setTimeout(r, 200));
       }
     }
 
-    // Inicio en portada
     show('portada');
   </script>
 </body>
 </html>
-
