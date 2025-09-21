@@ -269,7 +269,7 @@
           <div class="text-sm text-slate-600">Promotor</div>
           <div id="tkn_promotor" class="font-semibold text-slate-900">—</div>
         </div>
-      </
+      </div>
       <div class="bg-slate-50 p-4 flex justify-end">
         <button id="btnCloseTicket" class="rounded-xl bg-[#003b8f] text-white py-2.5 px-4 hover:bg-[#0a2f6b]">Listo</button>
       </div>
@@ -299,7 +299,7 @@
     // 🔧 CONFIGURACIÓN EDITABLE
     // ==============================
     // URL Web App GAS (tuya):
-    const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbx0jDiO4A950jzjGPY8nGg30YnQpP1XY_67zZi6J27r83qW_p1xNi_hcWAVqSG1LB9M/exec';
+   const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbx0jDiO4A950jzjGPY8nGg30YnQpP1XY_67zZi6J27r83qW_p1xNi_hcWAVqSG1LB9M/exec';
     // Plazas válidas (incluye TAMPICO)
     const VALID_PLAZAS = ['MONTERREY','MANTE','REYNOSA','MATAMOROS','SALTILLO','CHIHUAHUA','DELICIAS','CUAHUTEMOC','TAMPICO'];
 
@@ -479,6 +479,7 @@
 
     // Validación
     const captureForm = $('captureForm');
+    function onlyDigits(str){ return (str||'').replace(/\D+/g,''); }
     function normalizeInputs() {
       const telEl = $('telefono');
       const iccEl = $('icc');
@@ -514,14 +515,13 @@
       $('estatus').value = 'Portabilidad iniciada';
     }
 
-    // ==============================
-    // 🚀 Envío a GAS (JSON)
-    // ==============================
+    // Envío a GAS
     async function sendToSheets(record) {
+      const body = 'payload=' + encodeURIComponent(JSON.stringify(record));
       const res = await fetch(SHEETS_WEBAPP_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(record)
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json().catch(() => ({}));
@@ -540,7 +540,7 @@
         carrier: $('carrier').value,
         nombreCompleto: $('nombreCompleto').value.trim(),
         telefono: onlyDigits($('telefono').value),
-        fechaNacimiento: $('fechaNacimiento').value, // yyyy-mm-dd
+        fechaNacimiento: $('fechaNacimiento').value,
         estadoNacimiento: $('estadoNacimiento').value,
         curp: ($('curp').value || '').toUpperCase().trim(),
         icc: onlyDigits($('icc').value).slice(0,20),
@@ -576,7 +576,7 @@
       ticketOverlay.classList.remove('hidden');
     }
 
-    // LocalStorage (panel lateral)
+    // LocalStorage
     const LEADS_KEY = 'mada_porta_leads';
     function getLeads() { try { return JSON.parse(localStorage.getItem(LEADS_KEY)) || []; } catch { return []; } }
     function setLeads(arr) { localStorage.setItem(LEADS_KEY, JSON.stringify(arr)); renderLeads(); }
@@ -614,12 +614,12 @@
         row.className = 'py-3';
         row.innerHTML = `
           <div class="flex items-center justify-between">
-            <div class="font-medium">\${item.nombre}</div>
-            <span class="text-xs px-2 py-0.5 rounded-full \${badgeClass(item.estatus)}">\${item.estatus}</span>
+            <div class="font-medium">${item.nombre}</div>
+            <span class="text-xs px-2 py-0.5 rounded-full ${badgeClass(item.estatus)}">${item.estatus}</span>
           </div>
-          <div class="text-sm text-slate-600">\${item.plaza} • \${item.carrier}</div>
-          <div class="text-sm text-slate-600">Tel: \${item.telefono} · ICC: \${item.icc6}</div>
-          <div class="text-xs text-slate-500 mt-1">\${item.ts}</div>
+          <div class="text-sm text-slate-600">${item.plaza} • ${item.carrier}</div>
+          <div class="text-sm text-slate-600">Tel: ${item.telefono} · ICC: ${item.icc6}</div>
+          <div class="text-xs text-slate-500 mt-1">${item.ts}</div>
         `;
         cont.appendChild(row);
       });
@@ -692,8 +692,9 @@
       }
     }
 
-    // Inicio
     show('portada');
   </script>
 </body>
 </html>
+
+
