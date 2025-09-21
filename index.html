@@ -2,6 +2,7 @@
 <html lang="es" class="h-full bg-slate-50">
 <head>
   <meta charset="utf-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MADA · Portabilidad</title>
   <!-- TailwindCSS -->
@@ -490,7 +491,7 @@
     document.getElementById("btnScanICC").onclick = startScan;
     document.getElementById("cerrarScan").onclick = stopScan;
 
-    // ====== Envío a GAS (con retry JSON si el urlencoded falla) ======
+    // ====== Envío a GAS (intentos multinorma) ======
     document.getElementById("formFicha").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -523,44 +524,56 @@
         estatus: "Portabilidad iniciada"
       };
 
-      async function tryPostFormUrlEncoded() {
+      // Intento 1: x-www-form-urlencoded (payload=)
+      async function postUrlEncoded() {
         const body = "payload=" + encodeURIComponent(JSON.stringify(record));
         const res  = await fetch(SHEETS_WEBAPP_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
           body
         });
         const raw = await res.text();
         let data; try { data = JSON.parse(raw); } catch { data = null; }
-        console.log("[POST-urlencoded] status:", res.status, "raw:", raw, "data:", data);
-        return {res, raw, data};
+        return { res, raw, data };
       }
 
-      async function tryPostJson() {
+      // Intento 2: JSON puro
+      async function postJson() {
         const res  = await fetch(SHEETS_WEBAPP_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json; charset=UTF-8" },
           body: JSON.stringify(record)
         });
         const raw = await res.text();
         let data; try { data = JSON.parse(raw); } catch { data = null; }
-        console.log("[POST-json] status:", res.status, "raw:", raw, "data:", data);
-        return {res, raw, data};
+        return { res, raw, data };
+      }
+
+      // Intento 3: text/plain con JSON
+      async function postText() {
+        const res  = await fetch(SHEETS_WEBAPP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain; charset=UTF-8" },
+          body: JSON.stringify(record)
+        });
+        const raw = await res.text();
+        let data; try { data = JSON.parse(raw); } catch { data = null; }
+        return { res, raw, data };
       }
 
       try {
-        // 1) Intento urlencoded (lo que espera GAS en getPayload_)
-        let {res, raw, data} = await tryPostFormUrlEncoded();
+        let out = await postUrlEncoded();
+        if (!out.data || out.data.ok !== true) out = await postJson();
+        if (!out.data || out.data.ok !== true) out = await postText();
 
-        // 2) Si no trae ok:true, reintenta con JSON
-        if (!data || data.ok !== true) { ({res, raw, data} = await tryPostJson()); }
-
-        if (!data) {
-          alert("No se pudo interpretar la respuesta del servidor.\nRevisa la consola (F12) para ver el detalle.");
+        if (!out.data) {
+          console.error("[Respuesta no JSON]", out.raw);
+          alert("No se pudo interpretar la respuesta del servidor. Revisa permisos del WebApp (/exec).");
           return;
         }
-        if (data.ok !== true) {
-          alert("Error al enviar: " + (data.error || "sin detalle"));
+        if (out.data.ok !== true) {
+          console.error("[Error desde servidor]", out.data);
+          alert("Error al enviar: " + (out.data.error || "sin detalle"));
           return;
         }
 
@@ -581,8 +594,8 @@
         renderLeads();
 
       } catch (err) {
-        console.error(err);
-        alert("No se pudo enviar a Sheets. Inténtalo de nuevo.");
+        console.error("[Fetch error]", err);
+        alert("No se pudo enviar a Sheets. Inténtalo de nuevo.\nDetalle: " + (err?.message || String(err)));
       }
     });
 
