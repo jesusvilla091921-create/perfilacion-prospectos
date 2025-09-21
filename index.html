@@ -63,7 +63,9 @@
                 <option value="Virgin">Virgin</option>
                 <option value="Rincel">Rincel</option>
               </select>
-              <p id="notaTelcel" class="hidden mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">Cliente <b>Telcel</b> actual: derivar a <b>upsell/recargas</b>.</p>
+              <p id="notaTelcel" class="hidden mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                Cliente <b>Telcel</b> actual: derivar a <b>upsell/recargas</b>.
+              </p>
             </div>
 
             <!-- Preguntas -->
@@ -232,7 +234,7 @@
   <!-- JS embebido -->
   <script>
     // ====== CONFIG ======
-    const SHEETS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbybcdCYQtssors41pDr-XnUsVy0sOP0uMQlOMYRGiWok7jRu3Da4jW_bCSQ_hcx6W7c7g/exec";
+    const SHEETS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxHJzcgu_8ZHJXieXeeo1gNk2r0TYmDr4u8TdyuQC9GTyOge5wv7q-fHeMeRLgGMfdyrg/exec";
     const VALID_PLAZAS = ['MONTERREY','MANTE','REYNOSA','MATAMOROS','SALTILLO','CHIHUAHUA','DELICIAS','CUAHUTEMOC','TAMPICO'];
 
     // ====== Navegación portada ======
@@ -331,10 +333,11 @@
 
       encuestaContent.querySelectorAll(".ans").forEach(btn => {
         btn.addEventListener("click", () => {
-          const parent = btn.closest("div");
-          parent.querySelectorAll(".ans").forEach(b => b.classList.remove("!bg-[#003b8f]","!text-white","!border-[#003b8f]"));
+          const group = btn.closest(".rounded-xl");
+          group.querySelectorAll(".ans").forEach(b => b.classList.remove("!bg-[#003b8f]","!text-white","!border-[#003b8f]"));
           btn.classList.add("!bg-[#003b8f]","!text-white","!border-[#003b8f]");
 
+          // Calcular score en tiempo real
           const answers = [];
           encuestaContent.querySelectorAll(".ans").forEach(b => {
             if (b.classList.contains("!bg-[#003b8f]")) answers.push({ idx: Number(b.dataset.q), a: b.dataset.a });
@@ -419,7 +422,7 @@
       };
     }
 
-    // ====== Escáner ICC ======
+    // ====== Scanner ICC ======
     const scanModal = document.getElementById("scanModal");
     const scanVideo = document.getElementById("scanVideo");
     const scanFallback = document.getElementById("scanFallback");
@@ -487,19 +490,19 @@
     document.getElementById("btnScanICC").onclick = startScan;
     document.getElementById("cerrarScan").onclick = stopScan;
 
-    // ====== Envío a GAS (robusto, con retry y logs) ======
+    // ====== Envío a GAS (con retry JSON si el urlencoded falla) ======
     document.getElementById("formFicha").addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const plaza            = document.getElementById("plaza").value.trim();
       const carrier          = document.getElementById("carrier").value.trim();
       const nombreCompleto   = document.getElementById("nombreCompleto").value.trim();
-      const telefono         = (String(document.getElementById("telefono").value).replace(/\D+/g,"")).slice(0,10);
+      const telefono         = onlyDigits(document.getElementById("telefono").value).slice(0,10);
       const fechaNacimiento  = document.getElementById("fechaNacimiento").value;
       const estadoNacimiento = document.getElementById("estadoNacimiento").value.trim();
-      const curp             = (document.getElementById("curp").value || "").toUpperCase().trim();
-      const icc              = (String(document.getElementById("icc").value).replace(/\D+/g,"")).slice(0,20);
-      const nip              = (String(document.getElementById("nip").value).replace(/\D+/g,"")).slice(0,4);
+      const curp             = toUpper(document.getElementById("curp").value);
+      const icc              = onlyDigits(document.getElementById("icc").value).slice(0,20);
+      const nip              = onlyDigits(document.getElementById("nip").value).slice(0,4);
       const promotor         = document.getElementById("promotor").value.trim();
 
       if (!plaza) return alert("Selecciona una plaza.");
@@ -546,7 +549,10 @@
       }
 
       try {
+        // 1) Intento urlencoded (lo que espera GAS en getPayload_)
         let {res, raw, data} = await tryPostFormUrlEncoded();
+
+        // 2) Si no trae ok:true, reintenta con JSON
         if (!data || data.ok !== true) { ({res, raw, data} = await tryPostJson()); }
 
         if (!data) {
