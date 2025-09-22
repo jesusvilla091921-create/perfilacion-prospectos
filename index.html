@@ -1,24 +1,24 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-50">
+<html lang="es" class="h-full bg-white">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MADA · Portabilidad</title>
   <!-- TailwindCSS vía CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <meta name="theme-color" content="#003b8f">
+  <meta name="theme-color" content="#dc2626">
   <style>
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
     .glass { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
   </style>
 </head>
-<body class="h-full text-slate-800">
+<body class="h-full text-red-900 bg-white">
   <div class="min-h-screen flex flex-col">
     <!-- Header -->
-    <header class="bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white">
+    <header class="bg-gradient-to-r from-red-800 to-red-600 text-white">
       <div class="max-w-7xl mx-auto px-4 py-5 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="h-10 w-10 rounded-xl bg-[#00aeef] flex items-center justify-center font-bold text-[#0a2f6b]">M</div>
+          <div class="h-10 w-10 rounded-xl bg-white flex items-center justify-center font-bold text-red-700 border border-red-200">M</div>
           <div>
             <h1 class="text-xl font-semibold tracking-wide">MADA · Portabilidad</h1>
             <p class="text-white/80 text-sm">Flujo de perfilación y captura</p>
@@ -34,63 +34,63 @@
         <section class="lg:col-span-2 space-y-6">
 
           <!-- Portada -->
-          <div id="portada" class="rounded-2xl bg-white shadow-sm p-6 border border-slate-100">
+          <div id="portada" class="rounded-2xl bg-white shadow-sm p-6 border border-red-100">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <h2 class="text-2xl font-semibold text-slate-900">Bienvenido</h2>
-                <p class="text-slate-600 mt-1">Elige cómo quieres empezar.</p>
+                <h2 class="text-2xl font-semibold text-red-900">Bienvenido</h2>
+                <p class="text-red-700/80 mt-1">Elige cómo quieres empezar.</p>
               </div>
             </div>
             <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <button id="btnStartSurvey" class="w-full rounded-xl bg-[#003b8f] text-white py-4 px-5 font-medium hover:bg-[#0a2f6b] focus:outline-none focus:ring-2 focus:ring-[#00aeef]">Comenzar encuesta</button>
-              <button id="btnGoCapture" class="w-full rounded-xl bg-white border border-slate-200 py-4 px-5 font-medium hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#00aeef]">Ir directo a captura</button>
+              <button id="btnStartSurvey" class="w-full rounded-xl bg-red-700 text-white py-4 px-5 font-medium hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400">Comenzar encuesta</button>
+              <button id="btnGoCapture" class="w-full rounded-xl bg-white border border-red-200 py-4 px-5 font-medium hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300">Ir directo a captura</button>
             </div>
           </div>
 
           <!-- Encuesta -->
-          <div id="encuestaCard" class="hidden rounded-2xl bg-white shadow-sm border border-slate-100">
-            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white">
+          <div id="encuestaCard" class="hidden rounded-2xl bg-white shadow-sm border border-red-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white">
               <h3 class="text-lg font-semibold">Diagnóstico rápido</h3>
               <p class="text-white/80 text-sm">Selecciona la compañía y responde 3–4 preguntas.</p>
             </div>
             <div class="p-6 space-y-6">
-              <div id="notaTelcel" class="hidden border border-cyan-200 rounded-xl p-4 bg-cyan-50 text-cyan-900">
+              <div id="notaTelcel" class="hidden border border-rose-200 rounded-xl p-4 bg-rose-50 text-rose-900">
                 Cliente Telcel actual: derivar a upsell/recargas. No aplica diagnóstico.
               </div>
 
               <div class="space-y-2">
-                <label class="block text-sm font-medium text-slate-700">Compañía objetivo</label>
+                <label class="block text-sm font-medium text-red-900">Compañía objetivo (opcional)</label>
                 <div class="flex flex-wrap gap-2" id="companyButtons"></div>
               </div>
 
               <div id="surveyQuestions" class="hidden space-y-4"></div>
 
               <div id="surveyResult" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="rounded-xl border border-slate-200 p-4">
-                  <div class="text-sm text-slate-600">Score de severidad</div>
+                <div class="rounded-xl border border-red-200 p-4">
+                  <div class="text-sm text-red-700">Score de severidad</div>
                   <div id="scoreValue" class="text-3xl font-semibold mt-1">0.00</div>
                 </div>
-                <div class="rounded-xl border border-slate-200 p-4 md:col-span-2">
-                  <div class="text-sm text-slate-600">Pitch sugerido</div>
+                <div class="rounded-xl border border-red-200 p-4 md:col-span-2">
+                  <div class="text-sm text-red-700">Pitch sugerido</div>
                   <div id="pitchValue" class="mt-1 font-medium">—</div>
                 </div>
-                <div class="rounded-xl border border-slate-200 p-4 md:col-span-3">
-                  <div class="text-sm text-slate-600">Recomendación de plan</div>
-                  <div id="planValue" class="mt-1 font-semibold text-[#0a2f6b]">—</div>
+                <div class="rounded-xl border border-red-200 p-4 md:col-span-3">
+                  <div class="text-sm text-red-700">Recomendación de plan</div>
+                  <div id="planValue" class="mt-1 font-semibold text-red-900">—</div>
                 </div>
               </div>
 
               <div class="flex flex-wrap gap-3">
-                <button id="btnAceptaCambio" class="hidden rounded-xl bg-[#003b8f] text-white py-2.5 px-4 hover:bg-[#0a2f6b]">Aceptó cambio</button>
-                <button id="btnNoAcepta" class="hidden rounded-xl bg-white border border-slate-200 py-2.5 px-4 hover:bg-slate-50">No aceptó</button>
-                <button id="btnIrFicha" class="hidden rounded-xl bg-white border border-slate-200 py-2.5 px-4 hover:bg-slate-50">Ir a ficha</button>
+                <button id="btnAceptaCambio" class="hidden rounded-xl bg-red-700 text-white py-2.5 px-4 hover:bg-red-800">Aceptó cambio</button>
+                <button id="btnNoAcepta" class="hidden rounded-xl bg-white border border-red-200 py-2.5 px-4 hover:bg-red-50">No aceptó</button>
+                <button id="btnIrFicha" class="hidden rounded-xl bg-white border border-red-200 py-2.5 px-4 hover:bg-red-50">Ir a ficha</button>
               </div>
             </div>
           </div>
 
           <!-- Ficha de captura -->
-          <div id="fichaCard" class="hidden rounded-2xl bg-white shadow-sm border border-slate-100">
-            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white flex items-center justify-between">
+          <div id="fichaCard" class="hidden rounded-2xl bg-white shadow-sm border border-red-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white flex items-center justify-between">
               <div>
                 <h3 class="text-lg font-semibold">Ficha de captura</h3>
                 <p class="text-white/80 text-sm">Valida los campos antes de crear la ficha.</p>
@@ -100,8 +100,8 @@
             <form id="captureForm" class="p-6 space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label class="block text-sm font-medium text-slate-700">Plaza <span class="text-red-500">*</span></label>
-                  <select id="plaza" required class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]">
+                  <label class="block text-sm font-medium text-red-900">Plaza <span class="text-red-600">*</span></label>
+                  <select id="plaza" required class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400">
                     <option value="">Selecciona</option>
                     <option>MONTERREY</option>
                     <option>MANTE</option>
@@ -115,8 +115,8 @@
                   </select>
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-slate-700">Compañía actual (Carrier) <span class="text-red-500">*</span></label>
-                  <select id="carrier" required class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]">
+                  <label class="block text-sm font-medium text-red-900">Compañía actual (opcional)</label>
+                  <select id="carrier" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400">
                     <option value="">Selecciona</option>
                     <option>Telcel</option>
                     <option>Movistar</option>
@@ -129,30 +129,30 @@
                   </select>
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-slate-700">Promotor (opcional)</label>
-                  <input id="promotor" type="text" class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]" placeholder="Nombre del promotor">
+                  <label class="block text-sm font-medium text-red-900">Promotor <span class="text-red-600">*</span></label>
+                  <input id="promotor" type="text" required class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" placeholder="Nombre del promotor">
                 </div>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-sm font-medium text-slate-700">Nombre completo <span class="text-red-500">*</span></label>
-                  <input id="nombreCompleto" type="text" required class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]" placeholder="Nombre y apellidos">
+                  <label class="block text-sm font-medium text-red-900">Nombre completo (opcional)</label>
+                  <input id="nombreCompleto" type="text" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" placeholder="Nombre y apellidos">
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-slate-700">Teléfono (10 dígitos) <span class="text-red-500">*</span></label>
-                  <input id="telefono" inputmode="numeric" pattern="[0-9]*" maxlength="10" required class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]" placeholder="Ej. 8112345678">
+                  <label class="block text-sm font-medium text-red-900">Teléfono (10 dígitos) <span class="text-red-600">*</span></label>
+                  <input id="telefono" inputmode="numeric" pattern="[0-9]*" maxlength="10" required class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" placeholder="Ej. 8112345678">
                 </div>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label class="block text-sm font-medium text-slate-700">Fecha de nacimiento <span class="text-red-500">*</span></label>
-                  <input id="fechaNacimiento" type="date" required class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]">
+                  <label class="block text-sm font-medium text-red-900">Fecha de nacimiento (opcional)</label>
+                  <input id="fechaNacimiento" type="date" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400">
                 </div>
                 <div class="md:col-span-2">
-                  <label class="block text-sm font-medium text-slate-700">Estado de nacimiento <span class="text-red-500">*</span></label>
-                  <select id="estadoNacimiento" required class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]">
+                  <label class="block text-sm font-medium text-red-900">Estado de nacimiento (opcional)</label>
+                  <select id="estadoNacimiento" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400">
                     <option value="">Selecciona</option>
                     <option>Aguascalientes</option>
                     <option>Baja California</option>
@@ -192,27 +192,27 @@
 
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label class="block text-sm font-medium text-slate-700">CURP (opcional)</label>
-                  <input id="curp" type="text" maxlength="18" pattern="[A-Z0-9]{18}" title="CURP de 18 caracteres alfanuméricos en mayúsculas" class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]" placeholder="En mayúsculas">
+                  <label class="block text-sm font-medium text-red-900">CURP (opcional)</label>
+                  <input id="curp" type="text" maxlength="18" pattern="[A-Z0-9]{18}" title="CURP de 18 caracteres alfanuméricos en mayúsculas" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" placeholder="En mayúsculas">
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-slate-700">ICC (19 dígitos) <span class="text-red-500">*</span></label>
+                  <label class="block text-sm font-medium text-red-900">ICC (19 dígitos) <span class="text-red-600">*</span></label>
                   <div class="flex gap-2">
-                    <input id="icc" inputmode="numeric" pattern="[0-9]*" maxlength="19" required class="mt-1 flex-1 rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]" placeholder="Escanéalo o escríbelo">
-                    <button type="button" id="btnScanICC" class="mt-1 rounded-xl border border-slate-200 px-3 text-sm hover:bg-slate-50">Escanear</button>
+                    <input id="icc" inputmode="numeric" pattern="[0-9]*" maxlength="19" required class="mt-1 flex-1 rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" placeholder="Escanéalo o escríbelo">
+                    <button type="button" id="btnScanICC" class="mt-1 rounded-xl border border-red-200 px-3 text-sm hover:bg-red-50">Escanear</button>
                   </div>
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-slate-700">NIP (4 dígitos) <span class="text-red-500">*</span></label>
-                  <input id="nip" inputmode="numeric" pattern="[0-9]*" maxlength="4" required class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]" placeholder="Ej. 1234">
+                  <label class="block text-sm font-medium text-red-900">NIP (4 dígitos) <span class="text-red-600">*</span></label>
+                  <input id="nip" inputmode="numeric" pattern="[0-9]*" maxlength="4" required class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" placeholder="Ej. 1234">
                 </div>
               </div>
 
               <input id="estatus" type="hidden" value="Portabilidad iniciada" />
 
               <div class="pt-2">
-                <button id="btnCrearFicha" type="submit" class="rounded-xl bg-[#003b8f] text-white py-3 px-6 font-medium hover:bg-[#0a2f6b] focus:outline-none focus:ring-2 focus:ring-[#00aeef]">Crear ficha</button>
-                <button type="button" id="btnBackHome" class="ml-2 rounded-xl bg-white border border-slate-200 py-3 px-6 font-medium hover:bg-slate-50">Volver a portada</button>
+                <button id="btnCrearFicha" type="submit" class="rounded-xl bg-red-700 text-white py-3 px-6 font-medium hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400">Crear ficha</button>
+                <button type="button" id="btnBackHome" class="ml-2 rounded-xl bg-white border border-red-200 py-3 px-6 font-medium hover:bg-red-50">Volver a portada</button>
               </div>
             </form>
           </div>
@@ -220,16 +220,16 @@
 
         <!-- Panel lateral -->
         <aside class="lg:col-span-1">
-          <div class="rounded-2xl bg-white shadow-sm border border-slate-100">
-            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white">
+          <div class="rounded-2xl bg-white shadow-sm border border-red-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white">
               <h3 class="text-lg font-semibold">Leads capturados (local)</h3>
               <p class="text-white/80 text-sm">Últimos 12 registros</p>
             </div>
-            <div id="leadsList" class="p-4 divide-y divide-slate-100">
-              <div class="text-slate-500 text-sm">Sin registros todavía.</div>
+            <div id="leadsList" class="p-4 divide-y divide-red-100">
+              <div class="text-red-700/80 text-sm">Sin registros todavía.</div>
             </div>
             <div class="p-4">
-              <button id="btnClearLeads" class="w-full rounded-xl bg-white border border-slate-200 py-2.5 px-4 text-sm hover:bg-slate-50">Limpiar lista local</button>
+              <button id="btnClearLeads" class="w-full rounded-xl bg-white border border-red-200 py-2.5 px-4 text-sm hover:bg-red-50">Limpiar lista local</button>
             </div>
           </div>
         </aside>
@@ -238,57 +238,57 @@
   </div>
 
   <!-- Modal Ticket -->
-  <div id="ticketOverlay" class="hidden fixed inset-0 bg-slate-900/40 glass flex items-center justify-center p-4 z-50">
+  <div id="ticketOverlay" class="hidden fixed inset-0 bg-red-900/40 glass flex items-center justify-center p-4 z-50">
     <div class="w-full max-w-lg rounded-2xl overflow-hidden shadow-xl">
-      <div class="p-5 bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white">
+      <div class="p-5 bg-gradient-to-r from-red-800 to-red-600 text-white">
         <h3 class="text-lg font-semibold">Ficha creada</h3>
         <p class="text-white/80 text-sm">Guarda un screenshot si lo requieres.</p>
       </div>
       <div class="bg-white p-6 space-y-3">
         <div class="flex items-center justify-between">
-          <div class="text-sm text-slate-600">Número • NIP</div>
-          <div id="tkn_tel_nip" class="mono font-semibold text-slate-900"></div>
+          <div class="text-sm text-red-700">Número • NIP</div>
+          <div id="tkn_tel_nip" class="mono font-semibold text-red-900"></div>
         </div>
         <div class="flex items-center justify-between">
-          <div class="text-sm text-slate-600">ICC</div>
-          <div id="tkn_icc" class="mono font-semibold text-slate-900"></div>
+          <div class="text-sm text-red-700">ICC</div>
+          <div id="tkn_icc" class="mono font-semibold text-red-900"></div>
         </div>
         <div class="flex items-center justify-between">
-          <div class="text-sm text-slate-600">CURP</div>
-          <div id="tkn_curp" class="mono font-semibold text-slate-900">—</div>
+          <div class="text-sm text-red-700">CURP</div>
+          <div id="tkn_curp" class="mono font-semibold text-red-900">—</div>
         </div>
         <div class="flex items-center justify-between">
-          <div class="text-sm text-slate-600">Promotor</div>
-          <div id="tkn_promotor" class="font-semibold text-slate-900">—</div>
+          <div class="text-sm text-red-700">Promotor</div>
+          <div id="tkn_promotor" class="font-semibold text-red-900">—</div>
         </div>
       </div>
-      <div class="bg-slate-50 p-4 flex justify-end">
-        <button id="btnCloseTicket" class="rounded-xl bg-[#003b8f] text-white py-2.5 px-4 hover:bg-[#0a2f6b]">Listo</button>
+      <div class="bg-red-50 p-4 flex justify-end">
+        <button id="btnCloseTicket" class="rounded-xl bg-red-700 text-white py-2.5 px-4 hover:bg-red-800">Listo</button>
       </div>
     </div>
   </div>
 
   <!-- Modal Scanner -->
-  <div id="scanOverlay" class="hidden fixed inset-0 bg-slate-900/50 glass flex items-center justify-center p-4 z-50">
+  <div id="scanOverlay" class="hidden fixed inset-0 bg-red-900/50 glass flex items-center justify-center p-4 z-50">
     <div class="w-full max-w-md rounded-2xl overflow-hidden shadow-xl bg-white">
-      <div class="p-4 bg-gradient-to-r from-[#0a2f6b] to-[#003b8f] text-white flex items-center justify-between">
+      <div class="p-4 bg-gradient-to-r from-red-800 to-red-600 text-white flex items-center justify-between">
         <h3 class="font-semibold">Escanear ICC</h3>
         <button id="btnCloseScan" class="text-sm underline">Cerrar</button>
       </div>
       <div class="p-4 space-y-3">
-        <div id="scanSupport" class="text-sm text-slate-600"></div>
+        <div id="scanSupport" class="text-sm text-red-700"></div>
         <video id="scanVideo" class="w-full rounded-xl bg-black aspect-[3/4]" autoplay muted playsinline></video>
-        <div class="text-sm text-slate-500">Apunta al código de barras (Code128/EAN). Si no aparece, escribe el ICC manualmente.</div>
+        <div class="text-sm text-red-700/80">Apunta al código de barras (Code128/EAN). Si no aparece, escribe el ICC manualmente.</div>
       </div>
-      <div class="p-4 bg-slate-50 flex justify-end">
-        <button id="btnStopScan" class="rounded-xl bg-white border border-slate-200 py-2 px-4 text-sm hover:bg-slate-100">Detener</button>
+      <div class="p-4 bg-red-50 flex justify-end">
+        <button id="btnStopScan" class="rounded-xl bg-white border border-red-200 py-2 px-4 text-sm hover:bg-red-100">Detener</button>
       </div>
     </div>
   </div>
 
   <script>
     // ==============================
-    // 🔧 CONFIGURACIÓN EDITABLE
+    // \uD83D\uDD27 CONFIGURACIÓN EDITABLE
     // ==============================
     // URL Web App GAS (tuya):
     const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyBqdxN9On-PqkuJ86eQDu22EMCfg2qgwtr8LgYh53yyvz1xMPTCj1zT84q02Yn4eM/exec';
@@ -296,7 +296,7 @@
     const VALID_PLAZAS = ['MONTERREY','MANTE','REYNOSA','MATAMOROS','SALTILLO','CHIHUAHUA','DELICIAS','CUAHUTEMOC','TAMPICO'];
 
     // ==============================
-    // 🧠 Encuesta
+    // \uD83E\uDDE0 Encuesta
     // ==============================
     const COMPANIES = ['Movistar','AT&T','Unefon','Bait','OXXO Cel','Virgin','Rincel','Telcel'];
     const COMPANY_QUESTIONS = {
@@ -386,7 +386,7 @@
       COMPANIES.forEach(c => {
         const b = document.createElement('button');
         b.type = 'button';
-        b.className = 'rounded-xl border border-slate-200 px-3 py-1.5 text-sm hover:bg-slate-50';
+        b.className = 'rounded-xl border border-red-200 px-3 py-1.5 text-sm hover:bg-red-50';
         b.textContent = c;
         b.addEventListener('click', () => selectCompany(c));
         companyButtons.appendChild(b);
@@ -414,7 +414,7 @@
       show('surveyQuestions');
       qs.forEach((item, idx) => {
         const wrapper = document.createElement('div');
-        wrapper.className = 'rounded-xl border border-slate-200 p-4';
+        wrapper.className = 'rounded-xl border border-red-200 p-4';
         const title = document.createElement('div');
         title.className = 'font-medium';
         title.textContent = `${idx+1}. ${item.q}`;
@@ -423,12 +423,12 @@
         item.options.forEach(opt => {
           const ob = document.createElement('button');
           ob.type = 'button';
-          ob.className = 'rounded-lg bg-white border border-slate-200 px-3 py-1.5 text-sm hover:bg-slate-50';
+          ob.className = 'rounded-lg bg-white border border-red-200 px-3 py-1.5 text-sm hover:bg-red-50';
           ob.textContent = opt.t;
           ob.addEventListener('click', () => {
             currentAnswers[idx] = opt.w;
-            [...options.children].forEach(ch => ch.classList.remove('ring-2','ring-[#00aeef]'));
-            ob.classList.add('ring-2','ring-[#00aeef]');
+            [...options.children].forEach(ch => ch.classList.remove('ring-2','ring-red-400'));
+            ob.classList.add('ring-2','ring-red-400');
             const sum = (currentAnswers.filter(x=>typeof x==='number').reduce((a,b)=>a+b,0));
             const count = currentAnswers.filter(x=>typeof x==='number').length;
             const score = count ? (sum) : 0;
@@ -469,9 +469,9 @@
     btnIrFicha.addEventListener('click', () => { hide('encuestaCard'); show('fichaCard'); });
     btnBackHome.addEventListener('click', () => { show('portada'); hide('encuestaCard'); hide('fichaCard'); resetForm(); });
 
-    // Validación
+    // Validación (solo campos obligatorios: promotor, plaza, teléfono, ICC, NIP)
     const captureForm = $('captureForm');
-    function onlyDigitsLocal(str){ return (str||'').replace(/\D+/g,''); } // evitar colisión con global
+    function onlyDigitsLocal(str){ return (str||'').replace(/\D+/g,''); }
     function normalizeInputs() {
       const telEl = $('telefono');
       const iccEl = $('icc');
@@ -484,24 +484,16 @@
     }
     function validateForm() {
       const plaza = $('plaza');
-      const carrier = $('carrier');
-      const nombreCompleto = $('nombreCompleto');
+      const promotor = $('promotor');
       const telefono = $('telefono');
-      const fechaNacimiento = $('fechaNacimiento');
-      const estadoNacimiento = $('estadoNacimiento');
       const icc = $('icc');
       const nip = $('nip');
-      const curp = $('curp');
       if (!plaza.value) return focusAndAlert(plaza,'Selecciona una plaza.');
       if (!VALID_PLAZAS.includes(plaza.value)) return focusAndAlert(plaza,'Plaza inválida. Selecciona una válida.');
-      if (!carrier.value) return focusAndAlert(carrier,'Selecciona la compañía actual.');
-      if (!nombreCompleto.value.trim()) return focusAndAlert(nombreCompleto,'Escribe el nombre completo.');
+      if (!promotor.value.trim()) return focusAndAlert(promotor,'Escribe el nombre del promotor.');
       if (onlyDigitsLocal(telefono.value).length !== 10) return focusAndAlert(telefono,'El teléfono debe tener 10 dígitos.');
-      if (!fechaNacimiento.value) return focusAndAlert(fechaNacimiento,'Selecciona la fecha de nacimiento.');
-      if (!estadoNacimiento.value) return focusAndAlert(estadoNacimiento,'Selecciona el estado de nacimiento.');
       if (onlyDigitsLocal(icc.value).length !== 19) return focusAndAlert(icc,'El ICC debe tener 19 dígitos.');
       if (onlyDigitsLocal(nip.value).length !== 4) return focusAndAlert(nip,'El NIP debe tener 4 dígitos.');
-      if (curp.value && curp.value.length !== 18) return focusAndAlert(curp,'El CURP debe tener 18 caracteres.');
       return true;
     }
     function resetForm() {
@@ -531,12 +523,12 @@
         type: 'capture',
         timestamp: new Date().toISOString(),
         plaza: $('plaza').value,
-        carrier: $('carrier').value,
-        nombreCompleto: $('nombreCompleto').value.trim(),
+        carrier: $('carrier').value, // opcional
+        nombreCompleto: $('nombreCompleto').value.trim(), // opcional
         telefono: onlyDigitsLocal($('telefono').value),
-        fechaNacimiento: $('fechaNacimiento').value,
-        estadoNacimiento: $('estadoNacimiento').value,
-        curp: ($('curp').value || '').toUpperCase().trim(),
+        fechaNacimiento: $('fechaNacimiento').value, // opcional
+        estadoNacimiento: $('estadoNacimiento').value, // opcional
+        curp: ($('curp').value || '').toUpperCase().trim(), // opcional
         icc: onlyDigitsLocal($('icc').value).slice(0,19),
         nip: onlyDigitsLocal($('nip').value).slice(0,4),
         promotor: $('promotor').value.trim(),
@@ -575,9 +567,9 @@
     function addLeadLocal(rec) {
       const resumen = {
         ts: new Date().toLocaleString(),
-        nombre: rec.nombreCompleto,
+        nombre: rec.nombreCompleto || '—',
         telefono: rec.telefono,
-        carrier: rec.carrier,
+        carrier: rec.carrier || '—',
         plaza: rec.plaza,
         icc6: last6(rec.icc),
         estatus: rec.estatus || 'Portabilidad iniciada'
@@ -587,18 +579,18 @@
       setLeads(list.slice(0,12));
     }
     function badgeClass(estatus) {
-      if (!estatus) return 'bg-blue-100 text-blue-800';
+      if (!estatus) return 'bg-red-100 text-red-800';
       const e = estatus.toLowerCase();
       if (e.includes('confirmado')) return 'bg-green-100 text-green-800';
-      if (e.includes('rechaz')) return 'bg-red-100 text-red-800';
-      return 'bg-blue-100 text-blue-800';
+      if (e.includes('rechaz')) return 'bg-rose-100 text-rose-800';
+      return 'bg-red-100 text-red-800';
     }
     function renderLeads() {
       const list = getLeads();
       const cont = $('leadsList');
       cont.innerHTML = '';
       if (!list.length) {
-        cont.innerHTML = '<div class="text-slate-500 text-sm">Sin registros todavía.</div>';
+        cont.innerHTML = '<div class="text-red-700/80 text-sm">Sin registros todavía.</div>';
         return;
       }
       list.forEach(item => {
@@ -609,9 +601,9 @@
             <div class="font-medium">${item.nombre}</div>
             <span class="text-xs px-2 py-0.5 rounded-full ${badgeClass(item.estatus)}">${item.estatus}</span>
           </div>
-          <div class="text-sm text-slate-600">${item.plaza} • ${item.carrier}</div>
-          <div class="text-sm text-slate-600">Tel: ${item.telefono} · ICC: ${item.icc6}</div>
-          <div class="text-xs text-slate-500 mt-1">${item.ts}</div>
+          <div class="text-sm text-red-700">${item.plaza} • ${item.carrier}</div>
+          <div class="text-sm text-red-700">Tel: ${item.telefono} · ICC: ${item.icc6}</div>
+          <div class="text-xs text-red-500 mt-1">${item.ts}</div>
         `;
         cont.appendChild(row);
       });
