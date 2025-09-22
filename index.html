@@ -193,12 +193,12 @@
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label class="block text-sm font-medium text-slate-700">CURP (opcional)</label>
-                  <input id="curp" type="text" class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]" placeholder="En mayúsculas">
+                  <input id="curp" type="text" maxlength="18" pattern="[A-Z0-9]{18}" title="CURP de 18 caracteres alfanuméricos en mayúsculas" class="mt-1 w-full rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]" placeholder="En mayúsculas">
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-slate-700">ICC (20 dígitos) <span class="text-red-500">*</span></label>
+                  <label class="block text-sm font-medium text-slate-700">ICC (19 dígitos) <span class="text-red-500">*</span></label>
                   <div class="flex gap-2">
-                    <input id="icc" inputmode="numeric" pattern="[0-9]*" maxlength="20" required class="mt-1 flex-1 rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]" placeholder="Escanéalo o escríbelo">
+                    <input id="icc" inputmode="numeric" pattern="[0-9]*" maxlength="19" required class="mt-1 flex-1 rounded-xl border-slate-300 focus:ring-[#00aeef] focus:border-[#00aeef]" placeholder="Escanéalo o escríbelo">
                     <button type="button" id="btnScanICC" class="mt-1 rounded-xl border border-slate-200 px-3 text-sm hover:bg-slate-50">Escanear</button>
                   </div>
                 </div>
@@ -246,7 +246,7 @@
       </div>
       <div class="bg-white p-6 space-y-3">
         <div class="flex items-center justify-between">
-          <div class="text-sm text-slate-600">Teléfono • NIP</div>
+          <div class="text-sm text-slate-600">Número • NIP</div>
           <div id="tkn_tel_nip" class="mono font-semibold text-slate-900"></div>
         </div>
         <div class="flex items-center justify-between">
@@ -254,16 +254,8 @@
           <div id="tkn_icc" class="mono font-semibold text-slate-900"></div>
         </div>
         <div class="flex items-center justify-between">
-          <div class="text-sm text-slate-600">Nombre completo</div>
-          <div id="tkn_nombre" class="font-semibold text-slate-900"></div>
-        </div>
-        <div class="flex items-center justify-between">
-          <div class="text-sm text-slate-600">Plaza • Carrier</div>
-          <div id="tkn_plaza_carrier" class="font-semibold text-slate-900"></div>
-        </div>
-        <div class="flex items-center justify-between">
-          <div class="text-sm text-slate-600">Nacimiento</div>
-          <div id="tkn_nacimiento" class="font-semibold text-slate-900"></div>
+          <div class="text-sm text-slate-600">CURP</div>
+          <div id="tkn_curp" class="mono font-semibold text-slate-900">—</div>
         </div>
         <div class="flex items-center justify-between">
           <div class="text-sm text-slate-600">Promotor</div>
@@ -299,7 +291,7 @@
     // 🔧 CONFIGURACIÓN EDITABLE
     // ==============================
     // URL Web App GAS (tuya):
-   const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyBqdxN9On-PqkuJ86eQDu22EMCfg2qgwtr8LgYh53yyvz1xMPTCj1zT84q02Yn4eM/exec';
+    const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyBqdxN9On-PqkuJ86eQDu22EMCfg2qgwtr8LgYh53yyvz1xMPTCj1zT84q02Yn4eM/exec';
     // Plazas válidas (incluye TAMPICO)
     const VALID_PLAZAS = ['MONTERREY','MANTE','REYNOSA','MATAMOROS','SALTILLO','CHIHUAHUA','DELICIAS','CUAHUTEMOC','TAMPICO'];
 
@@ -479,16 +471,16 @@
 
     // Validación
     const captureForm = $('captureForm');
-    function onlyDigits(str){ return (str||'').replace(/\D+/g,''); }
+    function onlyDigitsLocal(str){ return (str||'').replace(/\D+/g,''); } // evitar colisión con global
     function normalizeInputs() {
       const telEl = $('telefono');
       const iccEl = $('icc');
       const nipEl = $('nip');
       const curpEl= $('curp');
-      telEl.value = onlyDigits(telEl.value).slice(0,10);
-      iccEl.value = onlyDigits(iccEl.value).slice(0,20);
-      nipEl.value = onlyDigits(nipEl.value).slice(0,4);
-      if (curpEl.value) curpEl.value = curpEl.value.toUpperCase().trim();
+      telEl.value = onlyDigitsLocal(telEl.value).slice(0,10);
+      iccEl.value = onlyDigitsLocal(iccEl.value).slice(0,19);
+      nipEl.value = onlyDigitsLocal(nipEl.value).slice(0,4);
+      if (curpEl.value) curpEl.value = curpEl.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,18).trim();
     }
     function validateForm() {
       const plaza = $('plaza');
@@ -499,15 +491,17 @@
       const estadoNacimiento = $('estadoNacimiento');
       const icc = $('icc');
       const nip = $('nip');
+      const curp = $('curp');
       if (!plaza.value) return focusAndAlert(plaza,'Selecciona una plaza.');
       if (!VALID_PLAZAS.includes(plaza.value)) return focusAndAlert(plaza,'Plaza inválida. Selecciona una válida.');
       if (!carrier.value) return focusAndAlert(carrier,'Selecciona la compañía actual.');
       if (!nombreCompleto.value.trim()) return focusAndAlert(nombreCompleto,'Escribe el nombre completo.');
-      if (onlyDigits(telefono.value).length !== 10) return focusAndAlert(telefono,'El teléfono debe tener 10 dígitos.');
+      if (onlyDigitsLocal(telefono.value).length !== 10) return focusAndAlert(telefono,'El teléfono debe tener 10 dígitos.');
       if (!fechaNacimiento.value) return focusAndAlert(fechaNacimiento,'Selecciona la fecha de nacimiento.');
       if (!estadoNacimiento.value) return focusAndAlert(estadoNacimiento,'Selecciona el estado de nacimiento.');
-      if (onlyDigits(icc.value).length !== 20) return focusAndAlert(icc,'El ICC debe tener 20 dígitos.');
-      if (onlyDigits(nip.value).length !== 4) return focusAndAlert(nip,'El NIP debe tener 4 dígitos.');
+      if (onlyDigitsLocal(icc.value).length !== 19) return focusAndAlert(icc,'El ICC debe tener 19 dígitos.');
+      if (onlyDigitsLocal(nip.value).length !== 4) return focusAndAlert(nip,'El NIP debe tener 4 dígitos.');
+      if (curp.value && curp.value.length !== 18) return focusAndAlert(curp,'El CURP debe tener 18 caracteres.');
       return true;
     }
     function resetForm() {
@@ -539,12 +533,12 @@
         plaza: $('plaza').value,
         carrier: $('carrier').value,
         nombreCompleto: $('nombreCompleto').value.trim(),
-        telefono: onlyDigits($('telefono').value),
+        telefono: onlyDigitsLocal($('telefono').value),
         fechaNacimiento: $('fechaNacimiento').value,
         estadoNacimiento: $('estadoNacimiento').value,
         curp: ($('curp').value || '').toUpperCase().trim(),
-        icc: onlyDigits($('icc').value).slice(0,20),
-        nip: onlyDigits($('nip').value).slice(0,4),
+        icc: onlyDigitsLocal($('icc').value).slice(0,19),
+        nip: onlyDigitsLocal($('nip').value).slice(0,4),
         promotor: $('promotor').value.trim(),
         estatus: $('estatus').value || 'Portabilidad iniciada'
       };
@@ -569,9 +563,7 @@
     function openTicket(rec) {
       $('tkn_tel_nip').textContent = `${rec.telefono} • ${rec.nip}`;
       $('tkn_icc').textContent = rec.icc;
-      $('tkn_nombre').textContent = rec.nombreCompleto || '—';
-      $('tkn_plaza_carrier').textContent = `${rec.plaza} • ${rec.carrier}`;
-      $('tkn_nacimiento').textContent = `${rec.fechaNacimiento} • ${rec.estadoNacimiento}`;
+      $('tkn_curp').textContent = rec.curp || '—';
       $('tkn_promotor').textContent = rec.promotor || '—';
       ticketOverlay.classList.remove('hidden');
     }
@@ -681,8 +673,8 @@
           if (barcodes && barcodes.length) {
             const raw = barcodes[0].rawValue || '';
             const digits = onlyDigits(raw);
-            if (digits.length >= 18) {
-              $('icc').value = digits.slice(0,20);
+            if (digits.length >= 19) {
+              $('icc').value = digits.slice(0,19);
               closeScanModal();
               break;
             }
@@ -696,5 +688,3 @@
   </script>
 </body>
 </html>
-
-
