@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MADA · Supervisor</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <meta name="theme-color" content="#dc2626" />
+  <meta name="theme-color" content="#dc2626">
   <style>
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
-    .glass{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace}
+    .glass{backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px)}
     .btn-disabled{opacity:.6;pointer-events:none}
   </style>
 </head>
@@ -18,204 +18,209 @@
     <header class="bg-gradient-to-r from-red-800 to-red-600 text-white">
       <div class="max-w-7xl mx-auto px-4 py-5 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="h-10 w-10 rounded-xl bg-white flex items-center justify-center font-bold text-red-700 border border-red-200">M</div>
+          <div class="h-10 w-10 rounded-xl bg-white flex items-center justify-center font-bold text-red-700 border border-red-200" aria-label="Logo MADA">M</div>
           <div>
-            <h1 class="text-xl font-semibold tracking-wide">MADA · Dashboard Supervisor</h1>
-            <p class="text-white/80 text-sm">Asignación · Localizador · Métricas · Nómina</p>
+            <h1 class="text-xl font-semibold tracking-wide">MADA · Supervisor</h1>
+            <p class="text-white/80 text-sm">Asignaciones · Métricas · Nómina</p>
           </div>
         </div>
-        <div id="netStatus" class="text-xs">•</div>
+        <div class="flex items-center gap-2 text-xs text-white/80">
+          <a href="./index.html" class="underline hover:text-white">Promotor</a>
+          <span>·</span>
+          <span id="netStatus">•</span>
+        </div>
       </div>
     </header>
 
     <main class="flex-1">
       <div class="max-w-7xl mx-auto px-4 py-6 lg:py-10 grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <!-- Sidebar navegación -->
-        <aside class="lg:col-span-1">
-          <nav class="rounded-2xl bg-white shadow-sm border border-red-100 p-4 space-y-2 sticky top-6">
-            <button data-tab="tab-metricas" class="tabbtn w-full text-left rounded-xl px-3 py-2 hover:bg-red-50 border border-red-200">Métricas</button>
-            <button data-tab="tab-nomina" class="tabbtn w-full text-left rounded-xl px-3 py-2 hover:bg-red-50 border border-red-200">Nómina</button>
-            <button data-tab="tab-asignar" class="tabbtn w-full text-left rounded-xl px-3 py-2 hover:bg-red-50 border border-red-200">Asignar ICCs</button>
-            <button data-tab="tab-localizar" class="tabbtn w-full text-left rounded-xl px-3 py-2 hover:bg-red-50 border border-red-200">Localizar ICC</button>
-          </nav>
-        </aside>
-
-        <!-- Contenido -->
+        <!-- Col 1-3: contenido principal -->
         <section class="lg:col-span-3 space-y-6">
-          <!-- MÉTRICAS -->
-          <div id="tab-metricas" class="tab rounded-2xl bg-white shadow-sm border border-red-100">
-            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white">
-              <h3 class="text-lg font-semibold">Métricas de operación</h3>
-              <p class="text-white/80 text-sm">Rango de fechas, plaza y promotor</p>
+          <!-- KPIs -->
+          <div class="rounded-2xl bg-white shadow-sm border border-red-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white flex items-center justify-between">
+              <div>
+                <h3 class="text-lg font-semibold">Indicadores</h3>
+                <p class="text-white/80 text-sm">Hoy / Semana / Mes</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <input id="kpiDate" type="date" class="rounded-lg text-red-900 px-2 py-1 border border-red-200 bg-white"/>
+                <button id="btnRefreshKPI" class="rounded-lg bg-white/10 px-3 py-1.5 text-sm hover:bg-white/20">Actualizar</button>
+              </div>
             </div>
-            <div class="p-6 space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+            <div class="p-5 grid grid-cols-2 md:grid-cols-4 gap-4" id="kpiCards">
+              <!-- Cards render -->
+            </div>
+          </div>
+
+          <!-- Asignar ICCs -->
+          <div class="rounded-2xl bg-white shadow-sm border border-red-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white flex items-center justify-between">
+              <div>
+                <h3 class="text-lg font-semibold">Asignar ICCs</h3>
+                <p class="text-white/80 text-sm">Escanea o pega una lista. Se validan con Luhn.</p>
+              </div>
+              <div class="text-xs">Asignación incremental</div>
+            </div>
+            <div class="p-5 space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <div>
-                  <label class="block text-sm">Desde</label>
-                  <input id="fDesde" type="date" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
+                  <label class="text-sm font-medium">Promotor</label>
+                  <input id="asgPromotor" class="mt-1 w-full rounded-xl border border-red-200 px-3 py-2" placeholder="Nombre del promotor"/>
                 </div>
                 <div>
-                  <label class="block text-sm">Hasta</label>
-                  <input id="fHasta" type="date" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
-                </div>
-                <div>
-                  <label class="block text-sm">Plaza</label>
-                  <select id="fPlaza" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400">
-                    <option value="">Todas</option>
+                  <label class="text-sm font-medium">Plaza</label>
+                  <select id="asgPlaza" class="mt-1 w-full rounded-xl border border-red-200 px-3 py-2">
+                    <option value="">Selecciona</option>
                     <option>MONTERREY</option><option>MANTE</option><option>REYNOSA</option><option>MATAMOROS</option><option>SALTILLO</option><option>CHIHUAHUA</option><option>DELICIAS</option><option>CUAHUTEMOC</option><option>TAMPICO</option>
                   </select>
                 </div>
-                <div class="md:col-span-2">
-                  <label class="block text-sm">Promotor (opcional)</label>
-                  <input id="fPromotor" placeholder="Nombre del promotor" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
+                <div>
+                  <label class="text-sm font-medium">Tipo</label>
+                  <select id="asgTipo" class="mt-1 w-full rounded-xl border border-red-200 px-3 py-2">
+                    <option value="portabilidad">Portabilidad</option>
+                    <option value="chip_azul">Chip azul</option>
+                    <option value="chip_blanco">Chip blanco</option>
+                  </select>
                 </div>
-              </div>
-              <div class="flex gap-3">
-                <button id="btnRefrescarStats" class="rounded-xl bg-red-700 text-white px-4 py-2">Actualizar</button>
-                <button id="btnExportStats" class="rounded-xl bg-white border border-red-200 px-4 py-2">Exportar CSV</button>
-              </div>
-
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="rounded-xl border border-red-200 p-4">
-                  <div class="text-sm text-red-700">Portabilidades</div>
-                  <div id="kpiPortas" class="text-3xl font-semibold">0</div>
-                </div>
-                <div class="rounded-xl border border-red-200 p-4">
-                  <div class="text-sm text-red-700">Activaciones</div>
-                  <div id="kpiActs" class="text-3xl font-semibold">0</div>
-                </div>
-                <div class="rounded-xl border border-red-200 p-4">
-                  <div class="text-sm text-red-700">Recargas ($)</div>
-                  <div id="kpiMonto" class="text-3xl font-semibold">0</div>
-                </div>
-                <div class="rounded-xl border border-red-200 p-4">
-                  <div class="text-sm text-red-700">Promotores activos</div>
-                  <div id="kpiProms" class="text-3xl font-semibold">0</div>
+                <div class="flex items-end gap-2">
+                  <button id="btnScanAdd" class="w-full rounded-xl bg-white border border-red-200 py-2.5 px-4 text-sm hover:bg-red-50">Escanear ICC</button>
                 </div>
               </div>
 
-              <div class="rounded-xl border border-red-200 overflow-x-auto">
-                <table class="min-w-full text-sm">
-                  <thead class="bg-red-50">
-                    <tr>
-                      <th class="px-3 py-2 text-left">Promotor</th>
-                      <th class="px-3 py-2 text-right">Portas</th>
-                      <th class="px-3 py-2 text-right">Activaciones</th>
-                      <th class="px-3 py-2 text-right">Recargas ($)</th>
-                      <th class="px-3 py-2 text-right">Última act.</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tblStatsBody"></tbody>
-                </table>
+              <div>
+                <label class="text-sm font-medium">ICC(s)</label>
+                <textarea id="asgICCList" class="mt-1 w-full rounded-xl border border-red-200 px-3 py-2 mono" rows="4" placeholder="Pega uno por línea, con o sin espacios"></textarea>
+                <div class="text-xs text-red-700 mt-1">Acepta 19–20 dígitos. Se ignorarán líneas inválidas.</div>
+              </div>
+
+              <div id="asgPreview" class="hidden rounded-xl border border-red-200 p-3 bg-red-50/40 text-sm"></div>
+
+              <div class="flex items-center gap-2">
+                <button id="btnAsignar" class="rounded-xl bg-red-700 text-white py-2.5 px-4 hover:bg-red-800">Asignar ICCs</button>
+                <button id="btnLimpiarAsg" class="rounded-xl bg-white border border-red-200 py-2.5 px-4 hover:bg-red-50">Limpiar</button>
               </div>
             </div>
           </div>
 
-          <!-- NÓMINA -->
-          <div id="tab-nomina" class="tab hidden rounded-2xl bg-white shadow-sm border border-red-100">
-            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white">
-              <h3 class="text-lg font-semibold">Nómina por portabilidades</h3>
-              <p class="text-white/80 text-sm">Esquema: 1-5 a $10, 6-10 a $15, 11+ a $20 (todas al mismo rate por bloque alcanzado)</p>
-            </div>
-            <div class="p-6 space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <div>
-                  <label class="block text-sm">Desde</label>
-                  <input id="pDesde" type="date" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
-                </div>
-                <div>
-                  <label class="block text-sm">Hasta</label>
-                  <input id="pHasta" type="date" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
-                </div>
-                <div>
-                  <label class="block text-sm">Plaza</label>
-                  <select id="pPlaza" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400">
-                    <option value="">Todas</option>
-                    <option>MONTERREY</option><option>MANTE</option><option>REYNOSA</option><option>MATAMOROS</option><option>SALTILLO</option><option>CHIHUAHUA</option><option>DELICIAS</option><option>CUAHUTEMOC</option><option>TAMPICO</option>
-                  </select>
-                </div>
-                <div class="flex items-end">
-                  <button id="btnCalcularNomina" class="rounded-xl bg-red-700 text-white px-4 py-2 w-full">Calcular</button>
-                </div>
+          <!-- Localizar ICC -->
+          <div class="rounded-2xl bg-white shadow-sm border border-red-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white flex items-center justify-between">
+              <div>
+                <h3 class="text-lg font-semibold">Localizar ICC</h3>
+                <p class="text-white/80 text-sm">Estatus, asignación, número y recarga.</p>
               </div>
+              <button id="btnScanFind" class="rounded-lg bg-white/10 px-3 py-1.5 text-sm hover:bg-white/20">Escanear</button>
+            </div>
+            <div class="p-5 space-y-3">
+              <div class="flex gap-2">
+                <input id="lookupICC" class="flex-1 rounded-xl border border-red-200 px-3 py-2 mono" placeholder="Ingresa ICC"/>
+                <button id="btnLookup" class="rounded-xl bg-red-700 text-white py-2.5 px-4 hover:bg-red-800">Buscar</button>
+              </div>
+              <div id="lookupHint" class="text-xs text-red-700 hidden">ICC inválido (Luhn). Puedes buscarlo de todos modos.</div>
+              <div id="lookupResult" class="rounded-xl border border-red-200 p-4 hidden"></div>
+            </div>
+          </div>
 
-              <div class="rounded-xl border border-red-200 overflow-x-auto">
-                <table class="min-w-full text-sm">
-                  <thead class="bg-red-50">
-                    <tr>
-                      <th class="px-3 py-2 text-left">Promotor</th>
-                      <th class="px-3 py-2 text-right">Portas</th>
-                      <th class="px-3 py-2 text-right">Tarifa ($)</th>
-                      <th class="px-3 py-2 text-right">Pago ($)</th>
+          <!-- Nómina (por promociones) -->
+          <div class="rounded-2xl bg-white shadow-sm border border-red-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white flex items-center justify-between">
+              <div>
+                <h3 class="text-lg font-semibold">Cálculo de nómina</h3>
+                <p class="text-white/80 text-sm">Regla: 1–5 = $10 c/u · 6–10 = $15 c/u · ≥12 = $20 c/u (todas).</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <input id="nominaDesde" type="date" class="rounded-lg text-red-900 px-2 py-1 border border-red-200 bg-white"/>
+                <input id="nominaHasta" type="date" class="rounded-lg text-red-900 px-2 py-1 border border-red-200 bg-white"/>
+                <button id="btnNominaFetch" class="rounded-lg bg-white/10 px-3 py-1.5 text-sm hover:bg-white/20">Obtener</button>
+              </div>
+            </div>
+            <div class="p-5 space-y-4">
+              <div class="overflow-x-auto">
+                <table class="min-w-full text-sm" id="tblNomina">
+                  <thead>
+                    <tr class="text-left text-red-700 border-b border-red-100">
+                      <th class="py-2 pr-4">Promotor</th>
+                      <th class="py-2 pr-4">Plaza</th>
+                      <th class="py-2 pr-4">Promociones</th>
+                      <th class="py-2 pr-4">Tarifa</th>
+                      <th class="py-2 pr-4">Total</th>
                     </tr>
                   </thead>
-                  <tbody id="tblNominaBody"></tbody>
-                  <tfoot class="bg-red-50">
-                    <tr>
-                      <td class="px-3 py-2 font-semibold">Total</td>
-                      <td id="nomTotPortas" class="px-3 py-2 text-right font-semibold">0</td>
-                      <td class="px-3 py-2"></td>
-                      <td id="nomTotPago" class="px-3 py-2 text-right font-semibold">0</td>
+                  <tbody id="tbodyNomina"></tbody>
+                  <tfoot>
+                    <tr class="border-t border-red-100 font-medium">
+                      <td class="py-2" colspan="4">Total general</td>
+                      <td class="py-2" id="nominaGranTotal">$0</td>
                     </tr>
                   </tfoot>
                 </table>
               </div>
-              <div class="flex gap-3">
-                <button id="btnExportNomina" class="rounded-xl bg-white border border-red-200 px-4 py-2">Exportar CSV</button>
+              <div class="flex items-center gap-2">
+                <button id="btnNominaExport" class="rounded-xl bg-white border border-red-200 py-2.5 px-4 hover:bg-red-50">Exportar CSV</button>
               </div>
             </div>
           </div>
 
-          <!-- ASIGNAR ICCs -->
-          <div id="tab-asignar" class="tab hidden rounded-2xl bg-white shadow-sm border border-red-100">
-            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white">
-              <h3 class="text-lg font-semibold">Asignar ICCs</h3>
-              <p class="text-white/80 text-sm">Escanea o escribe y añade a la sesión; luego guarda al catálogo</p>
-            </div>
-            <div class="p-6 space-y-4">
-              <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
-                <input id="asgPromotor" class="rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" placeholder="Promotor"/>
-                <select id="asgTipo" class="rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400">
-                  <option value="Azul">Azul</option>
-                  <option value="Blanco">Blanco</option>
-                  <option value="Porta">Porta</option>
-                </select>
-                <div class="md:col-span-2 flex gap-2">
-                  <input id="asgICC" inputmode="numeric" maxlength="19" placeholder="Escanea/teclea ICC" class="flex-1 rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400"/>
-                  <button id="btnScanICC3" type="button" class="rounded-xl border border-red-200 px-3 text-sm hover:bg-red-50">Scan</button>
-                </div>
-                <button id="btnAsignarAdd" class="rounded-xl bg-red-700 text-white px-4">Agregar</button>
+          <!-- Activaciones recientes -->
+          <div class="rounded-2xl bg-white shadow-sm border border-red-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white flex items-center justify-between">
+              <div>
+                <h3 class="text-lg font-semibold">Activaciones recientes</h3>
+                <p class="text-white/80 text-sm">Últimas 50 (promotor, número, monto).</p>
               </div>
-              <div id="asgList" class="text-sm text-red-800/90">Sin elementos en la sesión.</div>
-              <div class="flex gap-2">
-                <button id="btnAsignarEnviar" class="rounded-xl bg-red-700 text-white px-4 py-2">Guardar asignaciones</button>
-                <button id="btnAsignarLimpiar" class="rounded-xl bg-white border border-red-200 px-4 py-2">Limpiar</button>
-                <button id="btnAsignarExport" class="rounded-xl bg-white border border-red-200 px-4 py-2">Exportar CSV</button>
-              </div>
-              <p id="asgMsg" class="text-xs text-red-700/80"></p>
+              <button id="btnReloadActivaciones" class="rounded-lg bg-white/10 px-3 py-1.5 text-sm hover:bg-white/20">Actualizar</button>
             </div>
-          </div>
-
-          <!-- LOCALIZAR ICC -->
-          <div id="tab-localizar" class="tab hidden rounded-2xl bg-white shadow-sm border border-red-100">
-            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white">
-              <h3 class="text-lg font-semibold">Localizar ICC</h3>
-              <p class="text-white/80 text-sm">Consulta estatus completo de un ICC</p>
-            </div>
-            <div class="p-6 space-y-4">
-              <div class="flex gap-2">
-                <input id="locICC" inputmode="numeric" maxlength="19" placeholder="Ingresa ICC" class="flex-1 rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400"/>
-                <button id="btnLocalizar" class="rounded-xl bg-red-700 text-white px-4">Buscar</button>
+            <div class="p-5">
+              <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                  <thead>
+                    <tr class="text-left text-red-700 border-b border-red-100">
+                      <th class="py-2 pr-4">Fecha</th>
+                      <th class="py-2 pr-4">Promotor</th>
+                      <th class="py-2 pr-4">Plaza</th>
+                      <th class="py-2 pr-4">Tipo</th>
+                      <th class="py-2 pr-4">Número</th>
+                      <th class="py-2 pr-4">ICC (••••••)</th>
+                      <th class="py-2 pr-4">Recarga</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyActivaciones"></tbody>
+                </table>
               </div>
-              <div id="locCard" class="hidden rounded-xl border border-red-200 p-4"></div>
             </div>
           </div>
         </section>
+
+        <!-- Col 4: utilidades -->
+        <aside class="lg:col-span-1 space-y-6">
+          <div class="rounded-2xl bg-white shadow-sm border border-red-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white">
+              <h3 class="text-lg font-semibold">Utilidades</h3>
+              <p class="text-white/80 text-sm">Exportar, respaldos rápidos</p>
+            </div>
+            <div class="p-5 flex flex-col gap-2">
+              <button id="btnExportActivaciones" class="rounded-xl bg-white border border-red-200 py-2.5 px-4 text-sm hover:bg-red-50">Exportar activaciones CSV</button>
+              <button id="btnExportAsignaciones" class="rounded-xl bg-white border border-red-200 py-2.5 px-4 text-sm hover:bg-red-50">Exportar asignaciones CSV</button>
+            </div>
+          </div>
+
+          <div class="rounded-2xl bg-white shadow-sm border border-red-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white">
+              <h3 class="text-lg font-semibold">Notas</h3>
+              <p class="text-white/80 text-sm">Cosas por hacer</p>
+            </div>
+            <div class="p-5">
+              <textarea id="notaSupervisor" class="w-full rounded-xl border border-red-200 px-3 py-2" rows="8" placeholder="Escribe aquí. Se guarda local."></textarea>
+              <div class="text-xs text-red-700 mt-1">Auto-guardado local</div>
+            </div>
+          </div>
+        </aside>
       </div>
     </main>
   </div>
 
-  <!-- Modal Scanner (reutilizable) -->
+  <!-- Modal Scanner -->
   <div id="scanOverlay" class="hidden fixed inset-0 bg-red-900/50 glass flex items-center justify-center p-4 z-50">
     <div class="w-full max-w-md rounded-2xl overflow-hidden shadow-xl bg-white">
       <div class="p-4 bg-gradient-to-r from-red-800 to-red-600 text-white flex items-center justify-between">
@@ -235,202 +240,311 @@
 
   <script>
     // ==============================
-    // ⚙️ CONFIG
+    // ⚙️ CONFIGURACIÓN EDITABLE
     // ==============================
-    const GAS_BASE_URL = 'https://script.google.com/macros/s/REEMPLAZA_CON_TU_WEBAPP/exec'; // cambia por tu WebApp
+    const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyBqdxN9On-PqkuJ86eQDu22EMCfg2qgwtr8LgYh53yyvz1xMPTCj1zT84q02Yn4eM/exec';
+    const VALID_PLAZAS = ['MONTERREY','MANTE','REYNOSA','MATAMOROS','SALTILLO','CHIHUAHUA','DELICIAS','CUAHUTEMOC','TAMPICO'];
 
     // ==============================
-    // 🧩 Utils
+    // 🔧 Utilidades
     // ==============================
     const $ = (id)=> document.getElementById(id);
     const onlyDigits = (s)=> (s||'').replace(/\D+/g,'');
+    const last6 = (s)=> String(s||'').slice(-6).padStart(6,'•');
     const sleep = (ms)=> new Promise(r=>setTimeout(r,ms));
-    function luhnCheck(num){ const s=onlyDigits(num); if(s.length<19) return false; let sum=0,dbl=false; for(let i=s.length-1;i>=0;i--){ let d=+s[i]; if(dbl){ d*=2; if(d>9) d-=9; } sum+=d; dbl=!dbl; } return sum%10===0; }
-    function netUpdate(){ const el=$('netStatus'); const on=navigator.onLine; el.textContent= on? 'En línea' : 'Sin conexión'; el.className='text-xs '+(on?'text-green-100':'text-yellow-200'); }
-    window.addEventListener('online',netUpdate); window.addEventListener('offline',netUpdate); netUpdate();
 
-    // Tabs
-    const tabs=[...document.querySelectorAll('.tab')];
-    const btns=[...document.querySelectorAll('.tabbtn')];
-    btns.forEach(b=> b.addEventListener('click',()=>{ const id=b.getAttribute('data-tab'); tabs.forEach(t=> t.classList.add('hidden')); $(id).classList.remove('hidden'); }));
-    // Abre métricas por defecto
-    $("tab-metricas").classList.remove('hidden');
-
-    // ==============================
-    // 🌐 GAS helpers
-    // ==============================
-    async function postGAS(body){ const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(), 10000); const res=await fetch(GAS_BASE_URL,{method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body), signal: ctrl.signal}); clearTimeout(t); if(!res.ok) throw new Error('HTTP '+res.status); return res.json().catch(()=>({ok:true})); }
-    async function getGAS(params){ const q=new URLSearchParams(params).toString(); const res=await fetch(GAS_BASE_URL+"?"+q); if(!res.ok) throw new Error('HTTP '+res.status); return res.json(); }
-
-    // ==============================
-    // 📊 MÉTRICAS
-    // ==============================
-    const kpiPortas=$('kpiPortas'), kpiActs=$('kpiActs'), kpiMonto=$('kpiMonto'), kpiProms=$('kpiProms');
-    const tblStatsBody=$('tblStatsBody');
-    $('btnRefrescarStats').onclick = async ()=>{
-      const p = collectFilters('f');
-      try{ const data = await getGAS({ action:'stats', ...p }); paintStats(data); }
-      catch(e){ alert('Error obteniendo métricas'); console.error(e); }
-    };
-    $('btnExportStats').onclick = ()=> exportTableCSV('tblStatsBody','stats.csv',['Promotor','Portas','Activaciones','Recargas','Ultima']);
-
-    function collectFilters(prefix){
-      const d = $(`${prefix}Desde`).value; const h = $(`${prefix}Hasta`).value; const plaza = $(`${prefix}Plaza`).value; const prom = $(`${prefix}Promotor`)? $(`${prefix}Promotor`).value : '';
-      const o={}; if(d) o.from=d; if(h) o.to=h; if(plaza) o.plaza=plaza; if(prom) o.promotor=prom; return o;
+    // Luhn (ICCID 19–20 dígitos)
+    function luhnCheck(num){
+      const s = onlyDigits(num);
+      if (s.length < 19) return false;
+      let sum=0, dbl=false;
+      for (let i=s.length-1; i>=0; i--){
+        let d = parseInt(s[i],10);
+        if (dbl){ d*=2; if(d>9) d-=9; }
+        sum += d; dbl = !dbl;
+      }
+      return sum % 10 === 0;
     }
-    function paintStats(data){
-      // Estructura esperada (flexible): { totales:{portas,activaciones,recargas,promotores}, por_promotor:[{promotor, portas, activaciones, recargas, ultima}]} 
-      const t = data?.totales || {}; const rows = data?.por_promotor || [];
-      kpiPortas.textContent = t.portas||0; kpiActs.textContent = t.activaciones||0; kpiMonto.textContent = t.recargas||0; kpiProms.textContent = t.promotores||rows.length;
-      tblStatsBody.innerHTML='';
-      rows.forEach(r=>{
-        const tr=document.createElement('tr'); tr.className='border-t border-red-100';
-        tr.appendChild(td(r.promotor));
-        tr.appendChild(td(num(r.portas)));
-        tr.appendChild(td(num(r.activaciones)));
-        tr.appendChild(td(currency(r.recargas)));
-        tr.appendChild(td(r.ultima||'—'));
-        tblStatsBody.appendChild(tr);
-      });
+
+    // Net status
+    const netStatus=$('netStatus');
+    function updateNet(){ netStatus.textContent = navigator.onLine? 'En línea' : 'Sin conexión'; netStatus.className = 'text-xs ' + (navigator.onLine? 'text-green-100' : 'text-yellow-200'); }
+    window.addEventListener('online', updateNet); window.addEventListener('offline', updateNet); updateNet();
+
+    // Fetch util a GAS (con reintentos)
+    async function sendToSheets(record, {retries=2, timeoutMs=8000}={}){
+      const body='payload='+encodeURIComponent(JSON.stringify(record));
+      for (let attempt=0; attempt<=retries; attempt++){
+        const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(), timeoutMs);
+        try{
+          const res = await fetch(SHEETS_WEBAPP_URL, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body, signal: ctrl.signal });
+          clearTimeout(t);
+          if (!res.ok) throw new Error('HTTP '+res.status);
+          const data = await res.json().catch(()=>({}));
+          return data;
+        } catch(err){
+          clearTimeout(t);
+          if (attempt===retries) throw err;
+          await sleep(600*(attempt+1));
+        }
+      }
     }
-    function td(txt){ const td=document.createElement('td'); td.className='px-3 py-2 '+(typeof txt==='number'?'text-right':'text-left'); td.textContent= typeof txt==='number'? String(txt) : txt; return td; }
-    function num(n){ return Number(n||0); }
-    function currency(n){ return (Number(n||0)).toLocaleString('es-MX',{style:'currency',currency:'MXN'}); }
 
     // ==============================
-    // 💸 NÓMINA
+    // 📈 KPIs
     // ==============================
-    const tblNominaBody=$('tblNominaBody'); const nomTotPago=$('nomTotPago'); const nomTotPortas=$('nomTotPortas');
-    $('btnCalcularNomina').onclick = async ()=>{
+    const kpiCards = $('kpiCards');
+    $('btnRefreshKPI').addEventListener('click', loadKPIs);
+    function renderKPIItem(title, value, sub){
+      const card = document.createElement('div');
+      card.className = 'rounded-xl border border-red-200 p-4';
+      const t=document.createElement('div'); t.className='text-sm text-red-700'; t.textContent=title;
+      const v=document.createElement('div'); v.className='text-3xl font-semibold mt-1'; v.textContent=value;
+      const s=document.createElement('div'); s.className='text-xs text-red-700 mt-1'; s.textContent=sub||'';
+      card.appendChild(t); card.appendChild(v); card.appendChild(s); return card;
+    }
+    async function loadKPIs(){
+      kpiCards.innerHTML='';
+      const date = $('kpiDate').value || new Date().toISOString().slice(0,10);
       try{
-        const p=collectFilters('p');
-        // Espera: {por_promotor:[{promotor, portas}]}
-        const data = await getGAS({ action:'payroll_base', ...p });
-        const rows = data?.por_promotor || [];
-        paintNomina(rows);
-      } catch(e){ alert('Error calculando nómina'); console.error(e); }
-    };
-    $('btnExportNomina').onclick= ()=> exportTableCSV('tblNominaBody','nomina.csv',['Promotor','Portas','Tarifa','Pago']);
-
-    function tarifaPorPortas(n){ if(n>=11) return 20; if(n>=6) return 15; if(n>=1) return 10; return 0; }
-    function paintNomina(rows){
-      tblNominaBody.innerHTML=''; let totPago=0, totPortas=0;
-      rows.forEach(r=>{
-        const portas = Number(r.portas||0); const rate = tarifaPorPortas(portas); const pago = portas*rate; totPago+=pago; totPortas+=portas;
-        const tr=document.createElement('tr'); tr.className='border-t border-red-100';
-        tr.appendChild(td(r.promotor));
-        tr.appendChild(td(portas));
-        tr.appendChild(td(rate));
-        tr.appendChild(td(pago));
-        tblNominaBody.appendChild(tr);
-      });
-      nomTotPago.textContent = currency(totPago); nomTotPortas.textContent = String(totPortas);
+        const data = await sendToSheets({type:'metrics', date});
+        // Se esperan llaves: today_promos, week_promos, month_promos, conv_rate, avg_topup
+        const m = data || {};
+        kpiCards.appendChild(renderKPIItem('Promos hoy', String(m.today_promos ?? 0)));
+        kpiCards.appendChild(renderKPIItem('Promos semana', String(m.week_promos ?? 0)));
+        kpiCards.appendChild(renderKPIItem('Promos mes', String(m.month_promos ?? 0)));
+        kpiCards.appendChild(renderKPIItem('Tasa conversión', (m.conv_rate!=null? (m.conv_rate*100).toFixed(1)+'%':'—')));
+      } catch(e){
+        kpiCards.appendChild(renderKPIItem('Promos hoy','—','Sin conexión/Backend'));
+        kpiCards.appendChild(renderKPIItem('Promos semana','—'));
+        kpiCards.appendChild(renderKPIItem('Promos mes','—'));
+        kpiCards.appendChild(renderKPIItem('Tasa conversión','—'));
+      }
     }
 
     // ==============================
-    // 📦 ASIGNAR ICCs
+    // 📦 Asignar ICCs
     // ==============================
-    const asgSession=[]; // {promotor,tipo,icc}
-    $('btnAsignarAdd').onclick = ()=>{
-      const prom = $('asgPromotor').value.trim();
-      const tipo = $('asgTipo').value;
-      const icc = onlyDigits($('asgICC').value);
-      if(!prom) return alert('Promotor requerido');
-      if(icc.length!==19 || !luhnCheck(icc)) return alert('ICC inválido');
-      asgSession.push({promotor:prom, tipo, icc}); $('asgICC').value=''; renderAsg();
-    };
-    $('btnAsignarLimpiar').onclick=()=>{ asgSession.length=0; renderAsg(); };
-    $('btnAsignarEnviar').onclick= async()=>{
-      if(!asgSession.length) return alert('Nada que guardar');
-      try{ await postGAS({ action:'assign', items: asgSession, timestamp: new Date().toISOString() }); $('asgMsg').textContent='Asignaciones guardadas'; asgSession.length=0; renderAsg(); }
-      catch(e){ $('asgMsg').textContent='Error guardando'; console.error(e); }
-    };
-    $('btnAsignarExport').onclick=()=>{
-      if(!asgSession.length) return alert('Nada que exportar');
-      const header=['promotor','tipo','icc'];
-      const rows=[header.join(',')].concat(asgSession.map(o=> header.map(k=>`"${String(o[k]??'').replace(/"/g,'""')}"`).join(',')));
-      downloadCSV(rows.join('\n'),'asignaciones_sesion.csv');
-    };
-    function renderAsg(){
-      const cont=$('asgList'); cont.innerHTML='';
-      if(!asgSession.length){ cont.textContent='Sin elementos en la sesión.'; return; }
-      const ul=document.createElement('ul');
-      asgSession.forEach((x,i)=>{ const li=document.createElement('li'); li.className='py-1 flex justify-between'; li.textContent=`${i+1}. ${x.icc} · ${x.tipo} · ${x.promotor}`; ul.appendChild(li); });
-      cont.appendChild(ul);
+    const asgPromotor=$('asgPromotor');
+    const asgPlaza=$('asgPlaza');
+    const asgTipo=$('asgTipo');
+    const asgICCList=$('asgICCList');
+    const asgPreview=$('asgPreview');
+    $('btnLimpiarAsg').addEventListener('click', ()=>{ asgICCList.value=''; asgPreview.classList.add('hidden'); asgPreview.textContent=''; });
+
+    function parseICCList(raw){
+      const lines = String(raw||'').split(/\n|,|;|\s+/).map(x=>onlyDigits(x)).filter(Boolean);
+      const uniq = Array.from(new Set(lines));
+      const valids = []; const invalids = [];
+      uniq.forEach(v=> (luhnCheck(v) ? valids : invalids).push(v) );
+      return {valids, invalids};
     }
+    asgICCList.addEventListener('input', ()=>{
+      const {valids, invalids} = parseICCList(asgICCList.value);
+      if (!valids.length && !invalids.length){ asgPreview.classList.add('hidden'); return; }
+      asgPreview.classList.remove('hidden');
+      asgPreview.innerHTML = `<div><b>${valids.length}</b> válidos · <b>${invalids.length}</b> descartados</div>`;
+    });
+
+    $('btnAsignar').addEventListener('click', async ()=>{
+      const promotor = asgPromotor.value.trim();
+      const plaza = asgPlaza.value;
+      if (!promotor) return alert('Escribe el promotor');
+      if (!VALID_PLAZAS.includes(plaza)) return alert('Selecciona una plaza válida');
+      const {valids} = parseICCList(asgICCList.value);
+      if (!valids.length) return alert('Agrega al menos un ICC válido');
+      try{
+        await sendToSheets({ type:'assign_iccs', timestamp:new Date().toISOString(), promotor, plaza, asg_tipo: asgTipo.value, iccs: valids });
+        alert('Asignación enviada');
+        asgICCList.value=''; asgPreview.classList.add('hidden'); asgPreview.textContent='';
+      } catch(e){ alert('No se pudo enviar la asignación'); }
+    });
+
+    // Scanner (reusa para agregar o buscar)
+    let mediaStream=null; let barcodeDetector=null; let scanLoopActive=false; const scanOverlay=$('scanOverlay'); const scanVideo=$('scanVideo'); const scanSupport=$('scanSupport');
+    function showScanModal(){ scanOverlay.classList.remove('hidden'); }
+    function closeScanModal(){ scanOverlay.classList.add('hidden'); stopCamera(); scanLoopActive=false; }
+    async function startCamera(){
+      try{ mediaStream=await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' } }); scanVideo.srcObject=mediaStream; await scanVideo.play(); }
+      catch{ scanSupport.textContent='No se pudo acceder a la cámara.'; }
+    }
+    function stopCamera(){ if(mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; } scanVideo.pause(); scanVideo.srcObject=null; }
+    async function startScanLoop(onDetect){
+      scanLoopActive=true; while (scanLoopActive && barcodeDetector && scanVideo.readyState>=2){
+        try{
+          const barcodes=await barcodeDetector.detect(scanVideo);
+          if (barcodes && barcodes.length){ const raw=barcodes[0].rawValue||''; const digits=onlyDigits(raw); if (digits.length>=19){ onDetect(digits.slice(0,19)); closeScanModal(); break; } }
+        } catch{}
+        await sleep(200);
+      }
+    }
+    $('btnScanAdd').addEventListener('click', async ()=>{
+      showScanModal();
+      if ('BarcodeDetector' in window){ try{ barcodeDetector=new BarcodeDetector({ formats:['code_128','ean_13','ean_8','upc_a','upc_e','code_39'] }); scanSupport.textContent='Escaneando...'; } catch{ barcodeDetector=null; scanSupport.textContent='Error con BarcodeDetector'; } }
+      else { scanSupport.textContent='Sin soporte nativo'; }
+      await startCamera();
+      if (barcodeDetector) startScanLoop((icc)=>{ asgICCList.value = (asgICCList.value+'\n'+icc).trim(); asgICCList.dispatchEvent(new Event('input')); });
+    });
+    $('btnScanFind').addEventListener('click', async ()=>{
+      showScanModal();
+      if ('BarcodeDetector' in window){ try{ barcodeDetector=new BarcodeDetector({ formats:['code_128','ean_13','ean_8','upc_a','upc_e','code_39'] }); scanSupport.textContent='Escaneando...'; } catch{ barcodeDetector=null; scanSupport.textContent='Error con BarcodeDetector'; } }
+      else { scanSupport.textContent='Sin soporte nativo'; }
+      await startCamera();
+      if (barcodeDetector) startScanLoop((icc)=>{ $('lookupICC').value=icc; closeScanModal(); });
+    });
+    $('btnCloseScan').addEventListener('click', closeScanModal);
+    $('btnStopScan').addEventListener('click', closeScanModal);
 
     // ==============================
-    // 🔎 LOCALIZAR ICC
+    // 🔎 Localizar ICC
     // ==============================
-    $('btnLocalizar').onclick = async()=>{
-      const icc= onlyDigits($('locICC').value);
-      if(icc.length!==19) return alert('ICC de 19 dígitos');
-      try{ const res = await getGAS({ action:'icc_status', icc }); paintLoc(res); }
-      catch(e){ alert('Error consultando ICC'); console.error(e); }
-    };
-    function paintLoc(o){
-      const card=$('locCard'); card.classList.remove('hidden');
-      const badge = (txt)=> `<span class=\"text-xs px-2 py-0.5 rounded-full ${badgeClass(txt)}\">${txt}</span>`;
-      card.innerHTML = `
-        <div class=\"flex items-center justify-between\">
-          <div class=\"font-semibold\">${o.icc || ''}</div>
-          ${badge(o.estatus_operativo||'—')}
-        </div>
-        <div class=\"text-sm text-red-800/90 space-y-1 mt-2\">
-          <div><span class=\"text-red-700\">Tipo:</span> ${o.tipo||'—'}</div>
-          <div><span class=\"text-red-700\">Catálogo:</span> ${o.existe_catalogo? (o.estatus_catalogo||'Disponible') : 'Sin catalogar'}</div>
-          <div><span class=\"text-red-700\">Asignado a:</span> ${(o.asignado_a && o.asignado_a.promotor) ? (o.asignado_a.promotor+' ('+(o.asignado_a.fecha||'')+')') : '—'}</div>
-          <div><span class=\"text-red-700\">Activaciones:</span> ${o.usos_activacion||0} ${o.ultima_activacion? ('• Última: '+(o.ultima_activacion.fecha||'')+' $'+(o.ultima_activacion.monto||0)+' por '+(o.ultima_activacion.promotor||'')) : ''}</div>
-          <div><span class=\"text-red-700\">Número asociado:</span> ${o.numero_asociado||'—'}</div>
-          <div><span class=\"text-red-700\">Portabilidad:</span> ${o.portabilidad && o.portabilidad.existe? (o.portabilidad.estatus||'Sí') : 'No'}</div>
-          ${o.alertas && o.alertas.length? `<div><span class='text-red-700'>Alertas:</span> ${o.alertas.join(' · ')}</div>`:''}
+    const lookupICC=$('lookupICC'); const lookupResult=$('lookupResult'); const lookupHint=$('lookupHint');
+    $('btnLookup').addEventListener('click', doLookup);
+    lookupICC.addEventListener('input', ()=>{ const ok=luhnCheck(lookupICC.value); lookupHint.classList.toggle('hidden', ok); });
+
+    async function doLookup(){
+      const icc = onlyDigits(lookupICC.value).slice(0,20);
+      if (!icc) return alert('Ingresa un ICC');
+      // Se puede buscar aunque falle Luhn
+      try{
+        const r = await sendToSheets({ type:'lookup_icc', icc });
+        // Esperamos estructura: {found: bool, status: 'virgen'|'asignado'|'usado', promotor, plaza, numero, recarga, fecha_asignacion, fecha_uso}
+        renderLookup(r || {});
+      } catch(e){ renderLookup({ error:true }); }
+    }
+    function renderLookup(obj){
+      lookupResult.classList.remove('hidden');
+      if (obj.error){ lookupResult.innerHTML = '<div class="text-sm text-red-700">Sin conexión o error de backend</div>'; return; }
+      if (!obj.found){ lookupResult.innerHTML = '<div class="text-sm">No encontrado. Probablemente <b>virgen</b>.</div>'; return; }
+      const statusBadge = (s)=>{
+        const map={ virgen:'bg-gray-100 text-gray-800', asignado:'bg-amber-100 text-amber-800', usado:'bg-green-100 text-green-800' };
+        return `<span class="text-xs px-2 py-0.5 rounded-full ${map[s]||'bg-red-100 text-red-800'}">${s||'—'}</span>`;
+      };
+      lookupResult.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+          <div><span class="text-red-700">Estatus</span> · ${statusBadge(obj.status)}</div>
+          <div><span class="text-red-700">Promotor</span> · ${obj.promotor||'—'}</div>
+          <div><span class="text-red-700">Plaza</span> · ${obj.plaza||'—'}</div>
+          <div><span class="text-red-700">Número</span> · ${obj.numero||'—'}</div>
+          <div><span class="text-red-700">ICC</span> · <span class="mono">${obj.icc||'—'}</span></div>
+          <div><span class="text-red-700">Recarga</span> · ${obj.recarga!=null? ('$'+obj.recarga):'—'}</div>
+          <div><span class="text-red-700">Asignación</span> · ${obj.fecha_asignacion||'—'}</div>
+          <div><span class="text-red-700">Uso</span> · ${obj.fecha_uso||'—'}</div>
         </div>`;
     }
-    function badgeClass(status){
-      const s=(status||'').toLowerCase();
-      if(s.includes('bloque')) return 'bg-rose-100 text-rose-800';
-      if(s.includes('portab')) return 'bg-emerald-100 text-emerald-800';
-      if(s.includes('activ')) return 'bg-blue-100 text-blue-800';
-      if(s.includes('asign')) return 'bg-amber-100 text-amber-800';
-      if(s.includes('virgen')) return 'bg-gray-100 text-gray-800';
-      if(s.includes('sin catal')) return 'bg-slate-100 text-slate-800';
-      return 'bg-red-100 text-red-800';
+
+    // ==============================
+    // 💵 Nómina
+    // ==============================
+    const tbodyNomina=$('tbodyNomina'); const nominaGranTotal=$('nominaGranTotal');
+    $('btnNominaFetch').addEventListener('click', loadNomina);
+
+    function tarifaPorCantidad(n){ if(n>=12) return 20; if(n<=5) return 10; if(n<=10) return 15; return 15; /* n==11 */ }
+
+    function renderNominaRows(rows){
+      tbodyNomina.innerHTML='';
+      let sum=0;
+      (rows||[]).forEach(r=>{
+        const tarifa = tarifaPorCantidad(r.promos||0);
+        const total = (r.promos||0)*tarifa;
+        sum+=total;
+        const tr=document.createElement('tr');
+        tr.innerHTML = `
+          <td class="py-2 pr-4">${r.promotor||'—'}</td>
+          <td class="py-2 pr-4">${r.plaza||'—'}</td>
+          <td class="py-2 pr-4">${r.promos||0}</td>
+          <td class="py-2 pr-4">$${tarifa}</td>
+          <td class="py-2 pr-4">$${total}</td>`;
+        tbodyNomina.appendChild(tr);
+      });
+      nominaGranTotal.textContent = '$'+sum;
     }
 
-    // ==============================
-    // 📷 Scanner ICC reutilizable
-    // ==============================
-    const scanOverlay=$('scanOverlay'), scanVideo=$('scanVideo'), scanSupport=$('scanSupport'); let mediaStream=null, barcodeDetector=null, scanLoopActive=false, currentScanTarget=null;
-    $('btnScanICC3').onclick=()=> openScannerFor('asgICC');
-    $('btnCloseScan').onclick=closeScan; $('btnStopScan').onclick=closeScan;
-    async function openScannerFor(inputId){ currentScanTarget=$(inputId); scanOverlay.classList.remove('hidden'); if('BarcodeDetector' in window){ try{ barcodeDetector=new BarcodeDetector({formats:['code_128','ean_13','ean_8','upc_a','upc_e','code_39']}); scanSupport.textContent='Soporte nativo. Escanea el ICC.'; } catch{ barcodeDetector=null; scanSupport.textContent='Error en detector. Ingresa ICC manual.'; } } else { scanSupport.textContent='Sin soporte nativo. Ingresa ICC manual.'; } await startCam(); if(barcodeDetector) loopScan(); }
-    async function startCam(){ try{ mediaStream=await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' } }); scanVideo.srcObject=mediaStream; await scanVideo.play(); } catch{ scanSupport.textContent='No se pudo acceder a la cámara.'; } }
-    function stopCam(){ if(mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; } scanVideo.pause(); scanVideo.srcObject=null; }
-    function closeScan(){ scanOverlay.classList.add('hidden'); stopCam(); scanLoopActive=false; currentScanTarget=null; }
-    async function loopScan(){ scanLoopActive=true; while(scanLoopActive && barcodeDetector && scanVideo.readyState>=2){ try{ const codes=await barcodeDetector.detect(scanVideo); if(codes && codes.length){ const digits=onlyDigits(codes[0].rawValue||''); if(digits.length>=19){ currentScanTarget.value=digits.slice(0,19); closeScan(); break; } } } catch{} await sleep(200); } }
-
-    // ==============================
-    // 📤 Helpers CSV
-    // ==============================
-    function exportTableCSV(tbodyId, fileName, header){
-      const body=document.getElementById(tbodyId); const rows=[header.join(',')];
-      [...body.querySelectorAll('tr')].forEach(tr=>{ const cols=[...tr.children].map(td=>`"${td.textContent.replace(/"/g,'""')}"`); rows.push(cols.join(',')); });
-      downloadCSV(rows.join('\n'), fileName);
-    }
-    function downloadCSV(str, name){ const blob=new Blob([str],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url); }
-
-    // Auto-rango: semana actual por defecto
-    function setDefaultDates(){
-      const today = new Date(); const first = new Date(today); first.setDate(today.getDate()-6);
-      const iso = (d)=> d.toISOString().slice(0,10);
-      ['fDesde','pDesde'].forEach(id=> $(id).value = iso(first));
-      ['fHasta','pHasta'].forEach(id=> $(id).value = iso(today));
+    async function loadNomina(){
+      const desde=$('nominaDesde').value; const hasta=$('nominaHasta').value;
+      try{
+        const data = await sendToSheets({ type:'nomina_promos', desde, hasta });
+        // Esperado: [{promotor, plaza, promos}]
+        renderNominaRows(data && Array.isArray(data.rows)? data.rows : []);
+      } catch{ renderNominaRows([]); }
     }
 
-    // Init
-    setDefaultDates();
-    // Trigger primer fetch de métricas
-    $('btnRefrescarStats').click();
+    // Export helpers
+    function toCSV(rows, header){
+      const head = header.join(',');
+      const lines = (rows||[]).map(o=> header.map(k=>`"${String(o[k]??'').replace(/"/g,'""')}"`).join(','));
+      return [head].concat(lines).join('\n');
+    }
+
+    $('btnNominaExport').addEventListener('click', ()=>{
+      // Construir desde la tabla actual
+      const rows=[]; [...tbodyNomina.children].forEach(tr=>{
+        const tds=[...tr.children].map(td=>td.textContent);
+        rows.push({promotor:tds[0], plaza:tds[1], promos:tds[2], tarifa:tds[3], total:tds[4]});
+      });
+      const csv = toCSV(rows, ['promotor','plaza','promos','tarifa','total']);
+      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='nomina_mada.csv'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    // ==============================
+    // 🗂️ Activaciones recientes
+    // ==============================
+    const tbodyActivaciones=$('tbodyActivaciones');
+    $('btnReloadActivaciones').addEventListener('click', loadActivaciones);
+
+    function renderActivaciones(rows){
+      tbodyActivaciones.innerHTML='';
+      (rows||[]).forEach(r=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML = `
+          <td class="py-2 pr-4">${r.fecha||'—'}</td>
+          <td class="py-2 pr-4">${r.promotor||'—'}</td>
+          <td class="py-2 pr-4">${r.plaza||'—'}</td>
+          <td class="py-2 pr-4">${r.tipo||'—'}</td>
+          <td class="py-2 pr-4 mono">${r.numero||'—'}</td>
+          <td class="py-2 pr-4 mono">${last6(r.icc)||'—'}</td>
+          <td class="py-2 pr-4">${r.monto!=null? ('$'+r.monto):'—'}</td>`;
+        tbodyActivaciones.appendChild(tr);
+      });
+    }
+
+    async function loadActivaciones(){
+      try{
+        const data = await sendToSheets({ type:'activaciones_recientes', limit:50 });
+        renderActivaciones(data && Array.isArray(data.rows) ? data.rows : []);
+      } catch{ renderActivaciones([]); }
+    }
+
+    // Exports (pedidos en utilidades)
+    $('btnExportActivaciones').addEventListener('click', async ()=>{
+      try{
+        const data = await sendToSheets({ type:'export_activaciones' });
+        const rows = data && Array.isArray(data.rows) ? data.rows : [];
+        const csv = toCSV(rows, Object.keys(rows[0]||{fecha:'',promotor:'',plaza:'',tipo:'',numero:'',icc:'',monto:''}));
+        const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+        const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='activaciones_mada.csv'; a.click(); URL.revokeObjectURL(url);
+      } catch{ alert('No se pudo exportar'); }
+    });
+    $('btnExportAsignaciones').addEventListener('click', async ()=>{
+      try{
+        const data = await sendToSheets({ type:'export_asignaciones' });
+        const rows = data && Array.isArray(data.rows) ? data.rows : [];
+        const csv = toCSV(rows, Object.keys(rows[0]||{fecha:'',promotor:'',plaza:'',tipo:'',icc:''}));
+        const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+        const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='asignaciones_mada.csv'; a.click(); URL.revokeObjectURL(url);
+      } catch{ alert('No se pudo exportar'); }
+    });
+
+    // Notas (local)
+    const NOTES_KEY='mada_supervisor_notas';
+    const notaSupervisor=$('notaSupervisor');
+    notaSupervisor.value = localStorage.getItem(NOTES_KEY)||'';
+    notaSupervisor.addEventListener('input', ()=> localStorage.setItem(NOTES_KEY, notaSupervisor.value));
+
+    // Cargas iniciales
+    loadKPIs();
+    loadActivaciones();
   </script>
 </body>
 </html>
