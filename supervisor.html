@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-white">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MADA · Supervisor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="theme-color" content="#dc2626" />
+  <style>
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .glass{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+    .btn-disabled{opacity:.6;pointer-events:none}
+  </style>
+</head>
+<body class="h-full text-red-900 bg-white">
+  <div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-red-800 to-red-600 text-white">
+      <div class="max-w-7xl mx-auto px-4 py-5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-xl bg-white flex items-center justify-center font-bold text-red-700 border border-red-200">M</div>
+          <div>
+            <h1 class="text-xl font-semibold tracking-wide">MADA · Dashboard Supervisor</h1>
+            <p class="text-white/80 text-sm">Asignación · Localizador · Métricas · Nómina</p>
+          </div>
+        </div>
+        <div id="netStatus" class="text-xs">•</div>
+      </div>
+    </header>
+
+    <main class="flex-1">
+      <div class="max-w-7xl mx-auto px-4 py-6 lg:py-10 grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Sidebar navegación -->
+        <aside class="lg:col-span-1">
+          <nav class="rounded-2xl bg-white shadow-sm border border-red-100 p-4 space-y-2 sticky top-6">
+            <button data-tab="tab-metricas" class="tabbtn w-full text-left rounded-xl px-3 py-2 hover:bg-red-50 border border-red-200">Métricas</button>
+            <button data-tab="tab-nomina" class="tabbtn w-full text-left rounded-xl px-3 py-2 hover:bg-red-50 border border-red-200">Nómina</button>
+            <button data-tab="tab-asignar" class="tabbtn w-full text-left rounded-xl px-3 py-2 hover:bg-red-50 border border-red-200">Asignar ICCs</button>
+            <button data-tab="tab-localizar" class="tabbtn w-full text-left rounded-xl px-3 py-2 hover:bg-red-50 border border-red-200">Localizar ICC</button>
+          </nav>
+        </aside>
+
+        <!-- Contenido -->
+        <section class="lg:col-span-3 space-y-6">
+          <!-- MÉTRICAS -->
+          <div id="tab-metricas" class="tab rounded-2xl bg-white shadow-sm border border-red-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white">
+              <h3 class="text-lg font-semibold">Métricas de operación</h3>
+              <p class="text-white/80 text-sm">Rango de fechas, plaza y promotor</p>
+            </div>
+            <div class="p-6 space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                <div>
+                  <label class="block text-sm">Desde</label>
+                  <input id="fDesde" type="date" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
+                </div>
+                <div>
+                  <label class="block text-sm">Hasta</label>
+                  <input id="fHasta" type="date" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
+                </div>
+                <div>
+                  <label class="block text-sm">Plaza</label>
+                  <select id="fPlaza" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400">
+                    <option value="">Todas</option>
+                    <option>MONTERREY</option><option>MANTE</option><option>REYNOSA</option><option>MATAMOROS</option><option>SALTILLO</option><option>CHIHUAHUA</option><option>DELICIAS</option><option>CUAHUTEMOC</option><option>TAMPICO</option>
+                  </select>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm">Promotor (opcional)</label>
+                  <input id="fPromotor" placeholder="Nombre del promotor" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
+                </div>
+              </div>
+              <div class="flex gap-3">
+                <button id="btnRefrescarStats" class="rounded-xl bg-red-700 text-white px-4 py-2">Actualizar</button>
+                <button id="btnExportStats" class="rounded-xl bg-white border border-red-200 px-4 py-2">Exportar CSV</button>
+              </div>
+
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="rounded-xl border border-red-200 p-4">
+                  <div class="text-sm text-red-700">Portabilidades</div>
+                  <div id="kpiPortas" class="text-3xl font-semibold">0</div>
+                </div>
+                <div class="rounded-xl border border-red-200 p-4">
+                  <div class="text-sm text-red-700">Activaciones</div>
+                  <div id="kpiActs" class="text-3xl font-semibold">0</div>
+                </div>
+                <div class="rounded-xl border border-red-200 p-4">
+                  <div class="text-sm text-red-700">Recargas ($)</div>
+                  <div id="kpiMonto" class="text-3xl font-semibold">0</div>
+                </div>
+                <div class="rounded-xl border border-red-200 p-4">
+                  <div class="text-sm text-red-700">Promotores activos</div>
+                  <div id="kpiProms" class="text-3xl font-semibold">0</div>
+                </div>
+              </div>
+
+              <div class="rounded-xl border border-red-200 overflow-x-auto">
+                <table class="min-w-full text-sm">
+                  <thead class="bg-red-50">
+                    <tr>
+                      <th class="px-3 py-2 text-left">Promotor</th>
+                      <th class="px-3 py-2 text-right">Portas</th>
+                      <th class="px-3 py-2 text-right">Activaciones</th>
+                      <th class="px-3 py-2 text-right">Recargas ($)</th>
+                      <th class="px-3 py-2 text-right">Última act.</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tblStatsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- NÓMINA -->
+          <div id="tab-nomina" class="tab hidden rounded-2xl bg-white shadow-sm border border-red-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white">
+              <h3 class="text-lg font-semibold">Nómina por portabilidades</h3>
+              <p class="text-white/80 text-sm">Esquema: 1-5 a $10, 6-10 a $15, 11+ a $20 (todas al mismo rate por bloque alcanzado)</p>
+            </div>
+            <div class="p-6 space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div>
+                  <label class="block text-sm">Desde</label>
+                  <input id="pDesde" type="date" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
+                </div>
+                <div>
+                  <label class="block text-sm">Hasta</label>
+                  <input id="pHasta" type="date" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
+                </div>
+                <div>
+                  <label class="block text-sm">Plaza</label>
+                  <select id="pPlaza" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400">
+                    <option value="">Todas</option>
+                    <option>MONTERREY</option><option>MANTE</option><option>REYNOSA</option><option>MATAMOROS</option><option>SALTILLO</option><option>CHIHUAHUA</option><option>DELICIAS</option><option>CUAHUTEMOC</option><option>TAMPICO</option>
+                  </select>
+                </div>
+                <div class="flex items-end">
+                  <button id="btnCalcularNomina" class="rounded-xl bg-red-700 text-white px-4 py-2 w-full">Calcular</button>
+                </div>
+              </div>
+
+              <div class="rounded-xl border border-red-200 overflow-x-auto">
+                <table class="min-w-full text-sm">
+                  <thead class="bg-red-50">
+                    <tr>
+                      <th class="px-3 py-2 text-left">Promotor</th>
+                      <th class="px-3 py-2 text-right">Portas</th>
+                      <th class="px-3 py-2 text-right">Tarifa ($)</th>
+                      <th class="px-3 py-2 text-right">Pago ($)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tblNominaBody"></tbody>
+                  <tfoot class="bg-red-50">
+                    <tr>
+                      <td class="px-3 py-2 font-semibold">Total</td>
+                      <td id="nomTotPortas" class="px-3 py-2 text-right font-semibold">0</td>
+                      <td class="px-3 py-2"></td>
+                      <td id="nomTotPago" class="px-3 py-2 text-right font-semibold">0</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <div class="flex gap-3">
+                <button id="btnExportNomina" class="rounded-xl bg-white border border-red-200 px-4 py-2">Exportar CSV</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ASIGNAR ICCs -->
+          <div id="tab-asignar" class="tab hidden rounded-2xl bg-white shadow-sm border border-red-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white">
+              <h3 class="text-lg font-semibold">Asignar ICCs</h3>
+              <p class="text-white/80 text-sm">Escanea o escribe y añade a la sesión; luego guarda al catálogo</p>
+            </div>
+            <div class="p-6 space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                <input id="asgPromotor" class="rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" placeholder="Promotor"/>
+                <select id="asgTipo" class="rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400">
+                  <option value="Azul">Azul</option>
+                  <option value="Blanco">Blanco</option>
+                  <option value="Porta">Porta</option>
+                </select>
+                <div class="md:col-span-2 flex gap-2">
+                  <input id="asgICC" inputmode="numeric" maxlength="19" placeholder="Escanea/teclea ICC" class="flex-1 rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400"/>
+                  <button id="btnScanICC3" type="button" class="rounded-xl border border-red-200 px-3 text-sm hover:bg-red-50">Scan</button>
+                </div>
+                <button id="btnAsignarAdd" class="rounded-xl bg-red-700 text-white px-4">Agregar</button>
+              </div>
+              <div id="asgList" class="text-sm text-red-800/90">Sin elementos en la sesión.</div>
+              <div class="flex gap-2">
+                <button id="btnAsignarEnviar" class="rounded-xl bg-red-700 text-white px-4 py-2">Guardar asignaciones</button>
+                <button id="btnAsignarLimpiar" class="rounded-xl bg-white border border-red-200 px-4 py-2">Limpiar</button>
+                <button id="btnAsignarExport" class="rounded-xl bg-white border border-red-200 px-4 py-2">Exportar CSV</button>
+              </div>
+              <p id="asgMsg" class="text-xs text-red-700/80"></p>
+            </div>
+          </div>
+
+          <!-- LOCALIZAR ICC -->
+          <div id="tab-localizar" class="tab hidden rounded-2xl bg-white shadow-sm border border-red-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white">
+              <h3 class="text-lg font-semibold">Localizar ICC</h3>
+              <p class="text-white/80 text-sm">Consulta estatus completo de un ICC</p>
+            </div>
+            <div class="p-6 space-y-4">
+              <div class="flex gap-2">
+                <input id="locICC" inputmode="numeric" maxlength="19" placeholder="Ingresa ICC" class="flex-1 rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400"/>
+                <button id="btnLocalizar" class="rounded-xl bg-red-700 text-white px-4">Buscar</button>
+              </div>
+              <div id="locCard" class="hidden rounded-xl border border-red-200 p-4"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Scanner (reutilizable) -->
+  <div id="scanOverlay" class="hidden fixed inset-0 bg-red-900/50 glass flex items-center justify-center p-4 z-50">
+    <div class="w-full max-w-md rounded-2xl overflow-hidden shadow-xl bg-white">
+      <div class="p-4 bg-gradient-to-r from-red-800 to-red-600 text-white flex items-center justify-between">
+        <h3 class="font-semibold">Escanear ICC</h3>
+        <button id="btnCloseScan" class="text-sm underline">Cerrar</button>
+      </div>
+      <div class="p-4 space-y-3">
+        <div id="scanSupport" class="text-sm text-red-700"></div>
+        <video id="scanVideo" class="w-full rounded-xl bg-black aspect-[3/4]" autoplay muted playsinline></video>
+        <div class="text-sm text-red-700/80">Apunta al código de barras (Code128/EAN). Si no aparece, escribe el ICC manualmente.</div>
+      </div>
+      <div class="p-4 bg-red-50 flex justify-end">
+        <button id="btnStopScan" class="rounded-xl bg-white border border-red-200 py-2 px-4 text-sm hover:bg-red-100">Detener</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==============================
+    // ⚙️ CONFIG
+    // ==============================
+    const GAS_BASE_URL = 'https://script.google.com/macros/s/REEMPLAZA_CON_TU_WEBAPP/exec'; // cambia por tu WebApp
+
+    // ==============================
+    // 🧩 Utils
+    // ==============================
+    const $ = (id)=> document.getElementById(id);
+    const onlyDigits = (s)=> (s||'').replace(/\D+/g,'');
+    const sleep = (ms)=> new Promise(r=>setTimeout(r,ms));
+    function luhnCheck(num){ const s=onlyDigits(num); if(s.length<19) return false; let sum=0,dbl=false; for(let i=s.length-1;i>=0;i--){ let d=+s[i]; if(dbl){ d*=2; if(d>9) d-=9; } sum+=d; dbl=!dbl; } return sum%10===0; }
+    function netUpdate(){ const el=$('netStatus'); const on=navigator.onLine; el.textContent= on? 'En línea' : 'Sin conexión'; el.className='text-xs '+(on?'text-green-100':'text-yellow-200'); }
+    window.addEventListener('online',netUpdate); window.addEventListener('offline',netUpdate); netUpdate();
+
+    // Tabs
+    const tabs=[...document.querySelectorAll('.tab')];
+    const btns=[...document.querySelectorAll('.tabbtn')];
+    btns.forEach(b=> b.addEventListener('click',()=>{ const id=b.getAttribute('data-tab'); tabs.forEach(t=> t.classList.add('hidden')); $(id).classList.remove('hidden'); }));
+    // Abre métricas por defecto
+    $("tab-metricas").classList.remove('hidden');
+
+    // ==============================
+    // 🌐 GAS helpers
+    // ==============================
+    async function postGAS(body){ const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(), 10000); const res=await fetch(GAS_BASE_URL,{method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body), signal: ctrl.signal}); clearTimeout(t); if(!res.ok) throw new Error('HTTP '+res.status); return res.json().catch(()=>({ok:true})); }
+    async function getGAS(params){ const q=new URLSearchParams(params).toString(); const res=await fetch(GAS_BASE_URL+"?"+q); if(!res.ok) throw new Error('HTTP '+res.status); return res.json(); }
+
+    // ==============================
+    // 📊 MÉTRICAS
+    // ==============================
+    const kpiPortas=$('kpiPortas'), kpiActs=$('kpiActs'), kpiMonto=$('kpiMonto'), kpiProms=$('kpiProms');
+    const tblStatsBody=$('tblStatsBody');
+    $('btnRefrescarStats').onclick = async ()=>{
+      const p = collectFilters('f');
+      try{ const data = await getGAS({ action:'stats', ...p }); paintStats(data); }
+      catch(e){ alert('Error obteniendo métricas'); console.error(e); }
+    };
+    $('btnExportStats').onclick = ()=> exportTableCSV('tblStatsBody','stats.csv',['Promotor','Portas','Activaciones','Recargas','Ultima']);
+
+    function collectFilters(prefix){
+      const d = $(`${prefix}Desde`).value; const h = $(`${prefix}Hasta`).value; const plaza = $(`${prefix}Plaza`).value; const prom = $(`${prefix}Promotor`)? $(`${prefix}Promotor`).value : '';
+      const o={}; if(d) o.from=d; if(h) o.to=h; if(plaza) o.plaza=plaza; if(prom) o.promotor=prom; return o;
+    }
+    function paintStats(data){
+      // Estructura esperada (flexible): { totales:{portas,activaciones,recargas,promotores}, por_promotor:[{promotor, portas, activaciones, recargas, ultima}]} 
+      const t = data?.totales || {}; const rows = data?.por_promotor || [];
+      kpiPortas.textContent = t.portas||0; kpiActs.textContent = t.activaciones||0; kpiMonto.textContent = t.recargas||0; kpiProms.textContent = t.promotores||rows.length;
+      tblStatsBody.innerHTML='';
+      rows.forEach(r=>{
+        const tr=document.createElement('tr'); tr.className='border-t border-red-100';
+        tr.appendChild(td(r.promotor));
+        tr.appendChild(td(num(r.portas)));
+        tr.appendChild(td(num(r.activaciones)));
+        tr.appendChild(td(currency(r.recargas)));
+        tr.appendChild(td(r.ultima||'—'));
+        tblStatsBody.appendChild(tr);
+      });
+    }
+    function td(txt){ const td=document.createElement('td'); td.className='px-3 py-2 '+(typeof txt==='number'?'text-right':'text-left'); td.textContent= typeof txt==='number'? String(txt) : txt; return td; }
+    function num(n){ return Number(n||0); }
+    function currency(n){ return (Number(n||0)).toLocaleString('es-MX',{style:'currency',currency:'MXN'}); }
+
+    // ==============================
+    // 💸 NÓMINA
+    // ==============================
+    const tblNominaBody=$('tblNominaBody'); const nomTotPago=$('nomTotPago'); const nomTotPortas=$('nomTotPortas');
+    $('btnCalcularNomina').onclick = async ()=>{
+      try{
+        const p=collectFilters('p');
+        // Espera: {por_promotor:[{promotor, portas}]}
+        const data = await getGAS({ action:'payroll_base', ...p });
+        const rows = data?.por_promotor || [];
+        paintNomina(rows);
+      } catch(e){ alert('Error calculando nómina'); console.error(e); }
+    };
+    $('btnExportNomina').onclick= ()=> exportTableCSV('tblNominaBody','nomina.csv',['Promotor','Portas','Tarifa','Pago']);
+
+    function tarifaPorPortas(n){ if(n>=11) return 20; if(n>=6) return 15; if(n>=1) return 10; return 0; }
+    function paintNomina(rows){
+      tblNominaBody.innerHTML=''; let totPago=0, totPortas=0;
+      rows.forEach(r=>{
+        const portas = Number(r.portas||0); const rate = tarifaPorPortas(portas); const pago = portas*rate; totPago+=pago; totPortas+=portas;
+        const tr=document.createElement('tr'); tr.className='border-t border-red-100';
+        tr.appendChild(td(r.promotor));
+        tr.appendChild(td(portas));
+        tr.appendChild(td(rate));
+        tr.appendChild(td(pago));
+        tblNominaBody.appendChild(tr);
+      });
+      nomTotPago.textContent = currency(totPago); nomTotPortas.textContent = String(totPortas);
+    }
+
+    // ==============================
+    // 📦 ASIGNAR ICCs
+    // ==============================
+    const asgSession=[]; // {promotor,tipo,icc}
+    $('btnAsignarAdd').onclick = ()=>{
+      const prom = $('asgPromotor').value.trim();
+      const tipo = $('asgTipo').value;
+      const icc = onlyDigits($('asgICC').value);
+      if(!prom) return alert('Promotor requerido');
+      if(icc.length!==19 || !luhnCheck(icc)) return alert('ICC inválido');
+      asgSession.push({promotor:prom, tipo, icc}); $('asgICC').value=''; renderAsg();
+    };
+    $('btnAsignarLimpiar').onclick=()=>{ asgSession.length=0; renderAsg(); };
+    $('btnAsignarEnviar').onclick= async()=>{
+      if(!asgSession.length) return alert('Nada que guardar');
+      try{ await postGAS({ action:'assign', items: asgSession, timestamp: new Date().toISOString() }); $('asgMsg').textContent='Asignaciones guardadas'; asgSession.length=0; renderAsg(); }
+      catch(e){ $('asgMsg').textContent='Error guardando'; console.error(e); }
+    };
+    $('btnAsignarExport').onclick=()=>{
+      if(!asgSession.length) return alert('Nada que exportar');
+      const header=['promotor','tipo','icc'];
+      const rows=[header.join(',')].concat(asgSession.map(o=> header.map(k=>`"${String(o[k]??'').replace(/"/g,'""')}"`).join(',')));
+      downloadCSV(rows.join('\n'),'asignaciones_sesion.csv');
+    };
+    function renderAsg(){
+      const cont=$('asgList'); cont.innerHTML='';
+      if(!asgSession.length){ cont.textContent='Sin elementos en la sesión.'; return; }
+      const ul=document.createElement('ul');
+      asgSession.forEach((x,i)=>{ const li=document.createElement('li'); li.className='py-1 flex justify-between'; li.textContent=`${i+1}. ${x.icc} · ${x.tipo} · ${x.promotor}`; ul.appendChild(li); });
+      cont.appendChild(ul);
+    }
+
+    // ==============================
+    // 🔎 LOCALIZAR ICC
+    // ==============================
+    $('btnLocalizar').onclick = async()=>{
+      const icc= onlyDigits($('locICC').value);
+      if(icc.length!==19) return alert('ICC de 19 dígitos');
+      try{ const res = await getGAS({ action:'icc_status', icc }); paintLoc(res); }
+      catch(e){ alert('Error consultando ICC'); console.error(e); }
+    };
+    function paintLoc(o){
+      const card=$('locCard'); card.classList.remove('hidden');
+      const badge = (txt)=> `<span class=\"text-xs px-2 py-0.5 rounded-full ${badgeClass(txt)}\">${txt}</span>`;
+      card.innerHTML = `
+        <div class=\"flex items-center justify-between\">
+          <div class=\"font-semibold\">${o.icc || ''}</div>
+          ${badge(o.estatus_operativo||'—')}
+        </div>
+        <div class=\"text-sm text-red-800/90 space-y-1 mt-2\">
+          <div><span class=\"text-red-700\">Tipo:</span> ${o.tipo||'—'}</div>
+          <div><span class=\"text-red-700\">Catálogo:</span> ${o.existe_catalogo? (o.estatus_catalogo||'Disponible') : 'Sin catalogar'}</div>
+          <div><span class=\"text-red-700\">Asignado a:</span> ${(o.asignado_a && o.asignado_a.promotor) ? (o.asignado_a.promotor+' ('+(o.asignado_a.fecha||'')+')') : '—'}</div>
+          <div><span class=\"text-red-700\">Activaciones:</span> ${o.usos_activacion||0} ${o.ultima_activacion? ('• Última: '+(o.ultima_activacion.fecha||'')+' $'+(o.ultima_activacion.monto||0)+' por '+(o.ultima_activacion.promotor||'')) : ''}</div>
+          <div><span class=\"text-red-700\">Número asociado:</span> ${o.numero_asociado||'—'}</div>
+          <div><span class=\"text-red-700\">Portabilidad:</span> ${o.portabilidad && o.portabilidad.existe? (o.portabilidad.estatus||'Sí') : 'No'}</div>
+          ${o.alertas && o.alertas.length? `<div><span class='text-red-700'>Alertas:</span> ${o.alertas.join(' · ')}</div>`:''}
+        </div>`;
+    }
+    function badgeClass(status){
+      const s=(status||'').toLowerCase();
+      if(s.includes('bloque')) return 'bg-rose-100 text-rose-800';
+      if(s.includes('portab')) return 'bg-emerald-100 text-emerald-800';
+      if(s.includes('activ')) return 'bg-blue-100 text-blue-800';
+      if(s.includes('asign')) return 'bg-amber-100 text-amber-800';
+      if(s.includes('virgen')) return 'bg-gray-100 text-gray-800';
+      if(s.includes('sin catal')) return 'bg-slate-100 text-slate-800';
+      return 'bg-red-100 text-red-800';
+    }
+
+    // ==============================
+    // 📷 Scanner ICC reutilizable
+    // ==============================
+    const scanOverlay=$('scanOverlay'), scanVideo=$('scanVideo'), scanSupport=$('scanSupport'); let mediaStream=null, barcodeDetector=null, scanLoopActive=false, currentScanTarget=null;
+    $('btnScanICC3').onclick=()=> openScannerFor('asgICC');
+    $('btnCloseScan').onclick=closeScan; $('btnStopScan').onclick=closeScan;
+    async function openScannerFor(inputId){ currentScanTarget=$(inputId); scanOverlay.classList.remove('hidden'); if('BarcodeDetector' in window){ try{ barcodeDetector=new BarcodeDetector({formats:['code_128','ean_13','ean_8','upc_a','upc_e','code_39']}); scanSupport.textContent='Soporte nativo. Escanea el ICC.'; } catch{ barcodeDetector=null; scanSupport.textContent='Error en detector. Ingresa ICC manual.'; } } else { scanSupport.textContent='Sin soporte nativo. Ingresa ICC manual.'; } await startCam(); if(barcodeDetector) loopScan(); }
+    async function startCam(){ try{ mediaStream=await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' } }); scanVideo.srcObject=mediaStream; await scanVideo.play(); } catch{ scanSupport.textContent='No se pudo acceder a la cámara.'; } }
+    function stopCam(){ if(mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; } scanVideo.pause(); scanVideo.srcObject=null; }
+    function closeScan(){ scanOverlay.classList.add('hidden'); stopCam(); scanLoopActive=false; currentScanTarget=null; }
+    async function loopScan(){ scanLoopActive=true; while(scanLoopActive && barcodeDetector && scanVideo.readyState>=2){ try{ const codes=await barcodeDetector.detect(scanVideo); if(codes && codes.length){ const digits=onlyDigits(codes[0].rawValue||''); if(digits.length>=19){ currentScanTarget.value=digits.slice(0,19); closeScan(); break; } } } catch{} await sleep(200); } }
+
+    // ==============================
+    // 📤 Helpers CSV
+    // ==============================
+    function exportTableCSV(tbodyId, fileName, header){
+      const body=document.getElementById(tbodyId); const rows=[header.join(',')];
+      [...body.querySelectorAll('tr')].forEach(tr=>{ const cols=[...tr.children].map(td=>`"${td.textContent.replace(/"/g,'""')}"`); rows.push(cols.join(',')); });
+      downloadCSV(rows.join('\n'), fileName);
+    }
+    function downloadCSV(str, name){ const blob=new Blob([str],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url); }
+
+    // Auto-rango: semana actual por defecto
+    function setDefaultDates(){
+      const today = new Date(); const first = new Date(today); first.setDate(today.getDate()-6);
+      const iso = (d)=> d.toISOString().slice(0,10);
+      ['fDesde','pDesde'].forEach(id=> $(id).value = iso(first));
+      ['fHasta','pHasta'].forEach(id=> $(id).value = iso(today));
+    }
+
+    // Init
+    setDefaultDates();
+    // Trigger primer fetch de métricas
+    $('btnRefrescarStats').click();
+  </script>
+</body>
+</html>
