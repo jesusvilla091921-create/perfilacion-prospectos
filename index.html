@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MADA · Portabilidad</title>
+  <title>MADA · Promotor</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <meta name="theme-color" content="#dc2626">
+  <meta name="theme-color" content="#dc2626" />
   <style>
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
-    .glass { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-    .btn-disabled { opacity:.6; pointer-events:none; }
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .glass{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+    .btn-disabled{opacity:.6;pointer-events:none}
   </style>
 </head>
 <body class="h-full text-red-900 bg-white">
@@ -18,13 +18,13 @@
     <header class="bg-gradient-to-r from-red-800 to-red-600 text-white">
       <div class="max-w-7xl mx-auto px-4 py-5 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="h-10 w-10 rounded-xl bg-white flex items-center justify-center font-bold text-red-700 border border-red-200" aria-label="Logo MADA">M</div>
+          <div class="h-10 w-10 rounded-xl bg-white flex items-center justify-center font-bold text-red-700 border border-red-200">M</div>
           <div>
-            <h1 class="text-xl font-semibold tracking-wide">MADA · Portabilidad</h1>
-            <p class="text-white/80 text-sm">Flujo de perfilación y captura</p>
+            <h1 class="text-xl font-semibold tracking-wide">MADA · Promotor</h1>
+            <p class="text-white/80 text-sm">Ficha simplificada · Activar chip · Encuesta</p>
           </div>
         </div>
-        <div class="hidden sm:block text-white/80 text-sm">Corporativo · Operación en campo</div>
+        <div id="netStatus" class="text-xs">•</div>
       </div>
     </header>
 
@@ -34,20 +34,127 @@
         <section class="lg:col-span-2 space-y-6">
           <!-- Portada -->
           <div id="portada" class="rounded-2xl bg-white shadow-sm p-6 border border-red-100">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h2 class="text-2xl font-semibold text-red-900">Bienvenido</h2>
-                <p class="text-red-700/80 mt-1">Elige cómo quieres empezar.</p>
-              </div>
-            </div>
-            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <button id="btnStartSurvey" class="w-full rounded-xl bg-red-700 text-white py-4 px-5 font-medium hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400">Comenzar encuesta</button>
-              <button id="btnGoCapture" class="w-full rounded-xl bg-white border border-red-200 py-4 px-5 font-medium hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300">Ir directo a captura</button>
+            <h2 class="text-2xl font-semibold">Bienvenido</h2>
+            <p class="text-red-700/80 mt-1">Elige la acción.</p>
+            <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <button id="btnGoFicha" class="w-full rounded-xl bg-red-700 text-white py-4 px-5 font-medium hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400">Ficha</button>
+              <button id="btnGoActivar" class="w-full rounded-xl bg-white border border-red-200 py-4 px-5 font-medium hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300">Activar chip</button>
+              <button id="btnGoEncuesta" class="w-full rounded-xl bg-white border border-red-200 py-4 px-5 font-medium hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300">Encuesta</button>
             </div>
           </div>
 
-          <!-- Encuesta -->
-          <div id="encuestaCard" class="hidden rounded-2xl bg-white shadow-sm border border-red-100">
+          <!-- FICHA (Portabilidad) -->
+          <div id="cardFicha" class="hidden rounded-2xl bg-white shadow-sm border border-red-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white">
+              <h3 class="text-lg font-semibold">Ficha de captura (simple)</h3>
+              <p class="text-white/80 text-sm">Obligatorios: Número, NIP, ICC, Promotor, Plaza, Carrier. CURP opcional.</p>
+            </div>
+            <form id="formFicha" class="p-6 space-y-6" autocomplete="off">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-sm font-medium">Plaza *</label>
+                  <select id="plaza" required class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400">
+                    <option value="">Selecciona</option>
+                    <option>MONTERREY</option><option>MANTE</option><option>REYNOSA</option><option>MATAMOROS</option><option>SALTILLO</option><option>CHIHUAHUA</option><option>DELICIAS</option><option>CUAHUTEMOC</option><option>TAMPICO</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium">Carrier *</label>
+                  <select id="carrier" required class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400">
+                    <option value="">Selecciona</option>
+                    <option>Telcel</option><option>Movistar</option><option>AT&T</option><option>Unefon</option><option>Bait</option><option>OXXO Cel</option><option>Virgin</option><option>Rincel</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium">Promotor *</label>
+                  <input id="promotor" required placeholder="Nombre" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-sm font-medium">Número (10) *</label>
+                  <input id="telefono" inputmode="numeric" maxlength="10" required placeholder="8112345678" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium">NIP (4) *</label>
+                  <input id="nip" inputmode="numeric" maxlength="4" required placeholder="1234" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium">ICC (19) *</label>
+                  <div class="flex gap-2">
+                    <input id="icc" inputmode="numeric" maxlength="19" required placeholder="Escanéalo o escríbelo" class="mt-1 flex-1 rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
+                    <button type="button" id="btnScanICC1" class="mt-1 rounded-xl border border-red-200 px-3 text-sm hover:bg-red-50">Scan</button>
+                  </div>
+                  <p id="iccHint1" class="hidden text-xs text-red-600 mt-1">ICC inválido (Luhn).</p>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium">CURP (opcional)</label>
+                <input id="curp" maxlength="18" placeholder="18 caracteres" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
+              </div>
+
+              <div class="pt-2 flex items-center gap-3">
+                <button id="btnFichaSubmit" type="submit" class="rounded-xl bg-red-700 text-white py-3 px-6 font-medium hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400 flex items-center gap-2">
+                  <svg id="spinFicha" class="hidden animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+                  <span>Crear ficha</span>
+                </button>
+                <button type="button" class="rounded-xl bg-white border border-red-200 py-3 px-6 font-medium hover:bg-red-50" onclick="navHome()">Volver</button>
+              </div>
+              <p id="dupWarn" class="hidden text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-3 mt-3">Este teléfono o ICC parece duplicado localmente. Verifica.</p>
+            </form>
+          </div>
+
+          <!-- ACTIVAR CHIP (Azul/Blanco) -->
+          <div id="cardActivar" class="hidden rounded-2xl bg-white shadow-sm border border-red-100">
+            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white">
+              <h3 class="text-lg font-semibold">Activar chip</h3>
+              <p class="text-white/80 text-sm">Selecciona tipo y captura los datos (ICC opcional).</p>
+            </div>
+            <form id="formActivar" class="p-6 space-y-6" autocomplete="off">
+              <div class="flex flex-wrap gap-2">
+                <button type="button" data-tipo="Azul" class="btn-tipo rounded-xl border border-red-200 px-3 py-1.5 text-sm hover:bg-red-50">Chip Azul</button>
+                <button type="button" data-tipo="Blanco" class="btn-tipo rounded-xl border border-red-200 px-3 py-1.5 text-sm hover:bg-red-50">Chip Blanco</button>
+                <span id="tipoSel" class="text-sm text-red-700 ml-2"></span>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                  <label class="block text-sm font-medium">ICC (opcional)</label>
+                  <div class="flex gap-2">
+                    <input id="icc2" inputmode="numeric" maxlength="19" placeholder="Escanéalo o escríbelo" class="mt-1 flex-1 rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
+                    <button type="button" id="btnScanICC2" class="mt-1 rounded-xl border border-red-200 px-3 text-sm hover:bg-red-50">Scan</button>
+                  </div>
+                  <p id="iccHint2" class="hidden text-xs text-red-600 mt-1">ICC inválido (Luhn).</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium">Número (10) *</label>
+                  <input id="numero2" inputmode="numeric" maxlength="10" required placeholder="8112345678" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium">Monto recarga *</label>
+                  <input id="monto2" inputmode="numeric" maxlength="6" required placeholder="50" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium">Promotor *</label>
+                  <input id="promotor2" required placeholder="Nombre" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" />
+                </div>
+              </div>
+
+              <div class="pt-2 flex items-center gap-3">
+                <button id="btnActivarSubmit" type="submit" class="rounded-xl bg-red-700 text-white py-3 px-6 font-medium hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400 flex items-center gap-2">
+                  <svg id="spinAct" class="hidden animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+                  <span>Registrar</span>
+                </button>
+                <button type="button" class="rounded-xl bg-white border border-red-200 py-3 px-6 font-medium hover:bg-red-50" onclick="navHome()">Volver</button>
+              </div>
+              <p id="actInfo" class="text-xs text-red-700/80"></p>
+            </form>
+          </div>
+
+          <!-- ENCUESTA -->
+          <div id="cardEncuesta" class="hidden rounded-2xl bg-white shadow-sm border border-red-100">
             <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white">
               <h3 class="text-lg font-semibold">Diagnóstico rápido</h3>
               <p class="text-white/80 text-sm">Selecciona la compañía y responde 3–4 preguntas.</p>
@@ -56,14 +163,11 @@
               <div id="notaTelcel" class="hidden border border-rose-200 rounded-xl p-4 bg-rose-50 text-rose-900">
                 Cliente Telcel actual: derivar a upsell/recargas. No aplica diagnóstico.
               </div>
-
               <div class="space-y-2">
-                <label class="block text-sm font-medium text-red-900">Compañía objetivo (opcional)</label>
+                <label class="block text-sm font-medium">Compañía objetivo (opcional)</label>
                 <div class="flex flex-wrap gap-2" id="companyButtons"></div>
               </div>
-
               <div id="surveyQuestions" class="hidden space-y-4"></div>
-
               <div id="surveyResult" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="rounded-xl border border-red-200 p-4">
                   <div class="text-sm text-red-700">Score de severidad</div>
@@ -78,7 +182,6 @@
                   <div id="planValue" class="mt-1 font-semibold text-red-900">—</div>
                 </div>
               </div>
-
               <div class="flex flex-wrap gap-3">
                 <button id="btnAceptaCambio" class="hidden rounded-xl bg-red-700 text-white py-2.5 px-4 hover:bg-red-800">Aceptó cambio</button>
                 <button id="btnNoAcepta" class="hidden rounded-xl bg-white border border-red-200 py-2.5 px-4 hover:bg-red-50">No aceptó</button>
@@ -86,200 +189,24 @@
               </div>
             </div>
           </div>
-
-          <!-- Ficha de captura -->
-          <div id="fichaCard" class="hidden rounded-2xl bg-white shadow-sm border border-red-100">
-            <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white flex items-center justify-between">
-              <div>
-                <h3 class="text-lg font-semibold">Ficha de captura</h3>
-                <p class="text-white/80 text-sm">Valida los campos antes de crear la ficha.</p>
-              </div>
-              <div id="netStatus" class="text-xs">•</div>
-            </div>
-
-            <form id="captureForm" class="p-6 space-y-6" autocomplete="off">
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label for="plaza" class="block text-sm font-medium text-red-900">Plaza <span class="text-red-600">*</span></label>
-                  <select id="plaza" required class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" aria-required="true">
-                    <option value="">Selecciona</option>
-                    <option>MONTERREY</option>
-                    <option>MANTE</option>
-                    <option>REYNOSA</option>
-                    <option>MATAMOROS</option>
-                    <option>SALTILLO</option>
-                    <option>CHIHUAHUA</option>
-                    <option>DELICIAS</option>
-                    <option>CUAHUTEMOC</option>
-                    <option>TAMPICO</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="carrier" class="block text-sm font-medium text-red-900">Compañía actual (opcional)</label>
-                  <select id="carrier" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400">
-                    <option value="">Selecciona</option>
-                    <option>Telcel</option>
-                    <option>Movistar</option>
-                    <option>AT&T</option>
-                    <option>Unefon</option>
-                    <option>Bait</option>
-                    <option>OXXO Cel</option>
-                    <option>Virgin</option>
-                    <option>Rincel</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="promotor" class="block text-sm font-medium text-red-900">Promotor <span class="text-red-600">*</span></label>
-                  <input id="promotor" type="text" required class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" placeholder="Nombre del promotor">
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label for="nombreCompleto" class="block text-sm font-medium text-red-900">Nombre completo (opcional)</label>
-                  <input id="nombreCompleto" type="text" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" placeholder="Nombre y apellidos">
-                </div>
-                <div>
-                  <label for="telefono" class="block text-sm font-medium text-red-900">Teléfono (10 dígitos) <span class="text-red-600">*</span></label>
-                  <input id="telefono" inputmode="numeric" pattern="[0-9]*" maxlength="10" required class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" placeholder="Ej. 8112345678">
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label for="fechaNacimiento" class="block text-sm font-medium text-red-900">Fecha de nacimiento (opcional)</label>
-                  <input id="fechaNacimiento" type="date" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400">
-                </div>
-                <div class="md:col-span-2">
-                  <label for="estadoNacimiento" class="block text-sm font-medium text-red-900">Estado de nacimiento (opcional)</label>
-                  <select id="estadoNacimiento" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400">
-                    <option value="">Selecciona</option>
-                    <option>Aguascalientes</option>
-                    <option>Baja California</option>
-                    <option>Baja California Sur</option>
-                    <option>Campeche</option>
-                    <option>Coahuila</option>
-                    <option>Colima</option>
-                    <option>Chiapas</option>
-                    <option>Chihuahua</option>
-                    <option>Ciudad de México</option>
-                    <option>Durango</option>
-                    <option>Guanajuato</option>
-                    <option>Guerrero</option>
-                    <option>Hidalgo</option>
-                    <option>Jalisco</option>
-                    <option>México</option>
-                    <option>Michoacán</option>
-                    <option>Morelos</option>
-                    <option>Nayarit</option>
-                    <option>Nuevo León</option>
-                    <option>Oaxaca</option>
-                    <option>Puebla</option>
-                    <option>Querétaro</option>
-                    <option>Quintana Roo</option>
-                    <option>San Luis Potosí</option>
-                    <option>Sinaloa</option>
-                    <option>Sonora</option>
-                    <option>Tabasco</option>
-                    <option>Tamaulipas</option>
-                    <option>Tlaxcala</option>
-                    <option>Veracruz</option>
-                    <option>Yucatán</option>
-                    <option>Zacatecas</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label for="curp" class="block text-sm font-medium text-red-900">CURP (opcional)</label>
-                  <input id="curp" type="text" maxlength="18" pattern="[A-Z0-9]{18}" title="CURP de 18 caracteres alfanuméricos en mayúsculas" class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" placeholder="En mayúsculas">
-                </div>
-                <div>
-                  <label for="icc" class="block text-sm font-medium text-red-900">ICC (19 dígitos) <span class="text-red-600">*</span></label>
-                  <div class="flex gap-2">
-                    <input id="icc" inputmode="numeric" pattern="[0-9]*" maxlength="19" required class="mt-1 flex-1 rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" placeholder="Escanéalo o escríbelo">
-                    <button type="button" id="btnScanICC" class="mt-1 rounded-xl border border-red-200 px-3 text-sm hover:bg-red-50" aria-label="Escanear ICC">Escanear</button>
-                  </div>
-                  <p id="iccHint" class="text-xs text-red-600 mt-1 hidden">ICC inválido (Luhn). Revísalo o intenta de nuevo.</p>
-                </div>
-                <div>
-                  <label for="nip" class="block text-sm font-medium text-red-900">NIP (4 dígitos) <span class="text-red-600">*</span></label>
-                  <input id="nip" inputmode="numeric" pattern="[0-9]*" maxlength="4" required class="mt-1 w-full rounded-xl border-red-300 focus:ring-red-400 focus:border-red-400" placeholder="Ej. 1234">
-                </div>
-              </div>
-
-              <input id="estatus" type="hidden" value="Portabilidad iniciada" />
-
-              <div class="pt-2 flex items-center gap-3">
-                <button id="btnCrearFicha" type="submit" class="rounded-xl bg-red-700 text-white py-3 px-6 font-medium hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400 flex items-center gap-2">
-                  <svg id="btnSpinner" class="hidden animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
-                  <span>Crear ficha</span>
-                </button>
-                <button type="button" id="btnBackHome" class="rounded-xl bg-white border border-red-200 py-3 px-6 font-medium hover:bg-red-50">Volver a portada</button>
-              </div>
-              <p id="dupWarn" class="hidden text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-3 mt-3">Este teléfono o ICC ya existe en los últimos registros locales. Verifica antes de continuar.</p>
-            </form>
-          </div>
         </section>
 
-        <!-- Panel lateral -->
+        <!-- Panel lateral (historial local) -->
         <aside class="lg:col-span-1">
           <div class="rounded-2xl bg-white shadow-sm border border-red-100">
             <div class="p-5 rounded-t-2xl bg-gradient-to-r from-red-800 to-red-600 text-white">
-              <h3 class="text-lg font-semibold">Leads capturados (local)</h3>
-              <p class="text-white/80 text-sm">Últimos 12 registros</p>
+              <h3 class="text-lg font-semibold">Historial local</h3>
+              <p class="text-white/80 text-sm">Últimos 10 eventos (este equipo)</p>
             </div>
-            <div id="leadsList" class="p-4 divide-y divide-red-100" aria-live="polite">
-              <div class="text-red-700/80 text-sm">Sin registros todavía.</div>
-            </div>
+            <div id="localList" class="p-4 divide-y divide-red-100 text-sm"></div>
             <div class="p-4 flex gap-2">
-              <button id="btnClearLeads" class="w-full rounded-xl bg-white border border-red-200 py-2.5 px-4 text-sm hover:bg-red-50">Limpiar lista local</button>
-              <button id="btnExportLeads" class="w-full rounded-xl bg-white border border-red-200 py-2.5 px-4 text-sm hover:bg-red-50">Exportar CSV</button>
+              <button id="btnLocalClear" class="w-full rounded-xl bg-white border border-red-200 py-2.5 px-4 text-sm hover:bg-red-50">Limpiar</button>
+              <button id="btnLocalExport" class="w-full rounded-xl bg-white border border-red-200 py-2.5 px-4 text-sm hover:bg-red-50">Exportar CSV</button>
             </div>
           </div>
         </aside>
       </div>
     </main>
-  </div>
-
-  <!-- Modal Ticket -->
-  <div id="ticketOverlay" class="hidden fixed inset-0 bg-red-900/40 glass flex items-center justify-center p-4 z-50">
-    <div class="w-full max-w-lg rounded-2xl overflow-hidden shadow-xl" role="dialog" aria-modal="true" aria-labelledby="ticketTitle">
-      <div class="p-5 bg-gradient-to-r from-red-800 to-red-600 text-white">
-        <h3 id="ticketTitle" class="text-lg font-semibold">Ficha creada</h3>
-        <p class="text-white/80 text-sm">Toca para copiar cualquier dato.</p>
-      </div>
-      <div class="bg-white p-6 space-y-3">
-        <button type="button" class="w-full text-left" data-copy="tkn_tel_nip">
-          <div class="flex items-center justify-between">
-            <div class="text-sm text-red-700">Número • NIP</div>
-            <div id="tkn_tel_nip" class="mono font-semibold text-red-900"></div>
-          </div>
-        </button>
-        <button type="button" class="w-full text-left" data-copy="tkn_icc">
-          <div class="flex items-center justify-between">
-            <div class="text-sm text-red-700">ICC</div>
-            <div id="tkn_icc" class="mono font-semibold text-red-900"></div>
-          </div>
-        </button>
-        <button type="button" class="w-full text-left" data-copy="tkn_curp">
-          <div class="flex items-center justify-between">
-            <div class="text-sm text-red-700">CURP</div>
-            <div id="tkn_curp" class="mono font-semibold text-red-900">—</div>
-          </div>
-        </button>
-        <button type="button" class="w-full text-left" data-copy="tkn_promotor">
-          <div class="flex items-center justify-between">
-            <div class="text-sm text-red-700">Promotor</div>
-            <div id="tkn_promotor" class="font-semibold text-red-900">—</div>
-          </div>
-        </button>
-      </div>
-      <div class="bg-red-50 p-4 flex justify-end gap-2">
-        <button id="btnCloseTicket" class="rounded-xl bg-red-700 text-white py-2.5 px-4 hover:bg-red-800">Listo</button>
-      </div>
-    </div>
   </div>
 
   <!-- Modal Scanner -->
@@ -302,347 +229,137 @@
 
   <script>
     // ==============================
-    // ⚙️ CONFIGURACIÓN EDITABLE
+    // ⚙️ CONFIG
     // ==============================
-    const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyBqdxN9On-PqkuJ86eQDu22EMCfg2qgwtr8LgYh53yyvz1xMPTCj1zT84q02Yn4eM/exec';
+    const GAS_BASE_URL = 'https://script.google.com/macros/s/REEMPLAZA_CON_TU_WEBAPP/exec'; // TODO: sustituir
     const VALID_PLAZAS = ['MONTERREY','MANTE','REYNOSA','MATAMOROS','SALTILLO','CHIHUAHUA','DELICIAS','CUAHUTEMOC','TAMPICO'];
 
     // ==============================
-    // 🧠 Encuesta
+    // 🧩 Utilidades
     // ==============================
-    const COMPANIES = ['Movistar','AT&T','Unefon','Bait','OXXO Cel','Virgin','Rincel','Telcel'];
-    const COMPANY_QUESTIONS = {
-      'Movistar': [
-        { q: '¿Se te corta la señal en interiores?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
-        { q: '¿Tus datos rinden menos de lo esperado?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
-        { q: '¿Llamadas con eco o retraso?', options: [{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
-      ],
-      'AT&T': [
-        { q: '¿Te quedas sin cobertura en traslados?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
-        { q: '¿Te limitan apps o redes sociales?', options: [{t:'Sí',w:0.8},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
-        { q: '¿Sientes lentitud en horas pico?', options: [{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
-      ],
-      'Unefon': [
-        { q: '¿Cambios de velocidad inesperados?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
-        { q: '¿Cobertura irregular en tu colonia?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
-        { q: '¿Problemas para compartir internet?', options: [{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
-      ],
-      'Bait': [
-        { q: '¿Te falla en interiores (centros comerciales)?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
-        { q: '¿Ves baja velocidad por la tarde-noche?', options: [{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
-        { q: '¿Pierdes señal en carretera?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
-      ],
-      'OXXO Cel': [
-        { q: '¿Redes sociales cargan lento?', options: [{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
-        { q: '¿Se cae la llamada seguido?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
-        { q: '¿Descargas tardan demasiado?', options: [{t:'Sí',w:0.8},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
-      ],
-      'Virgin': [
-        { q: '¿Apps bancarias fallan fuera de casa?', options: [{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
-        { q: '¿Mala señal en oficinas/escuela?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
-        { q: '¿Sufres latencia en videollamadas?', options: [{t:'Sí',w:0.8},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
-      ],
-      'Rincel': [
-        { q: '¿Se pierde señal al entrar a edificios?', options: [{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},
-        { q: '¿Internet intermitente?', options: [{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
-        { q: '¿Dificultad para hotspot?', options: [{t:'Sí',w:0.8},{t:'A veces',w:0.5},{t:'No',w:0.2}]},
-      ],
-      'Telcel': []
-    };
-
-    const planByScore = (score)=> score>=2.4?'Amigo Sin Límite 150':(score>=1.6?'Amigo Sin Límite 100':'Amigo Sin Límite 80');
-    function pitchByCompanyAndScore(company, score){
-      const alta='Veo varios puntos de dolor. Con Telcel mejoras cobertura en interiores y estabilidad en horas pico.';
-      const media='Hay áreas de mejora. Con Telcel ganas estabilidad y mejor rendimiento en apps.';
-      const baja='Tu experiencia es decente, pero con Telcel puedes asegurar señal donde hoy te falla.';
-      if (score>=2.4) return `${alta} (${company})`;
-      if (score>=1.6) return `${media} (${company})`;
-      return `${baja} (${company})`;
-    }
-
-    // Utilidades
-    const $ = (id) => document.getElementById(id);
-    const onlyDigits = (str)=> (str||'').replace(/\D+/g,'');
-    const last6 = (s)=> String(s||'').slice(-6).padStart(6,'•');
+    const $ = (id)=> document.getElementById(id);
+    const onlyDigits = (s)=> (s||'').replace(/\D+/g,'');
     const sleep = (ms)=> new Promise(r=>setTimeout(r,ms));
+    function luhnCheck(num){ const s=onlyDigits(num); if(s.length<19) return false; let sum=0,dbl=false; for(let i=s.length-1;i>=0;i--){ let d=+s[i]; if(dbl){ d*=2; if(d>9) d-=9; } sum+=d; dbl=!dbl; } return sum%10===0; }
+    function netUpdate(){ const el=$('netStatus'); const on=navigator.onLine; el.textContent= on? 'En línea' : 'Sin conexión'; el.className='text-xs '+(on?'text-green-100':'text-yellow-200'); }
+    window.addEventListener('online',netUpdate); window.addEventListener('offline',netUpdate); netUpdate();
 
-    // Luhn para ICCID (19–20 dígitos)
-    function luhnCheck(num){
-      const s = onlyDigits(num);
-      if (s.length<19) return false;
-      let sum=0, dbl=false;
-      for (let i=s.length-1; i>=0; i--){
-        let d = parseInt(s[i],10);
-        if (dbl){ d*=2; if (d>9) d-=9; }
-        sum+=d; dbl=!dbl;
-      }
-      return sum%10===0;
-    }
+    function show(el){ el.classList.remove('hidden'); } function hide(el){ el.classList.add('hidden'); }
+    function navHome(){ show(portada); hide(cardFicha); hide(cardActivar); hide(cardEncuesta); }
 
-    // Navegación
-    const btnStartSurvey = $('btnStartSurvey');
-    const btnGoCapture   = $('btnGoCapture');
-    const portada        = $('portada');
-    const encuestaCard   = $('encuestaCard');
-    const fichaCard      = $('fichaCard');
-    const notaTelcel     = $('notaTelcel');
-    const surveyQuestions= $('surveyQuestions');
-    const surveyResult   = $('surveyResult');
-    const scoreValue     = $('scoreValue');
-    const pitchValue     = $('pitchValue');
-    const planValue      = $('planValue');
-    const companyButtons = $('companyButtons');
-    const btnAceptaCambio= $('btnAceptaCambio');
-    const btnNoAcepta    = $('btnNoAcepta');
-    const btnIrFicha     = $('btnIrFicha');
-    const btnBackHome    = $('btnBackHome');
+    // ==============================
+    // 🧭 Navegación
+    // ==============================
+    const portada=$('portada'); const cardFicha=$('cardFicha'); const cardActivar=$('cardActivar'); const cardEncuesta=$('cardEncuesta');
+    $('btnGoFicha').onclick=()=>{ show(cardFicha); hide(cardActivar); hide(cardEncuesta); hide(portada); };
+    $('btnGoActivar').onclick=()=>{ show(cardActivar); hide(cardFicha); hide(cardEncuesta); hide(portada); };
+    $('btnGoEncuesta').onclick=()=>{ show(cardEncuesta); hide(cardFicha); hide(cardActivar); hide(portada); renderCompanyButtons(); };
 
-    let currentCompany = null;
-    let currentAnswers = [];
-
-    function renderCompanyButtons(){
-      companyButtons.innerHTML='';
-      COMPANIES.forEach(c=>{
-        const b=document.createElement('button');
-        b.type='button';
-        b.className='rounded-xl border border-red-200 px-3 py-1.5 text-sm hover:bg-red-50';
-        b.textContent=c;
-        b.addEventListener('click',()=>selectCompany(c));
-        companyButtons.appendChild(b);
-      });
-    }
-
-    function selectCompany(company){
-      currentCompany=company; currentAnswers=[]; surveyQuestions.innerHTML='';
-      scoreValue.textContent='0.00'; pitchValue.textContent='—'; planValue.textContent='—';
-      surveyResult.classList.add('hidden');
-      btnIrFicha.classList.remove('hidden'); btnNoAcepta.classList.remove('hidden'); btnAceptaCambio.classList.remove('hidden');
-
-      if (company==='Telcel'){ notaTelcel.classList.remove('hidden'); surveyQuestions.classList.add('hidden'); return; }
-      notaTelcel.classList.add('hidden');
-      const qs = COMPANY_QUESTIONS[company]||[];
-      if (!qs.length){ surveyQuestions.classList.add('hidden'); return; }
-      surveyQuestions.classList.remove('hidden');
-      qs.forEach((item, idx)=>{
-        const wrapper=document.createElement('div'); wrapper.className='rounded-xl border border-red-200 p-4';
-        const title=document.createElement('div'); title.className='font-medium'; title.textContent=`${idx+1}. ${item.q}`;
-        const options=document.createElement('div'); options.className='mt-3 flex flex-wrap gap-2';
-        item.options.forEach(opt=>{
-          const ob=document.createElement('button'); ob.type='button'; ob.className='rounded-lg bg-white border border-red-200 px-3 py-1.5 text-sm hover:bg-red-50'; ob.textContent=opt.t;
-          ob.addEventListener('click',()=>{
-            currentAnswers[idx]=opt.w; [...options.children].forEach(ch=>ch.classList.remove('ring-2','ring-red-400'));
-            ob.classList.add('ring-2','ring-red-400');
-            const sum=currentAnswers.filter(x=>typeof x==='number').reduce((a,b)=>a+b,0);
-            const count=currentAnswers.filter(x=>typeof x==='number').length;
-            const score=count?sum:0; scoreValue.textContent=score.toFixed(2);
-            pitchValue.textContent=pitchByCompanyAndScore(company, score); planValue.textContent=planByScore(score);
-            surveyResult.classList.remove('hidden');
-          });
-          options.appendChild(ob);
-        });
-        wrapper.appendChild(title); wrapper.appendChild(options); surveyQuestions.appendChild(wrapper);
-      });
-    }
-
-    btnStartSurvey.addEventListener('click',()=>{ portada.classList.add('hidden'); encuestaCard.classList.remove('hidden'); fichaCard.classList.add('hidden'); renderCompanyButtons(); surveyQuestions.innerHTML=''; surveyQuestions.classList.add('hidden'); surveyResult.classList.add('hidden'); notaTelcel.classList.add('hidden'); btnAceptaCambio.classList.remove('hidden'); btnNoAcepta.classList.remove('hidden'); btnIrFicha.classList.remove('hidden'); });
-    btnGoCapture.addEventListener('click',()=>{ portada.classList.add('hidden'); fichaCard.classList.remove('hidden'); encuestaCard.classList.add('hidden'); });
-    btnAceptaCambio.addEventListener('click',()=>{ fichaCard.classList.remove('hidden'); if(currentCompany && currentCompany!=='Telcel'){ $('carrier').value='Telcel'; } });
-    btnNoAcepta.addEventListener('click',()=> alert('Gracias'));
-    btnIrFicha.addEventListener('click',()=>{ encuestaCard.classList.add('hidden'); fichaCard.classList.remove('hidden'); });
-    btnBackHome.addEventListener('click',()=>{ portada.classList.remove('hidden'); encuestaCard.classList.add('hidden'); fichaCard.classList.add('hidden'); resetForm(); });
-
-    // Validación y normalización
-    const captureForm=$('captureForm');
-    const iccHint=$('iccHint');
-    function normalizeInputs(){
-      const telEl=$('telefono'); const iccEl=$('icc'); const nipEl=$('nip'); const curpEl=$('curp');
-      telEl.value=onlyDigits(telEl.value).slice(0,10);
-      iccEl.value=onlyDigits(iccEl.value).slice(0,19);
-      nipEl.value=onlyDigits(nipEl.value).slice(0,4);
-      if (curpEl.value) curpEl.value=curpEl.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,18).trim();
-    }
-    function validateForm(){
-      const plaza=$('plaza'); const promotor=$('promotor'); const telefono=$('telefono'); const icc=$('icc'); const nip=$('nip');
-      if (!plaza.value) return focusAndAlert(plaza,'Selecciona una plaza.');
-      if (!VALID_PLAZAS.includes(plaza.value)) return focusAndAlert(plaza,'Plaza inválida. Selecciona una válida.');
-      if (!promotor.value.trim()) return focusAndAlert(promotor,'Escribe el nombre del promotor.');
-      if (onlyDigits(telefono.value).length!==10) return focusAndAlert(telefono,'El teléfono debe tener 10 dígitos.');
-      if (onlyDigits(icc.value).length!==19) return focusAndAlert(icc,'El ICC debe tener 19 dígitos.');
-      if (!luhnCheck(icc.value)) { iccHint.classList.remove('hidden'); return false; }
-      iccHint.classList.add('hidden');
-      if (onlyDigits(nip.value).length!==4) return focusAndAlert(nip,'El NIP debe tener 4 dígitos.');
-      return true;
-    }
-    function focusAndAlert(el,msg){ alert(msg); el.focus(); }
-    function resetForm(){ captureForm.reset(); $('estatus').value='Portabilidad iniciada'; iccHint.classList.add('hidden'); hideDupWarn(); enableSubmit(); }
-
-    // Net status
-    const netStatus=$('netStatus');
-    function updateNet(){ netStatus.textContent = navigator.onLine? 'En línea' : 'Sin conexión'; netStatus.className = 'text-xs ' + (navigator.onLine? 'text-green-100' : 'text-yellow-200'); }
-    window.addEventListener('online', updateNet); window.addEventListener('offline', updateNet); updateNet();
-
-    // Envío a GAS con timeout y reintentos
-    async function sendToSheets(record, {retries=2, timeoutMs=8000}={}){
-      const body='payload='+encodeURIComponent(JSON.stringify(record));
-      for (let attempt=0; attempt<=retries; attempt++){
-        const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(), timeoutMs);
-        try{
-          const res = await fetch(SHEETS_WEBAPP_URL, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body, signal: ctrl.signal });
-          clearTimeout(t);
-          if (!res.ok) throw new Error('HTTP '+res.status);
-          const data = await res.json().catch(()=>({}));
-          return data;
-        } catch(err){
-          clearTimeout(t);
-          if (attempt===retries) throw err;
-          await sleep(600*(attempt+1));
-        }
-      }
-    }
-
-    // Evitar duplicados locales (tel/ICC)
-    function showDupWarn(){ $('dupWarn').classList.remove('hidden'); }
-    function hideDupWarn(){ $('dupWarn').classList.add('hidden'); }
-    function isDuplicateLocal(tel, icc){
-      const list=getLeads();
-      return list.some(x=> x.telefono===tel || (x.icc6 && last6(icc)===x.icc6));
-    }
-
-    // Submit
-    const btnCrearFicha=$('btnCrearFicha'); const btnSpinner=$('btnSpinner');
-    function disableSubmit(){ btnCrearFicha.classList.add('btn-disabled'); btnSpinner.classList.remove('hidden'); }
-    function enableSubmit(){ btnCrearFicha.classList.remove('btn-disabled'); btnSpinner.classList.add('hidden'); }
-
-    captureForm.addEventListener('input',()=>{ hideDupWarn(); });
-    captureForm.addEventListener('submit', async (e)=>{
-      e.preventDefault(); normalizeInputs(); if (!validateForm()) return;
-      const record={
-        type:'capture', timestamp:new Date().toISOString(), plaza:$('plaza').value,
-        carrier:$('carrier').value, nombreCompleto:$('nombreCompleto').value.trim(), telefono:onlyDigits($('telefono').value),
-        fechaNacimiento:$('fechaNacimiento').value, estadoNacimiento:$('estadoNacimiento').value, curp:($('curp').value||'').toUpperCase().trim(),
-        icc:onlyDigits($('icc').value).slice(0,19), nip:onlyDigits($('nip').value).slice(0,4), promotor:$('promotor').value.trim(),
-        estatus:$('estatus').value || 'Portabilidad iniciada'
+    // ==============================
+    // 📄 FICHA
+    // ==============================
+    const formFicha=$('formFicha'); const iccHint1=$('iccHint1');
+    formFicha.addEventListener('input',()=> iccHint1.classList.add('hidden'));
+    formFicha.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const data={
+        action:'capture',
+        timestamp:new Date().toISOString(),
+        plaza: valSel('plaza', v=> VALID_PLAZAS.includes(v), 'Selecciona plaza válida'),
+        carrier: valSel('carrier', v=> !!v, 'Selecciona carrier'),
+        promotor: valSel('promotor', v=> v.trim().length>0, 'Escribe promotor'),
+        telefono: valSel('telefono', v=> onlyDigits(v).length===10, 'Número 10 dígitos'),
+        nip: valSel('nip', v=> onlyDigits(v).length===4, 'NIP 4 dígitos'),
+        icc: valSel('icc', v=> onlyDigits(v).length===19 && luhnCheck(v), 'ICC 19 dígitos (Luhn)'),
+        curp: ( $('curp').value||'' ).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,18)
       };
-      if (isDuplicateLocal(record.telefono, record.icc)){ showDupWarn(); if (!confirm('Parece duplicado. ¿Deseas continuar de todos modos?')) return; }
-      try{
-        disableSubmit();
-        await sendToSheets(record);
-        addLeadLocal(record);
-        openTicket(record);
-      } catch(err){ console.error(err); alert('No se pudo enviar a Sheets. Inténtalo de nuevo.'); }
-      finally{ enableSubmit(); }
+      await submitWithSpinner('btnFichaSubmit','spinFicha', async ()=>{
+        await postGAS(data);
+        pushLocal({t:'FICHA', tel:data.telefono, icc:data.icc, prom:data.promotor});
+        alert('Ficha creada'); navHome(); formFicha.reset();
+      });
     });
+    function valSel(id, test, msg){ const el=$(id); const v=el.value; if(!test(v)){ alert(msg); el.focus(); throw null; } return v; }
 
-    // Ticket
-    const ticketOverlay=$('ticketOverlay');
-    $('btnCloseTicket').addEventListener('click',()=>{ ticketOverlay.classList.add('hidden'); resetForm(); portada.classList.remove('hidden'); encuestaCard.classList.add('hidden'); fichaCard.classList.add('hidden'); });
-    function openTicket(rec){
-      $('tkn_tel_nip').textContent = `${rec.telefono} • ${rec.nip}`;
-      $('tkn_icc').textContent = rec.icc;
-      $('tkn_curp').textContent = rec.curp || '—';
-      $('tkn_promotor').textContent = rec.promotor || '—';
-      ticketOverlay.classList.remove('hidden');
+    // ==============================
+    // ⚡ ACTIVAR CHIP
+    // ==============================
+    let tipoSeleccionado='';
+    for (const b of document.querySelectorAll('.btn-tipo')){
+      b.addEventListener('click', ()=>{ tipoSeleccionado=b.dataset.tipo; $('tipoSel').textContent='Seleccionado: '+tipoSeleccionado; });
     }
-    // Copiar al tocar
-    ticketOverlay.addEventListener('click',(e)=>{
-      const btn = e.target.closest('[data-copy]');
-      if (!btn) return;
-      const id = btn.getAttribute('data-copy');
-      const txt = $(id).textContent;
-      navigator.clipboard?.writeText(txt).then(()=>{
-        btn.classList.add('ring-2','ring-green-400'); setTimeout(()=>btn.classList.remove('ring-2','ring-green-400'),700);
+    const formActivar=$('formActivar'); const iccHint2=$('iccHint2');
+    formActivar.addEventListener('input',()=> iccHint2.classList.add('hidden'));
+    formActivar.addEventListener('submit', async (e)=>{
+      e.preventDefault(); if(!tipoSeleccionado) return alert('Selecciona tipo (Azul/Blanco)');
+      const icc = onlyDigits($('icc2').value);
+      if (icc && (!luhnCheck(icc) || icc.length!==19)){ iccHint2.classList.remove('hidden'); return; }
+      const data={
+        action:'activate', timestamp:new Date().toISOString(), tipo: tipoSeleccionado,
+        icc: icc || '', numero: valSel('numero2', v=> onlyDigits(v).length===10, 'Número 10 dígitos'),
+        monto: valSel('monto2', v=> Number(onlyDigits(v))>0, 'Monto inválido'), promotor: valSel('promotor2', v=> v.trim().length>0, 'Escribe promotor')
+      };
+      await submitWithSpinner('btnActivarSubmit','spinAct', async ()=>{
+        await postGAS(data);
+        pushLocal({t:'ACT', tipo:data.tipo, num:data.numero, icc:data.icc, monto:data.monto, prom:data.promotor});
+        $('actInfo').textContent = `Registrado: ${data.tipo} • ${data.numero} ${data.icc?('• ICC '+data.icc):''}`;
+        formActivar.reset(); tipoSeleccionado=''; $('tipoSel').textContent='';
       });
     });
 
-    // LocalStorage
-    const LEADS_KEY='mada_porta_leads';
-    const leadsList=$('leadsList');
-    function getLeads(){ try{ return JSON.parse(localStorage.getItem(LEADS_KEY))||[]; } catch{ return []; } }
-    function setLeads(arr){ localStorage.setItem(LEADS_KEY, JSON.stringify(arr)); renderLeads(); }
-    function addLeadLocal(rec){
-      const resumen={ ts:new Date().toLocaleString(), nombre: rec.nombreCompleto || '—', telefono: rec.telefono, carrier: rec.carrier || '—', plaza: rec.plaza, icc6: last6(rec.icc), estatus: rec.estatus || 'Portabilidad iniciada' };
-      const list=getLeads(); list.unshift(resumen); setLeads(list.slice(0,12));
-    }
-    function badgeClass(estatus){ if(!estatus) return 'bg-red-100 text-red-800'; const e=estatus.toLowerCase(); if(e.includes('confirmado')) return 'bg-green-100 text-green-800'; if(e.includes('rechaz')) return 'bg-rose-100 text-rose-800'; return 'bg-red-100 text-red-800'; }
-    function renderLeads(){
-      const list=getLeads(); leadsList.innerHTML=''; if(!list.length){ leadsList.innerHTML='<div class="text-red-700/80 text-sm">Sin registros todavía.</div>'; return; }
-      list.forEach(item=>{
-        const row=document.createElement('div'); row.className='py-3';
-        // Construcción segura sin innerHTML de datos
-        const top=document.createElement('div'); top.className='flex items-center justify-between';
-        const name=document.createElement('div'); name.className='font-medium'; name.textContent=item.nombre;
-        const badge=document.createElement('span'); badge.className='text-xs px-2 py-0.5 rounded-full '+badgeClass(item.estatus); badge.textContent=item.estatus;
-        top.appendChild(name); top.appendChild(badge);
-        const line1=document.createElement('div'); line1.className='text-sm text-red-700'; line1.textContent=`${item.plaza} • ${item.carrier}`;
-        const line2=document.createElement('div'); line2.className='text-sm text-red-700'; line2.textContent=`Tel: ${item.telefono} · ICC: ${item.icc6}`;
-        const line3=document.createElement('div'); line3.className='text-xs text-red-500 mt-1'; line3.textContent=item.ts;
-        row.appendChild(top); row.appendChild(line1); row.appendChild(line2); row.appendChild(line3);
-        leadsList.appendChild(row);
-      });
-    }
-    $('btnClearLeads').addEventListener('click',()=>{ if(confirm('¿Limpiar lista local de leads?')) setLeads([]); });
+    // ==============================
+    // 🧪 Encuesta
+    // ==============================
+    const COMPANIES=['Movistar','AT&T','Unefon','Bait','OXXO Cel','Virgin','Rincel','Telcel'];
+    const COMPANY_QUESTIONS={
+      'Movistar':[{q:'¿Se te corta la señal en interiores?',options:[{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},{q:'¿Tus datos rinden menos de lo esperado?',options:[{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},{q:'¿Llamadas con eco o retraso?',options:[{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]}],
+      'AT&T':[ {q:'¿Te quedas sin cobertura en traslados?',options:[{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},{q:'¿Te limitan apps o redes sociales?',options:[{t:'Sí',w:0.8},{t:'A veces',w:0.5},{t:'No',w:0.2}]},{q:'¿Sientes lentitud en horas pico?',options:[{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]}],
+      'Unefon':[ {q:'¿Cambios de velocidad inesperados?',options:[{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},{q:'¿Cobertura irregular en tu colonia?',options:[{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},{q:'¿Problemas para compartir internet?',options:[{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]}],
+      'Bait':[ {q:'¿Te falla en interiores (centros comerciales)?',options:[{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},{q:'¿Ves baja velocidad por la tarde-noche?',options:[{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},{q:'¿Pierdes señal en carretera?',options:[{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]}],
+      'OXXO Cel':[ {q:'¿Redes sociales cargan lento?',options:[{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},{q:'¿Se cae la llamada seguido?',options:[{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},{q:'¿Descargas tardan demasiado?',options:[{t:'Sí',w:0.8},{t:'A veces',w:0.5},{t:'No',w:0.2}]}],
+      'Virgin':[ {q:'¿Apps bancarias fallan fuera de casa?',options:[{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},{q:'¿Mala señal en oficinas/escuela?',options:[{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},{q:'¿Sufres latencia en videollamadas?',options:[{t:'Sí',w:0.8},{t:'A veces',w:0.5},{t:'No',w:0.2}]}],
+      'Rincel':[ {q:'¿Se pierde señal al entrar a edificios?',options:[{t:'Sí',w:1.0},{t:'A veces',w:0.6},{t:'No',w:0.2}]},{q:'¿Internet intermitente?',options:[{t:'Sí',w:0.9},{t:'A veces',w:0.5},{t:'No',w:0.2}]},{q:'¿Dificultad para hotspot?',options:[{t:'Sí',w:0.8},{t:'A veces',w:0.5},{t:'No',w:0.2}]}],
+      'Telcel':[] };
+    function renderCompanyButtons(){ const wrap=$('companyButtons'); wrap.innerHTML=''; COMPANIES.forEach(c=>{ const b=document.createElement('button'); b.type='button'; b.className='rounded-xl border border-red-200 px-3 py-1.5 text-sm hover:bg-red-50'; b.textContent=c; b.addEventListener('click',()=>selectCompany(c)); wrap.appendChild(b); }); }
+    const notaTelcel=$('notaTelcel'), surveyQuestions=$('surveyQuestions'), scoreValue=$('scoreValue'), pitchValue=$('pitchValue'), planValue=$('planValue'), surveyResult=$('surveyResult');
+    let currentCompany=null; let currentAnswers=[];
+    function selectCompany(company){ currentCompany=company; currentAnswers=[]; surveyQuestions.innerHTML=''; surveyResult.classList.add('hidden'); if(company==='Telcel'){ notaTelcel.classList.remove('hidden'); surveyQuestions.classList.add('hidden'); return; } notaTelcel.classList.add('hidden'); const qs=COMPANY_QUESTIONS[company]||[]; if(!qs.length){ surveyQuestions.classList.add('hidden'); return; } surveyQuestions.classList.remove('hidden'); qs.forEach((item,idx)=>{ const wrap=document.createElement('div'); wrap.className='rounded-xl border border-red-200 p-4'; const title=document.createElement('div'); title.className='font-medium'; title.textContent=`${idx+1}. ${item.q}`; const opts=document.createElement('div'); opts.className='mt-3 flex flex-wrap gap-2'; item.options.forEach(opt=>{ const ob=document.createElement('button'); ob.type='button'; ob.className='rounded-lg bg-white border border-red-200 px-3 py-1.5 text-sm hover:bg-red-50'; ob.textContent=opt.t; ob.addEventListener('click',()=>{ currentAnswers[idx]=opt.w; [...opts.children].forEach(ch=>ch.classList.remove('ring-2','ring-red-400')); ob.classList.add('ring-2','ring-red-400'); const sum=currentAnswers.filter(n=>typeof n==='number').reduce((a,b)=>a+b,0); const count=currentAnswers.filter(n=>typeof n==='number').length; const score=count?sum:0; scoreValue.textContent=score.toFixed(2); pitchValue.textContent=pitchByCompanyAndScore(company,score); planValue.textContent=planByScore(score); surveyResult.classList.remove('hidden'); }); opts.appendChild(ob); }); wrap.appendChild(title); wrap.appendChild(opts); surveyQuestions.appendChild(wrap); }); }
+    function planByScore(score){ if(score>=2.4) return 'Amigo Sin Límite 150'; if(score>=1.6) return 'Amigo Sin Límite 100'; return 'Amigo Sin Límite 80'; }
+    function pitchByCompanyAndScore(company,score){ const alta='Veo varios puntos de dolor. Con Telcel mejoras cobertura en interiores y estabilidad en horas pico.'; const media='Hay áreas de mejora. Con Telcel ganas estabilidad y mejor rendimiento en apps.'; const baja='Tu experiencia es decente, pero con Telcel puedes asegurar señal donde hoy te falla.'; if(score>=2.4) return `${alta} (${company})`; if(score>=1.6) return `${media} (${company})`; return `${baja} (${company})`; }
 
-    // Exportar CSV rápido
-    $('btnExportLeads').addEventListener('click',()=>{
-      const list=getLeads(); if(!list.length) return alert('No hay registros para exportar.');
-      const header=['ts','nombre','telefono','carrier','plaza','icc6','estatus'];
-      const rows=[header.join(',')].concat(list.map(o=> header.map(k=>`"${String(o[k]??'').replace(/"/g,'""')}"`).join(',')));
-      const blob=new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8;'});
-      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='leads_mada.csv'; a.click(); URL.revokeObjectURL(url);
-    });
-    renderLeads();
+    // ==============================
+    // 🌐 GAS helpers
+    // ==============================
+    async function postGAS(body){ const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(), 10000); const res = await fetch(GAS_BASE_URL,{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body), signal: ctrl.signal }); clearTimeout(t); if(!res.ok) throw new Error('HTTP '+res.status); return res.json().catch(()=>({ok:true})); }
+    async function submitWithSpinner(btnId, spinId, fn){ const btn=$(btnId), spin=$(spinId); btn.classList.add('btn-disabled'); spin.classList.remove('hidden'); try{ await fn(); } finally { btn.classList.remove('btn-disabled'); spin.classList.add('hidden'); } }
 
-    // Scanner ICC
-    const scanOverlay=$('scanOverlay');
-    const scanVideo=$('scanVideo');
-    const scanSupport=$('scanSupport');
-    const btnScanICC=$('btnScanICC');
-    const btnCloseScan=$('btnCloseScan');
-    const btnStopScan=$('btnStopScan');
-    let mediaStream=null; let barcodeDetector=null; let scanLoopActive=false;
+    // ==============================
+    // 🗂️ Historial local
+    // ==============================
+    const LKEY='mada_local_events';
+    function getLocal(){ try{ return JSON.parse(localStorage.getItem(LKEY))||[]; } catch{ return []; } }
+    function setLocal(arr){ localStorage.setItem(LKEY, JSON.stringify(arr.slice(0,10))); renderLocal(); }
+    function pushLocal(ev){ const list=getLocal(); list.unshift({ts:new Date().toLocaleString(), ...ev}); setLocal(list); }
+    function renderLocal(){ const list=getLocal(); const cont=$('localList'); cont.innerHTML=''; if(!list.length){ cont.innerHTML='<div class="text-red-700/80 text-sm">Vacío.</div>'; return; } list.forEach(x=>{ const d=document.createElement('div'); d.className='py-2'; d.textContent=`${x.ts} · ${x.t} ${x.tipo?('· '+x.tipo):''} ${x.tel||x.num||''} ${x.icc?('· ICC '+x.icc):''}`; cont.appendChild(d); }); }
+    $('btnLocalClear').onclick=()=> setLocal([]);
+    $('btnLocalExport').onclick=()=>{ const list=getLocal(); if(!list.length) return alert('Nada que exportar'); const header=Object.keys(list[0]); const rows=[header.join(',')].concat(list.map(o=> header.map(k=>`"${String(o[k]??'').replace(/"/g,'""')}"`).join(','))); const blob=new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='historial_local.csv'; a.click(); URL.revokeObjectURL(url); };
+    renderLocal();
 
-    btnScanICC.addEventListener('click', async ()=>{
-      showScanModal();
-      if ('BarcodeDetector' in window){
-        try{ barcodeDetector=new BarcodeDetector({ formats:['code_128','ean_13','ean_8','upc_a','upc_e','code_39'] }); scanSupport.textContent='Soporte nativo disponible. Escaneando...'; }
-        catch{ barcodeDetector=null; scanSupport.textContent='Error iniciando BarcodeDetector. Ingrese ICC manualmente.'; }
-      } else { scanSupport.textContent='Sin soporte nativo. Ingrese ICC manualmente.'; }
-      await startCamera(); if (barcodeDetector) startScanLoop();
-    });
-
-    btnCloseScan.addEventListener('click', closeScanModal);
-    btnStopScan.addEventListener('click', closeScanModal);
-
-    function showScanModal(){ scanOverlay.classList.remove('hidden'); }
-    function closeScanModal(){ scanOverlay.classList.add('hidden'); stopCamera(); scanLoopActive=false; }
-    async function startCamera(){
-      try{ mediaStream=await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' } }); scanVideo.srcObject=mediaStream; await scanVideo.play(); }
-      catch{ scanSupport.textContent='No se pudo acceder a la cámara. Ingresa ICC manualmente.'; }
-    }
-    function stopCamera(){ if(mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; } scanVideo.pause(); scanVideo.srcObject=null; }
-    async function startScanLoop(){
-      scanLoopActive=true; while (scanLoopActive && barcodeDetector && scanVideo.readyState>=2){
-        try{
-          const barcodes=await barcodeDetector.detect(scanVideo);
-          if (barcodes && barcodes.length){
-            const raw = barcodes[0].rawValue || '';
-            const digits = onlyDigits(raw);
-            if (digits.length>=19){
-              $('icc').value = digits.slice(0,19);
-              iccHint.classList.toggle('hidden', luhnCheck($('icc').value));
-              closeScanModal(); break;
-            }
-          }
-        } catch{}
-        await sleep(200);
-      }
-    }
-
-    // Atajos
-    document.addEventListener('keydown', (e)=>{ if(e.key==='F2'){ e.preventDefault(); $('telefono').focus(); } });
+    // ==============================
+    // 📷 Scanner ICC reutilizable
+    // ==============================
+    const scanOverlay=$('scanOverlay'), scanVideo=$('scanVideo'), scanSupport=$('scanSupport'); let mediaStream=null, barcodeDetector=null, scanLoopActive=false, currentScanTarget=null;
+    $('btnScanICC1').onclick=()=> openScannerFor('icc');
+    $('btnScanICC2').onclick=()=> openScannerFor('icc2');
+    $('btnCloseScan').onclick=closeScan; $('btnStopScan').onclick=closeScan;
+    async function openScannerFor(inputId){ currentScanTarget=$(inputId); scanOverlay.classList.remove('hidden'); if('BarcodeDetector' in window){ try{ barcodeDetector=new BarcodeDetector({formats:['code_128','ean_13','ean_8','upc_a','upc_e','code_39']}); scanSupport.textContent='Soporte nativo. Escanea el ICC.'; } catch{ barcodeDetector=null; scanSupport.textContent='Error en detector. Ingresa ICC manual.'; } } else { scanSupport.textContent='Sin soporte nativo. Ingresa ICC manual.'; } await startCam(); if(barcodeDetector) loopScan(); }
+    async function startCam(){ try{ mediaStream=await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' } }); scanVideo.srcObject=mediaStream; await scanVideo.play(); } catch{ scanSupport.textContent='No se pudo acceder a la cámara.'; } }
+    function stopCam(){ if(mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; } scanVideo.pause(); scanVideo.srcObject=null; }
+    function closeScan(){ scanOverlay.classList.add('hidden'); stopCam(); scanLoopActive=false; currentScanTarget=null; }
+    async function loopScan(){ scanLoopActive=true; while(scanLoopActive && barcodeDetector && scanVideo.readyState>=2){ try{ const codes=await barcodeDetector.detect(scanVideo); if(codes && codes.length){ const digits=onlyDigits(codes[0].rawValue||''); if(digits.length>=19){ currentScanTarget.value=digits.slice(0,19); closeScan(); break; } } } catch{} await sleep(200); } }
 
     // Inicio
-    portada.classList.remove('hidden');
+    const portadaEl=$('portada'); portadaEl && portadaEl.classList.remove('hidden');
   </script>
 </body>
 </html>
