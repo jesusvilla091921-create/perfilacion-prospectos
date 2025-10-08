@@ -1,1 +1,185 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OCR Portabilidades - Subida múltiple</title>
+<style>
+body {
+  font-family: system-ui, sans-serif;
+  margin: 20px;
+  color: #222;
+}
+h1 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+input[type=file] {
+  margin: 10px 0;
+}
+#preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.preview-img {
+  width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  object-fit: cover;
+}
+button {
+  background: #0ea5a4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+button:disabled {
+  background: #888;
+  cursor: not-allowed;
+}
+#log {
+  margin-top: 15px;
+  white-space: pre-wrap;
+  background: #f7f7f7;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  max-height: 300px;
+  overflow-y: auto;
+}
+input[type=text] {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 300px;
+}
+.progress {
+  height: 12px;
+  width: 100%;
+  background: #eee;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+.bar {
+  height: 100%;
+  background: #0ea5a4;
+  width: 0%;
+  transition: width .2s;
+}
+</style>
+</head>
+<body>
+<h1>OCR Portabilidades — Procesar varias fotos</h1>
+<p>Sube hasta 10 imágenes del resumen de trámite. El sistema extraerá automáticamente el teléfono, ICC y fecha, y los enviará a tu Google Sheets.</p>
+
+<label><strong>Nombre del promotor:</strong></label><br>
+<input type="text" id="promotor" placeholder="Ej: Ángel / Alex"><br><br>
+
+<input type="file" id="files" accept="image/*" multiple><br>
+<div id="preview"></div>
+
+<button id="startBtn">Iniciar OCR y subir a Sheets</button>
+
+<div class="progress"><div id="progressBar" class="bar"></div></div>
+
+<div id="log"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.0/dist/tesseract.min.js"></script>
+<script>
+const filesInput = document.getElementById('files');
+const previewDiv = document.getElementById('preview');
+const logDiv = document.getElementById('log');
+const startBtn = document.getElementById('startBtn');
+const progressBar = document.getElementById('progressBar');
+const promotorInput = document.getElementById('promotor');
+
+// ✅ URL de tu Apps Script:
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbx43pXC8sZLUCX0J9VEDlGPl6cYW9D7pKxtdrprxuBz-1PaECjaz4PAy_WMHQHfatYc/exec";
+
+// Mostrar miniaturas
+filesInput.addEventListener('change', e => {
+  previewDiv.innerHTML = '';
+  Array.from(e.target.files).forEach(f => {
+    const img = document.createElement('img');
+    img.className = 'preview-img';
+    img.src = URL.createObjectURL(f);
+    previewDiv.appendChild(img);
+  });
+});
+
+startBtn.addEventListener('click', async () => {
+  const promotor = promotorInput.value.trim();
+  const files = Array.from(filesInput.files);
+  if (!promotor) return alert("Ingresa el nombre del promotor.");
+  if (files.length === 0) return alert("Selecciona al menos una imagen.");
+
+  startBtn.disabled = true;
+  logDiv.textContent = "Iniciando OCR...\n";
+
+  let processed = 0;
+  for (const f of files) {
+    processed++;
+    log(`Procesando ${f.name} (${processed}/${files.length})...`);
+    const text = await runOcr(f);
+    const data = extractData(text, promotor, f.name);
+    await sendToSheets(data);
+    log(`✅ ${f.name}: enviado a Sheets.`);
+    progressBar.style.width = `${(processed / files.length) * 100}%`;
+  }
+
+  log("\nProceso completado.");
+  startBtn.disabled = false;
+});
+
+function log(msg) {
+  logDiv.textContent += msg + "\n";
+  logDiv.scrollTop = logDiv.scrollHeight;
+}
+
+// OCR con Tesseract
+async function runOcr(file) {
+  const worker = await Tesseract.createWorker();
+  await worker.loadLanguage('spa+eng');
+  await worker.initialize('spa+eng');
+  const { data: { text } } = await worker.recognize(file);
+  await worker.terminate();
+  return text;
+}
+
+// Extraer teléfono, ICC y fecha
+function extractData(text, promotor, nombreArchivo) {
+  const t = text.replace(/\s+/g, ' ');
+  const phoneMatch = t.match(/\b(8\d{9}|[0-9]{10})\b/);
+  const iccMatch = t.match(/\b(89[0-9]{17,19})\b/);
+  const dateMatch = t.match(/\b([0-3]?\d[\/\-][0-1]?\d[\/\-](\d{2,4})|\d{4}[\/\-][0-1]?\d[\/\-][0-3]?\d)\b/);
+  return {
+    promotor,
+    telefono: phoneMatch ? phoneMatch[0] : '',
+    icc: iccMatch ? iccMatch[0] : '',
+    fecha: dateMatch ? dateMatch[0] : '',
+    nombreArchivo,
+    ocr_text: text
+  };
+}
+
+// Enviar a Google Sheets
+async function sendToSheets(datos) {
+  try {
+    await fetch(SHEETS_URL, {
+      method: 'POST',
+      body: JSON.stringify(datos),
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (e) {
+    log(`⚠️ Error enviando datos: ${e.message}`);
+  }
+}
+</script>
+</body>
+</html>
 
