@@ -1,110 +1,138 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>OCR Portabilidades</title>
-<style>
-body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:20px;background:#fafafa;color:#222}
-h1{font-size:22px;margin-bottom:8px}
-input[type=file]{margin-top:10px}
-#preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.preview-item{border:1px solid #ccc;border-radius:6px;padding:6px;background:#fff;width:140px;text-align:center;font-size:13px}
-.progress{height:8px;background:#ddd;border-radius:5px;overflow:hidden;margin-top:8px}
-.progress-bar{height:100%;background:#0ea5a4;width:0%}
-button{margin-top:12px;background:#0ea5a4;color:white;border:none;padding:8px 14px;border-radius:6px;cursor:pointer}
-table{margin-top:20px;border-collapse:collapse;width:100%;background:#fff}
-th,td{border:1px solid #ddd;padding:8px;font-size:14px}
-th{background:#0ea5a4;color:white}
-small{color:#666}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OCR Portabilidades – Procesamiento en lote</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #fafafa;
+    }
+    h2 {
+      color: #333;
+    }
+    input[type="file"], input[type="text"], button {
+      margin: 10px 0;
+      padding: 8px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th {
+      background: #009688;
+      color: white;
+    }
+    td {
+      padding: 6px;
+      text-align: center;
+    }
+    #preview img {
+      max-width: 120px;
+      margin-right: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+    }
+  </style>
 </head>
 <body>
-<h1>OCR Portabilidades – Procesamiento en lote</h1>
-<p>Sube hasta 10 fotos del resumen de trámite. El sistema extraerá teléfono, ICC y fecha, y enviará los datos a tu Google Sheets.</p>
 
-<label>Nombre del promotor:</label><br>
-<input type="text" id="promotor" placeholder="Ej: Ángel / Alex" style="padding:6px;width:260px;border-radius:6px;border:1px solid #ccc"><br><br>
+  <h2>OCR Portabilidades – Procesamiento en lote</h2>
+  <p>Sube hasta 10 fotos del resumen de trámite. El sistema extraerá teléfono, ICC y fecha, y enviará los datos a tu Google Sheets.</p>
 
-<input id="files" type="file" accept="image/*" multiple>
-<div id="preview"></div>
-<div class="progress"><div id="bar" class="progress-bar"></div></div>
+  <label>Nombre del promotor:</label>
+  <input type="text" id="promotor" placeholder="Ejemplo: Emilio" />
 
-<button id="procesar">Procesar y enviar</button>
+  <br>
+  <input type="file" id="imagenes" accept="image/*" multiple />
+  <div id="preview"></div>
+  <button id="procesar">Procesar y enviar</button>
 
-<table id="tabla" style="display:none">
-<thead><tr><th>#</th><th>Teléfono</th><th>ICCID</th><th>Fecha</th><th>Estado</th></tr></thead>
-<tbody></tbody>
-</table>
+  <table id="resultados">
+    <tr>
+      <th>#</th>
+      <th>Teléfono</th>
+      <th>ICC</th>
+      <th>Fecha</th>
+      <th>Estado</th>
+    </tr>
+  </table>
 
-<p><small>Procesamiento local, sin subir las imágenes a servidores externos.</small></p>
+  <script>
+    const urlScript = "https://script.google.com/macros/s/AKfycbwEzq0kkZgcWWZc2xz9n_9C_3KMk8VrOXilC57wBfd_rOfj2TMOfjhKwiOasVRsUyeh/exec";
 
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.0/dist/tesseract.min.js"></script>
-<script>
-const urlScript = "https://script.google.com/macros/s/AKfycby-PI7oCfB9T1CRBWipRI6y5FI1y1eQYpb0P9wGnk5yiCJAXKqMYJibOobylKAsxIM/exec";
-const input = document.getElementById('files');
-const preview = document.getElementById('preview');
-const bar = document.getElementById('bar');
-const tabla = document.getElementById('tabla');
-const tbody = tabla.querySelector('tbody');
-let imagenes = [];
+    document.getElementById("imagenes").addEventListener("change", mostrarPreview);
+    document.getElementById("procesar").addEventListener("click", procesarImagenes);
 
-input.addEventListener('change',e=>{
-  imagenes = Array.from(e.target.files).slice(0,10);
-  preview.innerHTML='';
-  imagenes.forEach(f=>{
-    const div=document.createElement('div');
-    div.className='preview-item';
-    const img=document.createElement('img');
-    img.src=URL.createObjectURL(f);
-    img.style.maxWidth='100%';
-    img.onload=()=>URL.revokeObjectURL(img.src);
-    div.appendChild(img);
-    div.appendChild(document.createTextNode(f.name));
-    preview.appendChild(div);
-  });
-});
-
-document.getElementById('procesar').addEventListener('click',async()=>{
-  const promotor=document.getElementById('promotor').value.trim();
-  if(!promotor)return alert('Escribe el nombre del promotor.');
-  if(imagenes.length===0)return alert('Sube al menos una imagen.');
-  tabla.style.display='table';tbody.innerHTML='';bar.style.width='0%';
-  let i=0;
-  for(const file of imagenes){
-    i++;
-    const row=document.createElement('tr');
-    row.innerHTML=`<td>${i}</td><td colspan="3">${file.name}</td><td>Pendiente</td>`;
-    tbody.appendChild(row);
-    const text=await extraerTexto(file);
-    const {telefono,icc,fecha}=parsear(text);
-    row.cells[1].textContent=telefono||'-';
-    row.cells[2].textContent=icc||'-';
-    row.cells[3].textContent=fecha||'-';
-    try{
-      const r=await fetch(urlScript,{
-        method:'POST',
-        body:JSON.stringify({promotor,telefono,icc,fecha,ocr_text:text}),
-        headers:{'Content-Type':'application/json'}
+    function mostrarPreview(event) {
+      const preview = document.getElementById("preview");
+      preview.innerHTML = "";
+      Array.from(event.target.files).forEach(file => {
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        preview.appendChild(img);
       });
-      const t=await r.text();
-      row.cells[4].textContent=t.includes("OK")?'✅ Enviado':'⚠️ No confirmado';
-    }catch(e){row.cells[4].textContent='❌ Error';}
-    bar.style.width=Math.round((i/imagenes.length)*100)+'%';
-  }
-  alert('Listo. Verifica en tu hoja de cálculo.');
-});
+    }
 
-async function extraerTexto(f){
-  const {data:{text}}=await Tesseract.recognize(f,'spa+eng');
-  return text.replace(/\s+/g,' ');
-}
-function parsear(t){
-  const tel=(t.match(/\b(8[0-9]{9}|[0-9]{10})\b/)||[])[1]||'';
-  const icc=(t.match(/\b(89[0-9]{17,19})\b/)||[])[1]||'';
-  const fecha=(t.match(/\b([0-3]?\d[\/\-][0-1]?\d[\/\-](?:\d{2,4})|\d{4}[\/\-][0-1]?\d[\/\-][0-3]?\d)\b/)||[])[1]||'';
-  return {telefono:tel,icc,fecha};
-}
-</script>
+    async function procesarImagenes() {
+      const promotor = document.getElementById("promotor").value.trim();
+      const archivos = document.getElementById("imagenes").files;
+      const tabla = document.getElementById("resultados");
+
+      if (!promotor) {
+        alert("Por favor, escribe el nombre del promotor.");
+        return;
+      }
+      if (archivos.length === 0) {
+        alert("Selecciona al menos una imagen.");
+        return;
+      }
+
+      for (let i = 0; i < archivos.length; i++) {
+        const file = archivos[i];
+        const fila = tabla.insertRow(-1);
+        fila.insertCell(0).textContent = i + 1;
+        const cTel = fila.insertCell(1);
+        const cICC = fila.insertCell(2);
+        const cFecha = fila.insertCell(3);
+        const cEstado = fila.insertCell(4);
+        cEstado.textContent = "Procesando...";
+
+        try {
+          const result = await Tesseract.recognize(file, "spa");
+          const texto = result.data.text;
+
+          const telefono = texto.match(/\b\d{10}\b/) ? texto.match(/\b\d{10}\b/)[0] : "";
+          const icc = texto.match(/89\d{15,19}/) ? texto.match(/89\d{15,19}/)[0] : "";
+          const fecha = texto.match(/\b\d{2}\/\d{2}\/\d{4}\b/) ? texto.match(/\b\d{2}\/\d{2}\/\d{4}\b/)[0] : "";
+
+          cTel.textContent = telefono || "-";
+          cICC.textContent = icc || "-";
+          cFecha.textContent = fecha || "-";
+
+          const data = { promotor, telefono, icc, fecha, ocr_text: texto };
+
+          const resp = await fetch(urlScript, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+          });
+
+          cEstado.textContent = "✅ Enviado";
+        } catch (error) {
+          console.error(error);
+          cEstado.textContent = "❌ Error";
+        }
+      }
+    }
+  </script>
 </body>
 </html>
