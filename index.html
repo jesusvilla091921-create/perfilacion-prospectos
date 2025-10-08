@@ -20,8 +20,8 @@ small{color:#666}
 </style>
 </head>
 <body>
-<h1>OCR Portabilidades - Procesamiento en lote</h1>
-<p>Sube hasta <strong>10 fotos</strong> del resumen de trámite. Se extraerán los datos y se enviarán automáticamente a tu hoja de Google Sheets.</p>
+<h1>OCR Portabilidades – Procesamiento en lote</h1>
+<p>Sube hasta 10 fotos del resumen de trámite. El sistema extraerá teléfono, ICC y fecha, y enviará los datos a tu Google Sheets.</p>
 
 <label>Nombre del promotor:</label><br>
 <input type="text" id="promotor" placeholder="Ej: Ángel / Alex" style="padding:6px;width:260px;border-radius:6px;border:1px solid #ccc"><br><br>
@@ -33,92 +33,77 @@ small{color:#666}
 <button id="procesar">Procesar y enviar</button>
 
 <table id="tabla" style="display:none">
-<thead>
-<tr><th>#</th><th>Teléfono</th><th>ICCID</th><th>Fecha</th><th>Estado</th></tr>
-</thead><tbody></tbody></table>
+<thead><tr><th>#</th><th>Teléfono</th><th>ICCID</th><th>Fecha</th><th>Estado</th></tr></thead>
+<tbody></tbody>
+</table>
 
-<p><small>Todo se procesa localmente en tu navegador y se envía únicamente a tu hoja de Google Sheets.</small></p>
+<p><small>Procesamiento local, sin subir las imágenes a servidores externos.</small></p>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.0/dist/tesseract.min.js"></script>
 <script>
-const urlScript = "https://script.google.com/macros/s/AKfycbx43pXC8sZLUCX0J9VEDlGPl6cYW9D7pKxtdrprxuBz-1PaECjaz4PAy_WMHQHfatYc/exec";
+const urlScript = "https://script.google.com/macros/s/AKfycby-PI7oCfB9T1CRBWipRI6y5FI1y1eQYpb0P9wGnk5yiCJAXKqMYJibOobylKAsxIM/exec";
 const input = document.getElementById('files');
 const preview = document.getElementById('preview');
 const bar = document.getElementById('bar');
 const tabla = document.getElementById('tabla');
 const tbody = tabla.querySelector('tbody');
-
 let imagenes = [];
 
-input.addEventListener('change', e=>{
+input.addEventListener('change',e=>{
   imagenes = Array.from(e.target.files).slice(0,10);
-  preview.innerHTML = '';
+  preview.innerHTML='';
   imagenes.forEach(f=>{
-    const div = document.createElement('div');
+    const div=document.createElement('div');
     div.className='preview-item';
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(f);
+    const img=document.createElement('img');
+    img.src=URL.createObjectURL(f);
     img.style.maxWidth='100%';
-    img.onload = ()=>URL.revokeObjectURL(img.src);
+    img.onload=()=>URL.revokeObjectURL(img.src);
     div.appendChild(img);
     div.appendChild(document.createTextNode(f.name));
     preview.appendChild(div);
   });
 });
 
-document.getElementById('procesar').addEventListener('click', async ()=>{
-  const promotor = document.getElementById('promotor').value.trim();
-  if(!promotor) return alert('Escribe el nombre del promotor.');
-  if(imagenes.length===0) return alert('Sube al menos una imagen.');
-
-  tabla.style.display='table';
-  tbody.innerHTML='';
-  bar.style.width='0%';
-
-  let index = 0;
+document.getElementById('procesar').addEventListener('click',async()=>{
+  const promotor=document.getElementById('promotor').value.trim();
+  if(!promotor)return alert('Escribe el nombre del promotor.');
+  if(imagenes.length===0)return alert('Sube al menos una imagen.');
+  tabla.style.display='table';tbody.innerHTML='';bar.style.width='0%';
+  let i=0;
   for(const file of imagenes){
-    index++;
-    const row = document.createElement('tr');
-    row.innerHTML=`<td>${index}</td><td colspan="3">${file.name}</td><td>Pendiente</td>`;
+    i++;
+    const row=document.createElement('tr');
+    row.innerHTML=`<td>${i}</td><td colspan="3">${file.name}</td><td>Pendiente</td>`;
     tbody.appendChild(row);
-
-    const text = await extraerTexto(file);
-    const {telefono, icc, fecha} = parsear(text);
-
-    row.cells[1].textContent = telefono || '-';
-    row.cells[2].textContent = icc || '-';
-    row.cells[3].textContent = fecha || '-';
-
-    const datos = {promotor, telefono, icc, fecha, ocr_text:text};
+    const text=await extraerTexto(file);
+    const {telefono,icc,fecha}=parsear(text);
+    row.cells[1].textContent=telefono||'-';
+    row.cells[2].textContent=icc||'-';
+    row.cells[3].textContent=fecha||'-';
     try{
-      const res = await fetch(urlScript,{
+      const r=await fetch(urlScript,{
         method:'POST',
-        body:JSON.stringify(datos),
+        body:JSON.stringify({promotor,telefono,icc,fecha,ocr_text:text}),
         headers:{'Content-Type':'application/json'}
       });
-      const txt = await res.text();
-      if(txt.includes("OK")) row.cells[4].textContent='✅ Enviado';
-      else row.cells[4].textContent='⚠️ Respuesta inesperada';
-    }catch(e){
-      row.cells[4].textContent='❌ Error';
-    }
-
-    bar.style.width = Math.round((index/imagenes.length)*100)+'%';
+      const t=await r.text();
+      row.cells[4].textContent=t.includes("OK")?'✅ Enviado':'⚠️ No confirmado';
+    }catch(e){row.cells[4].textContent='❌ Error';}
+    bar.style.width=Math.round((i/imagenes.length)*100)+'%';
   }
-
-  alert('Procesamiento terminado.');
+  alert('Listo. Verifica en tu hoja de cálculo.');
 });
 
-async function extraerTexto(file){
-  const {data:{text}} = await Tesseract.recognize(file,'spa+eng');
+async function extraerTexto(f){
+  const {data:{text}}=await Tesseract.recognize(f,'spa+eng');
   return text.replace(/\s+/g,' ');
 }
-
 function parsear(t){
-  const tel = (t.match(/\b(8[0-9]{9}|[0-9]{10})\b/)||[])[1] || '';
-  const icc = (t.match(/\b(89[0-9]{17,19})\b/)||[])[1] || '';
-  const fecha = (t.match(/\b([0-3]?\d[\/\-][0-1]?\d[\/\-](?:\d{2,4})|\d{4}[\/\-][0-1]?\d[\/\-][0-3]?\d)\b/)||[])[1] || '';
-  return {telefono:tel, icc, fecha};
+  const tel=(t.match(/\b(8[0-9]{9}|[0-9]{10})\b/)||[])[1]||'';
+  const icc=(t.match(/\b(89[0-9]{17,19})\b/)||[])[1]||'';
+  const fecha=(t.match(/\b([0-3]?\d[\/\-][0-1]?\d[\/\-](?:\d{2,4})|\d{4}[\/\-][0-1]?\d[\/\-][0-3]?\d)\b/)||[])[1]||'';
+  return {telefono:tel,icc,fecha};
 }
 </script>
 </body>
