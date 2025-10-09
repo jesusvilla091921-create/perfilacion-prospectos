@@ -3,438 +3,318 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OCR Portabilidades – Procesamiento en lote</title>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
+  <title>Dashboard del Supervisor</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --primary: #3498db;
-      --secondary: #2ecc71;
-      --accent: #9b59b6;
-      --dark: #2c3e50;
-      --light: #ecf0f1;
-      --danger: #e74c3c;
-      --warning: #f39c12;
-      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      --radius: 8px;
+      --azul: #0984e3;
+      --gris: #f5f6fa;
+      --blanco: #fff;
     }
-    
-    * {
-      box-sizing: border-box;
-    }
-    
+
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: "Segoe UI", sans-serif;
+      background: var(--gris);
       margin: 0;
       padding: 0;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      min-height: 100vh;
-      color: var(--dark);
+      color: #2f3640;
     }
-    
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    
+
     header {
-      background: white;
-      border-radius: var(--radius);
-      padding: 25px;
-      margin-bottom: 25px;
-      box-shadow: var(--shadow);
-      text-align: center;
-    }
-    
-    h1 {
-      color: var(--dark);
-      margin: 0 0 10px;
-      font-size: 28px;
-    }
-    
-    .subtitle {
-      color: #7f8c8d;
-      font-size: 16px;
-      margin: 0;
-    }
-    
-    .card {
-      background: white;
-      border-radius: var(--radius);
-      padding: 25px;
-      margin-bottom: 25px;
-      box-shadow: var(--shadow);
-    }
-    
-    .form-group {
-      margin-bottom: 20px;
-    }
-    
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: var(--dark);
-    }
-    
-    input[type="text"], input[type="file"] {
-      width: 100%;
-      padding: 12px 15px;
-      border: 1px solid #ddd;
-      border-radius: var(--radius);
-      font-size: 16px;
-      transition: all 0.3s;
-    }
-    
-    input[type="text"]:focus, input[type="file"]:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-    }
-    
-    .btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: var(--radius);
-      padding: 12px 25px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-    }
-    
-    .btn:hover {
-      background: #2980b9;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
-    
-    .btn:active {
-      transform: translateY(0);
-    }
-    
-    .btn i {
-      margin-right: 8px;
-    }
-    
-    .btn-success {
-      background: var(--secondary);
-    }
-    
-    .btn-success:hover {
-      background: #27ae60;
-    }
-    
-    .preview-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-top: 15px;
-    }
-    
-    .preview-item {
-      position: relative;
-      width: 120px;
-      height: 120px;
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-    }
-    
-    .preview-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .preview-item .remove {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      background: rgba(231, 76, 60, 0.8);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 20px;
-      background: white;
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-    }
-    
-    thead {
-      background: linear-gradient(to right, var(--primary), var(--accent));
-    }
-    
-    th {
+      background: var(--azul);
       color: white;
       padding: 15px;
       text-align: center;
+    }
+
+    header h1 {
+      font-size: 1.3rem;
+      margin: 0;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    .container {
+      margin: 15px;
+      background: var(--blanco);
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .filtros {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    input,
+    select {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+      width: 100%;
+    }
+
+    button {
+      background: var(--azul);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px;
+      cursor: pointer;
       font-weight: 600;
     }
-    
+
+    button:hover {
+      background: #0772c5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    th,
     td {
-      padding: 12px 15px;
+      padding: 8px;
       text-align: center;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid #ddd;
+      word-break: break-word;
     }
-    
-    tr:last-child td {
-      border-bottom: none;
+
+    th {
+      background: #74b9ff;
+      color: white;
+      font-size: 0.85rem;
     }
-    
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
+
+    tr:hover {
+      background: #f1f2f6;
     }
-    
-    .status-processing {
-      color: var(--warning);
-    }
-    
-    .status-success {
-      color: var(--secondary);
-    }
-    
-    .status-error {
-      color: var(--danger);
-    }
-    
-    .actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 20px;
-    }
-    
-    .file-input-wrapper {
-      position: relative;
-      overflow: hidden;
-      display: inline-block;
+
+    canvas {
       width: 100%;
+      max-height: 320px;
+      margin-top: 15px;
     }
-    
-    .file-input-wrapper input[type=file] {
-      position: absolute;
-      left: 0;
-      top: 0;
-      opacity: 0;
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
-    }
-    
-    .file-input-label {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 15px;
-      background: #f8f9fa;
-      border: 2px dashed #ddd;
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: all 0.3s;
+
+    .loading {
       text-align: center;
-      color: #7f8c8d;
+      padding: 30px;
+      color: #636e72;
     }
-    
-    .file-input-label:hover {
-      border-color: var(--primary);
-      background: #e8f4fd;
-    }
-    
-    .file-input-label i {
-      margin-right: 8px;
-      font-size: 18px;
-    }
-    
-    @media (max-width: 768px) {
-      .container {
-        padding: 15px;
+
+    @media (min-width: 600px) {
+      header h1 {
+        font-size: 1.6rem;
       }
-      
-      .card {
-        padding: 15px;
+      .filtros {
+        flex-direction: row;
+        justify-content: space-between;
       }
-      
-      th, td {
-        padding: 10px 8px;
-        font-size: 14px;
+      .filtros div {
+        flex: 1;
       }
-      
-      .preview-item {
-        width: 100px;
-        height: 100px;
+      .filtros button {
+        flex: 0.5;
       }
     }
   </style>
 </head>
 <body>
+  <header>
+    <h1>📊 Dashboard del Supervisor</h1>
+    <p>Monitoreo en tiempo real de portabilidades enviadas</p>
+  </header>
+
   <div class="container">
-    <header>
-      <h1>OCR Portabilidades – Procesamiento en lote</h1>
-      <p class="subtitle">Sube hasta 10 fotos del resumen de trámite. El sistema extraerá teléfono e ICC, y enviará los datos a tu Google Sheets.</p>
-    </header>
-    
-    <div class="card">
-      <div class="form-group">
-        <label for="promotor">Nombre del promotor:</label>
-        <input type="text" id="promotor" placeholder="Ejemplo: Emilio" />
+    <div class="filtros">
+      <div>
+        <label>Desde:</label>
+        <input type="date" id="fechaInicio" />
       </div>
-      
-      <div class="form-group">
-        <label>Seleccionar imágenes:</label>
-        <div class="file-input-wrapper">
-          <div class="file-input-label">
-            <i>📁</i> Seleccionar archivos (máx. 10 imágenes)
-          </div>
-          <input type="file" id="imagenes" accept="image/*" multiple />
-        </div>
+      <div>
+        <label>Hasta:</label>
+        <input type="date" id="fechaFin" />
       </div>
-      
-      <div id="preview" class="preview-container"></div>
-      
-      <div class="actions">
-        <button id="procesar" class="btn btn-success">
-          <i>⚙️</i> Procesar y enviar
-        </button>
+      <div>
+        <label>Promotor:</label>
+        <select id="filtroPromotor">
+          <option value="">Todos</option>
+        </select>
       </div>
+      <button id="btnFiltrar">Filtrar</button>
     </div>
-    
-    <div class="card">
-      <h2 style="margin-top: 0;">Resultados</h2>
-      <table id="resultados">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Teléfono</th>
-            <th>ICC</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Los resultados se insertarán aquí dinámicamente -->
-        </tbody>
-      </table>
-    </div>
+
+    <div id="status" class="loading">Cargando datos...</div>
+
+    <table id="tabla">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Fecha</th>
+          <th>Promotor</th>
+          <th>Teléfono</th>
+          <th>ICC</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <canvas id="grafica"></canvas>
   </div>
 
   <script>
-    const urlScript = "https://script.google.com/macros/s/AKfycbwEzq0kkZgcWWZc2xz9n_9C_3KMk8VrOXilC57wBfd_rOfj2TMOfjhKwiOasVRsUyeh/exec";
+    const SHEET_ID = "1-ys3hF-4a8KtI5kYsBsPNTzx0bxTZk1NkVjXrpQP8ug";
+    const HOJA = "Hoja%201";
+    const API_URL = `https://opensheet.elk.sh/${SHEET_ID}/${HOJA}`;
 
-    document.getElementById("imagenes").addEventListener("change", mostrarPreview);
-    document.getElementById("procesar").addEventListener("click", procesarImagenes);
+    const tabla = document.querySelector("#tabla tbody");
+    const status = document.getElementById("status");
+    const ctx = document.getElementById("grafica").getContext("2d");
+    const filtroPromotor = document.getElementById("filtroPromotor");
+    const btnFiltrar = document.getElementById("btnFiltrar");
 
-    function mostrarPreview(event) {
-      const preview = document.getElementById("preview");
-      preview.innerHTML = "";
-      
-      Array.from(event.target.files).forEach((file, index) => {
-        const previewItem = document.createElement("div");
-        previewItem.className = "preview-item";
-        
-        const img = document.createElement("img");
-        img.src = URL.createObjectURL(file);
-        
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "remove";
-        removeBtn.innerHTML = "×";
-        removeBtn.addEventListener("click", function() {
-          previewItem.remove();
-          // Actualizar la lista de archivos
-          const dataTransfer = new DataTransfer();
-          const files = Array.from(document.getElementById("imagenes").files);
-          files.splice(index, 1);
-          files.forEach(file => dataTransfer.items.add(file));
-          document.getElementById("imagenes").files = dataTransfer.files;
+    let datosOriginales = [];
+    let grafica;
+
+    async function cargarDatos() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        if (!data || data.length === 0) {
+          status.textContent = "No hay registros.";
+          return;
+        }
+
+        // Evitar duplicados (por ICC)
+        const unicos = [];
+        const vistos = new Set();
+
+        data.forEach((fila) => {
+          const keys = Object.keys(fila);
+          const icc = fila[keys[3]]?.trim();
+          if (!vistos.has(icc)) {
+            vistos.add(icc);
+            unicos.push(fila);
+          }
         });
-        
-        previewItem.appendChild(img);
-        previewItem.appendChild(removeBtn);
-        preview.appendChild(previewItem);
+
+        datosOriginales = unicos;
+        status.style.display = "none";
+        llenarTabla(unicos);
+        llenarPromotores(unicos);
+        graficar(unicos);
+      } catch (err) {
+        status.textContent = "Error al cargar datos.";
+        console.error(err);
+      }
+    }
+
+    function llenarTabla(data) {
+      tabla.innerHTML = "";
+      data.forEach((fila, i) => {
+        const keys = Object.keys(fila);
+        const fecha = fila[keys[0]] || "";
+        const promotor = fila[keys[1]] || "";
+        const telefono = fila[keys[2]] || "";
+        const icc = fila[keys[3]] || "";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${fecha}</td>
+          <td>${promotor}</td>
+          <td>${telefono}</td>
+          <td>${icc}</td>
+        `;
+        tabla.appendChild(tr);
       });
     }
 
-    async function procesarImagenes() {
-      const promotor = document.getElementById("promotor").value.trim();
-      const archivos = document.getElementById("imagenes").files;
-      const tabla = document.getElementById("resultados").getElementsByTagName('tbody')[0];
-      tabla.innerHTML = "";
-
-      if (!promotor) {
-        alert("Por favor, escribe el nombre del promotor.");
-        return;
-      }
-      if (archivos.length === 0) {
-        alert("Selecciona al menos una imagen.");
-        return;
-      }
-
-      for (let i = 0; i < archivos.length; i++) {
-        const file = archivos[i];
-        const fila = tabla.insertRow(-1);
-        fila.insertCell(0).textContent = i + 1;
-        const cTel = fila.insertCell(1);
-        const cICC = fila.insertCell(2);
-        const cEstado = fila.insertCell(3);
-        
-        cTel.textContent = "Procesando...";
-        cICC.textContent = "Procesando...";
-        cEstado.textContent = "Procesando...";
-        cEstado.className = "status-processing";
-
-        try {
-          const result = await Tesseract.recognize(file, "spa");
-          const texto = result.data.text;
-
-          // SOLO extraemos teléfono e ICC
-          const telefono = texto.match(/\b\d{10}\b/) ? texto.match(/\b\d{10}\b/)[0] : "";
-          const icc = texto.match(/89\d{15,19}/) ? texto.match(/89\d{15,19}/)[0] : "";
-
-          cTel.textContent = telefono || "-";
-          cICC.textContent = icc || "-";
-
-          // SOLO enviamos teléfono e ICC (sin fecha, sin texto OCR completo)
-          const data = { 
-            promotor: promotor, 
-            telefono: telefono, 
-            icc: icc
-            // No incluimos fecha ni ocr_text
-          };
-
-          const resp = await fetch(urlScript, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-          });
-
-          cEstado.textContent = "✅ Enviado";
-          cEstado.className = "status-success";
-        } catch (error) {
-          console.error(error);
-          cTel.textContent = "-";
-          cICC.textContent = "-";
-          cEstado.textContent = "❌ Error";
-          cEstado.className = "status-error";
-        }
-      }
+    function llenarPromotores(data) {
+      const promotores = [...new Set(data.map((r) => r[Object.keys(r)[1]]).filter(Boolean))];
+      promotores.forEach((p) => {
+        const option = document.createElement("option");
+        option.value = p;
+        option.textContent = p;
+        filtroPromotor.appendChild(option);
+      });
     }
+
+    function graficar(data) {
+      const conteo = {};
+      data.forEach((r) => {
+        const promotor = r[Object.keys(r)[1]];
+        conteo[promotor] = (conteo[promotor] || 0) + 1;
+      });
+
+      const labels = Object.keys(conteo);
+      const valores = Object.values(conteo);
+
+      if (grafica) grafica.destroy();
+
+      grafica = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Portabilidades por promotor",
+              data: valores,
+              backgroundColor: "#0984e3",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: { display: true, text: "Productividad por promotor" },
+          },
+          scales: {
+            y: { beginAtZero: true },
+          },
+        },
+      });
+    }
+
+    function filtrar() {
+      const inicio = document.getElementById("fechaInicio").value;
+      const fin = document.getElementById("fechaFin").value;
+      const promotorSel = filtroPromotor.value;
+
+      let filtrados = [...datosOriginales];
+
+      if (inicio) {
+        filtrados = filtrados.filter((r) => new Date(r[Object.keys(r)[0]]) >= new Date(inicio));
+      }
+      if (fin) {
+        filtrados = filtrados.filter((r) => new Date(r[Object.keys(r)[0]]) <= new Date(fin + "T23:59"));
+      }
+      if (promotorSel) {
+        filtrados = filtrados.filter((r) => r[Object.keys(r)[1]] === promotorSel);
+      }
+
+      llenarTabla(filtrados);
+      graficar(filtrados);
+    }
+
+    btnFiltrar.addEventListener("click", filtrar);
+
+    cargarDatos();
   </script>
 </body>
 </html>
