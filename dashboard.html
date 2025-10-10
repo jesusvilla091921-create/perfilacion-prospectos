@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Supervisor Dashboard | Portabilidades</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     :root {
       --primary: #0984e3;
@@ -412,6 +413,43 @@
         flex: 1;
       }
     }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius);
+      background-color: var(--white);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 1000;
+      transform: translateX(150%);
+      transition: transform 0.3s ease;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast-success {
+      border-left: 4px solid var(--success);
+    }
+
+    .toast-error {
+      border-left: 4px solid var(--danger);
+    }
+
+    .toast-icon {
+      font-size: 1.2rem;
+    }
+
+    .toast-message {
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
@@ -603,6 +641,12 @@
     <p>Dashboard del Supervisor &copy; 2023 - Sistema de Monitoreo de Portabilidades</p>
   </footer>
 
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <div class="toast-icon" id="toastIcon">✅</div>
+    <div class="toast-message" id="toastMessage">Operación completada con éxito</div>
+  </div>
+
   <script>
     // Configuración
     const SHEET_ID = "1-ys3hF-4a8KtI5kYsBsPNTzx0bxTZk1NkVjXrpQP8ug";
@@ -633,7 +677,10 @@
       totalPortabilidades: document.getElementById("totalPortabilidades"),
       promedioDiario: document.getElementById("promedioDiario"),
       promotoresActivos: document.getElementById("promotoresActivos"),
-      eficiencia: document.getElementById("eficiencia")
+      eficiencia: document.getElementById("eficiencia"),
+      toast: document.getElementById("toast"),
+      toastIcon: document.getElementById("toastIcon"),
+      toastMessage: document.getElementById("toastMessage")
     };
 
     // Inicialización
@@ -690,79 +737,78 @@
       try {
         const res = await fetch(API_URL);
         const data = await res.json();
-        
-        // Procesar datos con fechas reales
         datosOriginales = data.map((fila, index) => {
           const keys = Object.keys(fila);
           
-          // Generar fecha más reciente (últimos 30 días)
-          const fechaAleatoria = generarFechaReciente();
+          // Normalizar datos para evitar problemas con mayúsculas y acentos
+          let promotor = fila[keys[1]] || '';
+          promotor = normalizarTexto(promotor);
+          
+          // Procesar fecha - manejar diferentes formatos
+          let fechaOriginal = fila[keys[0]] || '';
+          let fechaProcesada = procesarFecha(fechaOriginal);
           
           return {
             id: index + 1,
-            fecha: fechaAleatoria,
-            promotor: fila[keys[1]] || `Promotor ${Math.floor(Math.random() * 5) + 1}`,
-            telefono: fila[keys[2]] || generarTelefono(),
-            icc: fila[keys[3]] || generarICC(),
-            estado: ['completado', 'pendiente', 'en_proceso'][Math.floor(Math.random() * 3)]
+            fecha: fechaProcesada, // Fecha procesada para mostrar
+            fechaFiltro: new Date(fechaProcesada), // Fecha para filtrar
+            promotor: promotor,
+            telefono: fila[keys[2]] || '',
+            icc: fila[keys[3]] || '',
+            estado: ['completado', 'pendiente', 'en_proceso'][Math.floor(Math.random() * 3)] // Estado aleatorio para demostración
           };
         });
         
-        // Aplicar filtros por defecto
-        aplicarFiltros();
+        // Inicializar datos filtrados con todos los datos
+        datosFiltrados = [...datosOriginales];
+        
+        // Actualizar la interfaz
+        llenarPromotores();
+        actualizarEstadisticas();
+        llenarTabla();
+        inicializarGraficas();
         
         ocultarLoader();
+        mostrarToast("Datos cargados correctamente", "success");
       } catch (error) {
         console.error("Error al cargar los datos:", error);
-        
-        // Generar datos de ejemplo si hay error
-        generarDatosEjemplo();
         ocultarLoader();
+        mostrarToast("Error al cargar los datos", "error");
       }
     }
 
-    // Generar datos de ejemplo
-    function generarDatosEjemplo() {
-      const promotoresEjemplo = ['Juan Pérez', 'María García', 'Carlos López', 'Ana Martínez', 'Pedro Rodríguez'];
-      const datosEjemplo = [];
+    // Normalizar texto para eliminar problemas con mayúsculas y acentos
+    function normalizarTexto(texto) {
+      if (!texto) return '';
+      return texto
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/\b\w/g, l => l.toUpperCase()); // Capitalizar primera letra de cada palabra
+    }
+
+    // Procesar fecha para manejar diferentes formatos
+    function procesarFecha(fechaStr) {
+      if (!fechaStr) return new Date().toISOString().split('T')[0];
       
-      // Generar 50 registros de ejemplo con fechas recientes
-      for (let i = 0; i < 50; i++) {
-        const fecha = generarFechaReciente();
-        const promotor = promotoresEjemplo[Math.floor(Math.random() * promotoresEjemplo.length)];
+      // Intentar diferentes formatos de fecha
+      let fecha = new Date(fechaStr);
+      
+      // Si no es una fecha válida, intentar parsear manualmente
+      if (isNaN(fecha.getTime())) {
+        // Intentar formato DD/MM/YYYY
+        const partes = fechaStr.split('/');
+        if (partes.length === 3) {
+          fecha = new Date(partes[2], partes[1] - 1, partes[0]);
+        }
         
-        datosEjemplo.push({
-          id: i + 1,
-          fecha: fecha,
-          promotor: promotor,
-          telefono: generarTelefono(),
-          icc: generarICC(),
-          estado: ['completado', 'pendiente', 'en_proceso'][Math.floor(Math.random() * 3)]
-        });
+        // Si aún no es válida, usar fecha actual
+        if (isNaN(fecha.getTime())) {
+          fecha = new Date();
+        }
       }
       
-      datosOriginales = datosEjemplo;
-      aplicarFiltros();
-    }
-
-    // Generar fecha reciente (últimos 30 días)
-    function generarFechaReciente() {
-      const hoy = new Date();
-      const diasAtras = Math.floor(Math.random() * 30); // 0 a 29 días atrás
-      const fecha = new Date(hoy);
-      fecha.setDate(hoy.getDate() - diasAtras);
-      
-      return formatearFecha(fecha);
-    }
-
-    // Generar número de teléfono
-    function generarTelefono() {
-      return '55' + Math.floor(10000000 + Math.random() * 90000000).toString();
-    }
-
-    // Generar ICC
-    function generarICC() {
-      return '89' + Math.floor(100000000000000 + Math.random() * 900000000000000).toString().substring(0, 15);
+      return fecha.toISOString().split('T')[0];
     }
 
     // Llenar select de promotores sin duplicados
@@ -787,15 +833,18 @@
       let filtrados = datosOriginales;
 
       if (inicio) {
-        filtrados = filtrados.filter(r => new Date(r.fecha) >= new Date(inicio));
+        filtrados = filtrados.filter(r => r.fechaFiltro >= new Date(inicio));
       }
       
       if (fin) {
-        filtrados = filtrados.filter(r => new Date(r.fecha) <= new Date(fin + "T23:59"));
+        // Añadir un día completo para incluir la fecha de fin
+        const finDate = new Date(fin);
+        finDate.setDate(finDate.getDate() + 1);
+        filtrados = filtrados.filter(r => r.fechaFiltro < finDate);
       }
       
       if (promSel) {
-        filtrados = filtrados.filter(r => r.promotor === promSel);
+        filtrados = filtrados.filter(r => normalizarTexto(r.promotor) === normalizarTexto(promSel));
       }
       
       if (estadoSel) {
@@ -805,10 +854,11 @@
       datosFiltrados = filtrados;
       
       // Actualizar la interfaz
-      llenarPromotores();
       actualizarEstadisticas();
       llenarTabla();
       actualizarTodasLasGraficas();
+      
+      mostrarToast(`Filtros aplicados: ${datosFiltrados.length} registros encontrados`, "success");
     }
 
     // Limpiar filtros
@@ -830,6 +880,8 @@
       actualizarEstadisticas();
       llenarTabla();
       actualizarTodasLasGraficas();
+      
+      mostrarToast("Filtros limpiados correctamente", "success");
     }
 
     // Llenar tabla
@@ -1104,36 +1156,56 @@
       graficas.ranking.update();
     }
 
-    // Exportar datos a CSV
+    // Exportar datos a Excel
     function exportarDatos() {
       if (datosFiltrados.length === 0) {
-        alert('No hay datos para exportar');
+        mostrarToast("No hay datos para exportar", "error");
         return;
       }
       
-      // Crear contenido CSV
-      let csvContent = 'ID,Fecha,Promotor,Teléfono,ICC,Estado\n';
-      
-      datosFiltrados.forEach(fila => {
-        const estadoTexto = fila.estado === 'completado' ? 'Completado' : 
-                           fila.estado === 'pendiente' ? 'Pendiente' : 'En proceso';
+      try {
+        // Preparar datos para exportación
+        const datosExportar = datosFiltrados.map(fila => ({
+          ID: fila.id,
+          Fecha: formatearFechaParaTabla(fila.fecha),
+          Promotor: fila.promotor,
+          Teléfono: fila.telefono,
+          ICC: fila.icc,
+          Estado: fila.estado
+        }));
         
-        csvContent += `${fila.id},${fila.fecha},${fila.promotor},${fila.telefono},${fila.icc},${estadoTexto}\n`;
-      });
+        // Crear libro de trabajo
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(datosExportar);
+        
+        // Añadir hoja al libro
+        XLSX.utils.book_append_sheet(wb, ws, "Portabilidades");
+        
+        // Generar nombre de archivo con fecha
+        const fechaHoy = new Date().toISOString().split('T')[0];
+        const nombreArchivo = `Portabilidades_${fechaHoy}.xlsx`;
+        
+        // Descargar archivo
+        XLSX.writeFile(wb, nombreArchivo);
+        
+        mostrarToast(`Datos exportados correctamente: ${nombreArchivo}`, "success");
+      } catch (error) {
+        console.error("Error al exportar datos:", error);
+        mostrarToast("Error al exportar los datos", "error");
+      }
+    }
+
+    // Mostrar notificación toast
+    function mostrarToast(mensaje, tipo = "success") {
+      elementos.toast.className = `toast toast-${tipo}`;
+      elementos.toastMessage.textContent = mensaje;
+      elementos.toastIcon.textContent = tipo === "success" ? "✅" : "❌";
       
-      // Crear y descargar archivo
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      const fechaExportacion = formatearFecha(new Date());
+      elementos.toast.classList.add("show");
       
-      link.setAttribute('href', url);
-      link.setAttribute('download', `portabilidades_${fechaExportacion}.csv`);
-      link.style.visibility = 'hidden';
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      setTimeout(() => {
+        elementos.toast.classList.remove("show");
+      }, 3000);
     }
 
     // Utilidades
@@ -1142,8 +1214,15 @@
     }
 
     function formatearFechaParaTabla(fechaStr) {
-      const opciones = { day: '2-digit', month: '2-digit', year: 'numeric' };
-      return new Date(fechaStr).toLocaleDateString('es-ES', opciones);
+      if (!fechaStr) return '';
+      
+      try {
+        const fecha = new Date(fechaStr);
+        const opciones = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        return fecha.toLocaleDateString('es-ES', opciones);
+      } catch (e) {
+        return fechaStr;
+      }
     }
 
     function mostrarLoader() {
