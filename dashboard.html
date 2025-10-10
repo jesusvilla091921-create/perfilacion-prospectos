@@ -1,70 +1,118 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Supervisor - Portabilidades</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard del Supervisor</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    :root {
+      --azul: #0984e3;
+      --gris: #f5f6fa;
+      --blanco: #fff;
+    }
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f5f6fa;
+      font-family: "Segoe UI", sans-serif;
+      background: var(--gris);
       margin: 0;
-      padding: 0;
       color: #2f3640;
     }
     header {
-      background: #0984e3;
+      background: var(--azul);
       color: white;
-      padding: 20px;
+      padding: 15px;
       text-align: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
     .container {
-      max-width: 1000px;
-      margin: 30px auto;
-      background: white;
-      padding: 25px;
+      margin: 15px;
+      background: var(--blanco);
+      padding: 15px;
       border-radius: 10px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    .filtros {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    label {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    input, select, button {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+      width: 100%;
+    }
+    button {
+      background: var(--azul);
+      color: white;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0772c5;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 25px;
+      font-size: 0.85rem;
     }
     th, td {
+      padding: 8px;
       text-align: center;
-      padding: 12px;
       border-bottom: 1px solid #ddd;
+      word-break: break-word;
     }
     th {
       background: #74b9ff;
       color: white;
+      font-size: 0.85rem;
     }
     tr:hover {
       background: #f1f2f6;
     }
     canvas {
       width: 100%;
-      max-height: 350px;
-      margin-top: 30px;
+      max-height: 320px;
+      margin-top: 15px;
     }
-    .loading {
-      text-align: center;
-      padding: 50px;
-      color: #636e72;
+    @media (min-width: 600px) {
+      .filtros { flex-direction: row; justify-content: space-between; }
+      .filtros div { flex: 1; }
+      .filtros button { flex: 0.5; }
     }
   </style>
 </head>
 <body>
   <header>
     <h1>📊 Dashboard del Supervisor</h1>
-    <p>Monitoreo en tiempo real de portabilidades enviadas por los promotores</p>
+    <p>Monitoreo en tiempo real de portabilidades</p>
   </header>
 
   <div class="container">
-    <div id="status" class="loading">Cargando datos desde Google Sheets...</div>
+    <div class="filtros">
+      <div>
+        <label>Desde:</label>
+        <input type="date" id="fechaInicio" />
+      </div>
+      <div>
+        <label>Hasta:</label>
+        <input type="date" id="fechaFin" />
+      </div>
+      <div>
+        <label>Promotor:</label>
+        <select id="filtroPromotor">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <button id="btnFiltrar">Filtrar</button>
+    </div>
+
     <table id="tabla">
       <thead>
         <tr>
@@ -77,91 +125,86 @@
       </thead>
       <tbody></tbody>
     </table>
+
     <canvas id="grafica"></canvas>
   </div>
 
   <script>
-    // 📄 ID de tu hoja de Google Sheets y nombre de la pestaña:
     const SHEET_ID = "1-ys3hF-4a8KtI5kYsBsPNTzx0bxTZk1NkVjXrpQP8ug";
-    const HOJA = "Hoja%201"; // espacio = %20
+    const HOJA = "Hoja%201";
     const API_URL = `https://opensheet.elk.sh/${SHEET_ID}/${HOJA}`;
 
     const tabla = document.querySelector("#tabla tbody");
-    const status = document.getElementById("status");
     const ctx = document.getElementById("grafica").getContext("2d");
+    const filtroPromotor = document.getElementById("filtroPromotor");
+    const btnFiltrar = document.getElementById("btnFiltrar");
+    let datosOriginales = [];
+    let grafica;
 
     async function cargarDatos() {
-      try {
-        const resp = await fetch(API_URL);
-        if (!resp.ok) throw new Error("Error al obtener datos");
-        const data = await resp.json();
-
-        if (!data || data.length === 0) {
-          status.textContent = "No hay registros todavía.";
-          return;
-        }
-
-        status.style.display = "none";
-
-        // 🧾 Limpiar tabla
-        tabla.innerHTML = "";
-
-        // 📊 Contador por promotor
-        const conteo = {};
-
-        data.forEach((fila, i) => {
-          const keys = Object.keys(fila);
-          const fecha = fila[keys[0]] || "";
-          const promotor = fila[keys[1]] || "";
-          const telefono = fila[keys[2]] || "";
-          const icc = fila[keys[3]] || "";
-
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${i + 1}</td>
-            <td>${fecha}</td>
-            <td>${promotor}</td>
-            <td>${telefono}</td>
-            <td>${icc}</td>
-          `;
-          tabla.appendChild(row);
-
-          if (promotor) {
-            conteo[promotor] = (conteo[promotor] || 0) + 1;
-          }
-        });
-
-        // 🎨 Dibujar gráfica
-        const labels = Object.keys(conteo);
-        const valores = Object.values(conteo);
-
-        new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels,
-            datasets: [{
-              label: 'Portabilidades por promotor',
-              data: valores,
-              backgroundColor: '#0984e3'
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { display: false },
-              title: { display: true, text: 'Productividad por promotor' }
-            },
-            scales: {
-              y: { beginAtZero: true }
-            }
-          }
-        });
-
-      } catch (error) {
-        console.error(error);
-        status.textContent = "❌ Error al cargar los datos del Sheets.";
-      }
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      datosOriginales = data;
+      llenarTabla(data);
+      llenarPromotores(data);
+      graficar(data);
     }
+
+    function llenarTabla(data) {
+      tabla.innerHTML = "";
+      data.forEach((fila, i) => {
+        const keys = Object.keys(fila);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${fila[keys[0]]}</td>
+          <td>${fila[keys[1]]}</td>
+          <td>${fila[keys[2]]}</td>
+          <td>${fila[keys[3]]}</td>
+        `;
+        tabla.appendChild(tr);
+      });
+    }
+
+    function llenarPromotores(data) {
+      const promotores = [...new Set(data.map(r => r[Object.keys(r)[1]]).filter(Boolean))];
+      promotores.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p; opt.textContent = p;
+        filtroPromotor.appendChild(opt);
+      });
+    }
+
+    function graficar(data) {
+      const conteo = {};
+      data.forEach(r => {
+        const prom = r[Object.keys(r)[1]];
+        conteo[prom] = (conteo[prom] || 0) + 1;
+      });
+      const labels = Object.keys(conteo);
+      const valores = Object.values(conteo);
+      if (grafica) grafica.destroy();
+      grafica = new Chart(ctx, {
+        type: "bar",
+        data: { labels, datasets: [{ label: "Portas", data: valores, backgroundColor: "#0984e3" }] },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+      });
+    }
+
+    btnFiltrar.addEventListener("click", () => {
+      const inicio = document.getElementById("fechaInicio").value;
+      const fin = document.getElementById("fechaFin").value;
+      const promSel = filtroPromotor.value;
+      let filtrados = datosOriginales;
+      if (inicio)
+        filtrados = filtrados.filter(r => new Date(r[Object.keys(r)[0]]) >= new Date(inicio));
+      if (fin)
+        filtrados = filtrados.filter(r => new Date(r[Object.keys(r)[0]]) <= new Date(fin + "T23:59"));
+      if (promSel)
+        filtrados = filtrados.filter(r => r[Object.keys(r)[1]] === promSel);
+      llenarTabla(filtrados);
+      graficar(filtrados);
+    });
 
     cargarDatos();
   </script>
