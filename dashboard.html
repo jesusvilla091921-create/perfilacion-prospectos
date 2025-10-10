@@ -321,11 +321,6 @@
       color: var(--success);
     }
 
-    .status-pending {
-      background-color: rgba(253, 203, 110, 0.1);
-      color: var(--warning);
-    }
-
     /* Charts */
     .charts-container {
       display: grid;
@@ -550,9 +545,7 @@
           <label class="filter-label" for="filtroEstado">Estado:</label>
           <select id="filtroEstado" class="filter-input">
             <option value="">Todos los estados</option>
-            <option value="completado">Completado</option>
-            <option value="pendiente">Pendiente</option>
-            <option value="en_proceso">En proceso</option>
+            <option value="LISTO">LISTO</option>
           </select>
         </div>
       </div>
@@ -724,6 +717,10 @@
           } else {
             elementos.tablaContainer.style.display = 'none';
             elementos.graficasContainer.style.display = 'grid';
+            // Inicializar gráficas si no existen
+            if (Object.keys(graficas).length === 0) {
+              inicializarGraficas();
+            }
             actualizarTodasLasGraficas();
           }
         });
@@ -737,6 +734,8 @@
       try {
         const res = await fetch(API_URL);
         const data = await res.json();
+        
+        // Procesar datos reales de la hoja
         datosOriginales = data.map((fila, index) => {
           const keys = Object.keys(fila);
           
@@ -748,14 +747,18 @@
           let fechaOriginal = fila[keys[0]] || '';
           let fechaProcesada = procesarFecha(fechaOriginal);
           
+          // Obtener teléfono e ICC de las columnas correspondientes
+          let telefono = fila[keys[2]] || '';
+          let icc = fila[keys[3]] || '';
+          
           return {
             id: index + 1,
             fecha: fechaProcesada, // Fecha procesada para mostrar
             fechaFiltro: new Date(fechaProcesada), // Fecha para filtrar
             promotor: promotor,
-            telefono: fila[keys[2]] || '',
-            icc: fila[keys[3]] || '',
-            estado: ['completado', 'pendiente', 'en_proceso'][Math.floor(Math.random() * 3)] // Estado aleatorio para demostración
+            telefono: telefono,
+            icc: icc,
+            estado: "LISTO" // Todos los estados son "LISTO"
           };
         });
         
@@ -766,7 +769,6 @@
         llenarPromotores();
         actualizarEstadisticas();
         llenarTabla();
-        inicializarGraficas();
         
         ocultarLoader();
         mostrarToast("Datos cargados correctamente", "success");
@@ -902,32 +904,13 @@
       datosFiltrados.forEach(fila => {
         const tr = document.createElement("tr");
         
-        // Determinar clase de estado
-        let estadoClase = '';
-        let estadoTexto = '';
-        
-        switch(fila.estado) {
-          case 'completado':
-            estadoClase = 'status-completed';
-            estadoTexto = 'Completado';
-            break;
-          case 'pendiente':
-            estadoClase = 'status-pending';
-            estadoTexto = 'Pendiente';
-            break;
-          case 'en_proceso':
-            estadoClase = 'status-pending';
-            estadoTexto = 'En proceso';
-            break;
-        }
-        
         tr.innerHTML = `
           <td>${fila.id}</td>
           <td>${formatearFechaParaTabla(fila.fecha)}</td>
           <td>${fila.promotor}</td>
           <td>${fila.telefono}</td>
           <td>${fila.icc}</td>
-          <td><span class="status-badge ${estadoClase}">${estadoTexto}</span></td>
+          <td><span class="status-badge status-completed">LISTO</span></td>
           <td>
             <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
               <i>👁️</i> Ver
@@ -956,9 +939,31 @@
       const promotoresUnicos = [...new Set(datosFiltrados.map(r => r.promotor))];
       elementos.promotoresActivos.textContent = promotoresUnicos.length;
       
-      // Eficiencia (simulada)
-      const eficienciaCalculada = Math.min(100, Math.max(70, Math.floor(Math.random() * 30) + 70));
+      // Eficiencia (calculada basada en datos reales)
+      const eficienciaCalculada = calcularEficiencia();
       elementos.eficiencia.textContent = `${eficienciaCalculada}%`;
+    }
+
+    // Calcular eficiencia basada en datos reales
+    function calcularEficiencia() {
+      if (datosFiltrados.length === 0) return 0;
+      
+      // Calcular eficiencia basada en la distribución de portabilidades por promotor
+      const conteoPorPromotor = {};
+      datosFiltrados.forEach(r => {
+        const prom = r.promotor;
+        conteoPorPromotor[prom] = (conteoPorPromotor[prom] || 0) + 1;
+      });
+      
+      const valores = Object.values(conteoPorPromotor);
+      const max = Math.max(...valores);
+      const min = Math.min(...valores);
+      
+      // Calcular un índice de eficiencia basado en la distribución
+      if (max === min) return 100; // Todos igualmente productivos
+      
+      const eficiencia = 70 + (30 * (1 - (max - min) / max));
+      return Math.min(100, Math.max(70, Math.round(eficiencia)));
     }
 
     // Inicializar gráficas
@@ -1088,6 +1093,7 @@
 
     // Actualizar todas las gráficas
     function actualizarTodasLasGraficas() {
+      if (Object.keys(graficas).length === 0) return;
       actualizarGraficaProductividad();
       actualizarGraficaTemporal();
       actualizarGraficaRanking();
