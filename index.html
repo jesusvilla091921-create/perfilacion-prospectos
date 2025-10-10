@@ -3,318 +3,159 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard del Supervisor</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>OCR Portabilidades – Captura Inteligente</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
   <style>
     :root {
       --azul: #0984e3;
+      --verde: #00b894;
+      --rojo: #d63031;
       --gris: #f5f6fa;
       --blanco: #fff;
     }
-
     body {
-      font-family: "Segoe UI", sans-serif;
-      background: var(--gris);
+      font-family: 'Segoe UI', sans-serif;
       margin: 0;
-      padding: 0;
-      color: #2f3640;
+      background: var(--gris);
+      color: #2d3436;
     }
-
     header {
       background: var(--azul);
       color: white;
-      padding: 15px;
       text-align: center;
+      padding: 15px;
     }
-
-    header h1 {
-      font-size: 1.3rem;
-      margin: 0;
-    }
-
-    header p {
-      font-size: 0.9rem;
-      margin-top: 4px;
-    }
-
     .container {
       margin: 15px;
       background: var(--blanco);
-      padding: 15px;
       border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-
-    .filtros {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-
-    label {
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-
-    input,
-    select {
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 0.9rem;
+    input, button {
       width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 15px;
     }
-
     button {
       background: var(--azul);
       color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 8px;
-      cursor: pointer;
       font-weight: 600;
+      border: none;
+      cursor: pointer;
     }
-
-    button:hover {
-      background: #0772c5;
+    button:hover { background: #0772c5; }
+    .preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
     }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
+    .preview img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
     }
-
-    th,
-    td {
-      padding: 8px;
-      text-align: center;
-      border-bottom: 1px solid #ddd;
-      word-break: break-word;
-    }
-
-    th {
-      background: #74b9ff;
-      color: white;
-      font-size: 0.85rem;
-    }
-
-    tr:hover {
+    .log {
       background: #f1f2f6;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-top: 10px;
+      white-space: pre-line;
     }
-
-    canvas {
-      width: 100%;
-      max-height: 320px;
-      margin-top: 15px;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 30px;
-      color: #636e72;
-    }
-
-    @media (min-width: 600px) {
-      header h1 {
-        font-size: 1.6rem;
-      }
-      .filtros {
-        flex-direction: row;
-        justify-content: space-between;
-      }
-      .filtros div {
-        flex: 1;
-      }
-      .filtros button {
-        flex: 0.5;
-      }
+    .success { color: var(--verde); font-weight: bold; }
+    .error { color: var(--rojo); font-weight: bold; }
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.3rem; }
+      input, button { font-size: 14px; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>📊 Dashboard del Supervisor</h1>
-    <p>Monitoreo en tiempo real de portabilidades enviadas</p>
+    <h1>📷 OCR Portabilidades</h1>
+    <p>Procesa fotos y sube tus trámites automáticamente</p>
   </header>
 
   <div class="container">
-    <div class="filtros">
-      <div>
-        <label>Desde:</label>
-        <input type="date" id="fechaInicio" />
-      </div>
-      <div>
-        <label>Hasta:</label>
-        <input type="date" id="fechaFin" />
-      </div>
-      <div>
-        <label>Promotor:</label>
-        <select id="filtroPromotor">
-          <option value="">Todos</option>
-        </select>
-      </div>
-      <button id="btnFiltrar">Filtrar</button>
-    </div>
+    <label>Nombre del promotor:</label>
+    <input type="text" id="promotor" placeholder="Ej. Emilio" />
 
-    <div id="status" class="loading">Cargando datos...</div>
+    <label>Selecciona imágenes (máx. 10):</label>
+    <input type="file" id="imagenes" accept="image/*" multiple />
 
-    <table id="tabla">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Fecha</th>
-          <th>Promotor</th>
-          <th>Teléfono</th>
-          <th>ICC</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-
-    <canvas id="grafica"></canvas>
+    <button id="procesar">Procesar y subir</button>
+    <div class="preview" id="preview"></div>
+    <div class="log" id="log"></div>
   </div>
 
   <script>
-    const SHEET_ID = "1-ys3hF-4a8KtI5kYsBsPNTzx0bxTZk1NkVjXrpQP8ug";
-    const HOJA = "Hoja%201";
-    const API_URL = `https://opensheet.elk.sh/${SHEET_ID}/${HOJA}`;
+    const urlScript = "https://script.google.com/macros/s/AKfycbw-Nj4MqGW0mk4rTuEHFViPebKI1xmUXwJXguQW6LQHNEdh7qswD9KC_AOxnpGSOAww/exec";
 
-    const tabla = document.querySelector("#tabla tbody");
-    const status = document.getElementById("status");
-    const ctx = document.getElementById("grafica").getContext("2d");
-    const filtroPromotor = document.getElementById("filtroPromotor");
-    const btnFiltrar = document.getElementById("btnFiltrar");
+    const inputImgs = document.getElementById("imagenes");
+    const log = document.getElementById("log");
+    const preview = document.getElementById("preview");
+    const btn = document.getElementById("procesar");
 
-    let datosOriginales = [];
-    let grafica;
+    inputImgs.addEventListener("change", () => {
+      preview.innerHTML = "";
+      Array.from(inputImgs.files).forEach(file => {
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        preview.appendChild(img);
+      });
+    });
 
-    async function cargarDatos() {
-      try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
-        if (!data || data.length === 0) {
-          status.textContent = "No hay registros.";
-          return;
-        }
+    btn.addEventListener("click", async () => {
+      const promotor = document.getElementById("promotor").value.trim();
+      const files = inputImgs.files;
+      if (!promotor) return alert("Escribe el nombre del promotor.");
+      if (files.length === 0) return alert("Selecciona al menos una imagen.");
 
-        // Evitar duplicados (por ICC)
-        const unicos = [];
-        const vistos = new Set();
+      log.textContent = "⏳ Procesando imágenes...\n";
 
-        data.forEach((fila) => {
-          const keys = Object.keys(fila);
-          const icc = fila[keys[3]]?.trim();
-          if (!vistos.has(icc)) {
-            vistos.add(icc);
-            unicos.push(fila);
+      for (const file of files) {
+        try {
+          const result = await Tesseract.recognize(file, "spa");
+          const texto = result.data.text;
+          const telefono = texto.match(/\b\d{10}\b/)?.[0] || "";
+          const icc = texto.match(/89\d{15,19}/)?.[0] || "";
+
+          if (!telefono && !icc) {
+            log.textContent += `⚠️ No se detectó info válida en ${file.name}\n`;
+            continue;
           }
-        });
 
-        datosOriginales = unicos;
-        status.style.display = "none";
-        llenarTabla(unicos);
-        llenarPromotores(unicos);
-        graficar(unicos);
-      } catch (err) {
-        status.textContent = "Error al cargar datos.";
-        console.error(err);
-      }
-    }
+          const data = { promotor, telefono, icc };
+          const resp = await fetch(urlScript, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+          });
+          const text = await resp.text();
+          
+          if (text.includes("⚠️")) {
+            log.textContent += `⚠️ ${text} (${file.name})\n`;
+          } else if (text.includes("✅")) {
+            log.textContent += `✅ ${text} (${file.name})\n`;
+          } else {
+            log.textContent += `❌ Error inesperado (${file.name})\n`;
+          }
 
-    function llenarTabla(data) {
-      tabla.innerHTML = "";
-      data.forEach((fila, i) => {
-        const keys = Object.keys(fila);
-        const fecha = fila[keys[0]] || "";
-        const promotor = fila[keys[1]] || "";
-        const telefono = fila[keys[2]] || "";
-        const icc = fila[keys[3]] || "";
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${i + 1}</td>
-          <td>${fecha}</td>
-          <td>${promotor}</td>
-          <td>${telefono}</td>
-          <td>${icc}</td>
-        `;
-        tabla.appendChild(tr);
-      });
-    }
-
-    function llenarPromotores(data) {
-      const promotores = [...new Set(data.map((r) => r[Object.keys(r)[1]]).filter(Boolean))];
-      promotores.forEach((p) => {
-        const option = document.createElement("option");
-        option.value = p;
-        option.textContent = p;
-        filtroPromotor.appendChild(option);
-      });
-    }
-
-    function graficar(data) {
-      const conteo = {};
-      data.forEach((r) => {
-        const promotor = r[Object.keys(r)[1]];
-        conteo[promotor] = (conteo[promotor] || 0) + 1;
-      });
-
-      const labels = Object.keys(conteo);
-      const valores = Object.values(conteo);
-
-      if (grafica) grafica.destroy();
-
-      grafica = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels,
-          datasets: [
-            {
-              label: "Portabilidades por promotor",
-              data: valores,
-              backgroundColor: "#0984e3",
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false },
-            title: { display: true, text: "Productividad por promotor" },
-          },
-          scales: {
-            y: { beginAtZero: true },
-          },
-        },
-      });
-    }
-
-    function filtrar() {
-      const inicio = document.getElementById("fechaInicio").value;
-      const fin = document.getElementById("fechaFin").value;
-      const promotorSel = filtroPromotor.value;
-
-      let filtrados = [...datosOriginales];
-
-      if (inicio) {
-        filtrados = filtrados.filter((r) => new Date(r[Object.keys(r)[0]]) >= new Date(inicio));
-      }
-      if (fin) {
-        filtrados = filtrados.filter((r) => new Date(r[Object.keys(r)[0]]) <= new Date(fin + "T23:59"));
-      }
-      if (promotorSel) {
-        filtrados = filtrados.filter((r) => r[Object.keys(r)[1]] === promotorSel);
+        } catch (err) {
+          console.error(err);
+          log.textContent += `❌ Error al procesar ${file.name}\n`;
+        }
       }
 
-      llenarTabla(filtrados);
-      graficar(filtrados);
-    }
-
-    btnFiltrar.addEventListener("click", filtrar);
-
-    cargarDatos();
+      log.textContent += "\nProceso finalizado.";
+    });
   </script>
 </body>
 </html>
