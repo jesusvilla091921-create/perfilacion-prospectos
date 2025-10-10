@@ -7,155 +7,865 @@
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
   <style>
     :root {
-      --azul: #0984e3;
-      --verde: #00b894;
-      --rojo: #d63031;
-      --gris: #f5f6fa;
-      --blanco: #fff;
+      --primary: #0984e3;
+      --primary-dark: #0772c5;
+      --secondary: #00cec9;
+      --danger: #e17055;
+      --success: #00b894;
+      --warning: #fdcb6e;
+      --dark: #2d3436;
+      --light: #f5f6fa;
+      --white: #ffffff;
+      --gray: #dfe6e9;
+      --text: #2d3436;
+      --text-light: #636e72;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --radius: 8px;
     }
-    body {
-      font-family: 'Segoe UI', sans-serif;
+
+    * {
       margin: 0;
-      background: var(--gris);
-      color: #2d3436;
+      padding: 0;
+      box-sizing: border-box;
     }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--light);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Header */
     header {
-      background: var(--azul);
-      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: var(--white);
+      padding: 1.5rem 2rem;
+      box-shadow: var(--shadow);
       text-align: center;
-      padding: 15px;
     }
-    .container {
-      margin: 15px;
-      background: var(--blanco);
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+
+    .header-content h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
     }
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 12px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 15px;
+
+    .header-content p {
+      opacity: 0.9;
+      font-size: 0.95rem;
     }
-    button {
-      background: var(--azul);
-      color: white;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
+
+    /* Main Container */
+    .main-container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
     }
-    button:hover { background: #0772c5; }
-    .preview {
+
+    /* Card Styles */
+    .card {
+      background-color: var(--white);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 10px;
+      align-items: center;
+      gap: 0.5rem;
     }
-    .preview img {
-      width: 100px;
-      height: 100px;
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--gray);
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.1);
+    }
+
+    /* Upload Area */
+    .upload-area {
+      border: 2px dashed var(--gray);
+      border-radius: var(--radius);
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      margin-bottom: 1rem;
+    }
+
+    .upload-area:hover, .upload-area.dragover {
+      border-color: var(--primary);
+      background-color: rgba(9, 132, 227, 0.05);
+    }
+
+    .upload-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    .upload-text {
+      margin-bottom: 1rem;
+    }
+
+    .upload-hint {
+      font-size: 0.85rem;
+      color: var(--text-light);
+    }
+
+    /* Preview Styles */
+    .preview-container {
+      margin-top: 1.5rem;
+    }
+
+    .preview-title {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    .preview-item {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .preview-img {
+      width: 100%;
+      height: 150px;
       object-fit: cover;
-      border-radius: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      display: block;
     }
+
+    .preview-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 0.5rem;
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .preview-remove {
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius);
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: var(--secondary);
+      color: var(--white);
+    }
+
+    .btn-secondary:hover {
+      background-color: #00b5b0;
+      transform: translateY(-2px);
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      color: var(--white);
+    }
+
+    .btn-danger:hover {
+      background-color: #d35400;
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      background-color: var(--gray);
+      color: var(--text-light);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    /* Progress */
+    .progress-container {
+      margin-top: 1.5rem;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background-color: var(--gray);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      text-align: center;
+    }
+
+    /* Log Styles */
+    .log-container {
+      margin-top: 1.5rem;
+    }
+
     .log {
-      background: #f1f2f6;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 14px;
-      margin-top: 10px;
-      white-space: pre-line;
+      background: #f8f9fa;
+      border-radius: var(--radius);
+      padding: 1rem;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      line-height: 1.5;
     }
-    .success { color: var(--verde); font-weight: bold; }
-    .error { color: var(--rojo); font-weight: bold; }
-    @media (max-width: 600px) {
-      header h1 { font-size: 1.3rem; }
-      input, button { font-size: 14px; }
+
+    .log-entry {
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+
+    .log-entry.success {
+      background-color: rgba(0, 184, 148, 0.1);
+      color: var(--success);
+      border-left: 3px solid var(--success);
+    }
+
+    .log-entry.error {
+      background-color: rgba(231, 76, 60, 0.1);
+      color: var(--danger);
+      border-left: 3px solid var(--danger);
+    }
+
+    .log-entry.warning {
+      background-color: rgba(253, 203, 110, 0.1);
+      color: #e67e22;
+      border-left: 3px solid #e67e22;
+    }
+
+    .log-entry.info {
+      background-color: rgba(9, 132, 227, 0.1);
+      color: var(--primary);
+      border-left: 3px solid var(--primary);
+    }
+
+    .log-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 0.5rem;
+    }
+
+    /* Results */
+    .results-container {
+      margin-top: 1.5rem;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    .result-card {
+      border: 1px solid var(--gray);
+      border-radius: var(--radius);
+      padding: 1rem;
+      background-color: var(--white);
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .result-filename {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .result-status {
+      padding: 0.25rem 0.5rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-success {
+      background-color: rgba(0, 184, 148, 0.1);
+      color: var(--success);
+    }
+
+    .status-error {
+      background-color: rgba(231, 76, 60, 0.1);
+      color: var(--danger);
+    }
+
+    .status-warning {
+      background-color: rgba(253, 203, 110, 0.1);
+      color: #e67e22;
+    }
+
+    .result-details {
+      font-size: 0.85rem;
+    }
+
+    .result-field {
+      margin-bottom: 0.5rem;
+    }
+
+    .result-label {
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      margin-top: 2rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 0 1rem;
+      }
+      
+      .btn-group {
+        flex-direction: column;
+      }
+      
+      .preview-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      }
+      
+      .results-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>📷 OCR Portabilidades</h1>
-    <p>Procesa fotos y sube tus trámites automáticamente</p>
+    <div class="header-content">
+      <h1>📷 OCR Portabilidades</h1>
+      <p>Procesa fotos y sube tus trámites automáticamente</p>
+    </div>
   </header>
 
-  <div class="container">
-    <label>Nombre del promotor:</label>
-    <input type="text" id="promotor" placeholder="Ej. Emilio" />
+  <div class="main-container">
+    <!-- Form Card -->
+    <div class="card">
+      <h2 class="card-title">
+        <i>👤</i> Información del Promotor
+      </h2>
+      
+      <div class="form-group">
+        <label class="form-label" for="promotor">Nombre del promotor:</label>
+        <input type="text" id="promotor" class="form-input" placeholder="Ej. Emilio Rodríguez" />
+      </div>
+    </div>
 
-    <label>Selecciona imágenes (máx. 10):</label>
-    <input type="file" id="imagenes" accept="image/*" multiple />
+    <!-- Upload Card -->
+    <div class="card">
+      <h2 class="card-title">
+        <i>📁</i> Carga de Imágenes
+      </h2>
+      
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-icon">📁</div>
+        <div class="upload-text">
+          <p>Arrastra y suelta tus imágenes aquí</p>
+          <p class="upload-hint">o haz clic para seleccionar archivos (máx. 10 imágenes)</p>
+        </div>
+        <input type="file" id="imagenes" accept="image/*" multiple style="display: none;" />
+      </div>
+      
+      <div class="preview-container" id="previewContainer" style="display: none;">
+        <h3 class="preview-title">
+          <i>🖼️</i> Vista Previa de Imágenes
+        </h3>
+        <div class="preview-grid" id="previewGrid"></div>
+      </div>
+    </div>
 
-    <button id="procesar">Procesar y subir</button>
-    <div class="preview" id="preview"></div>
-    <div class="log" id="log"></div>
+    <!-- Actions Card -->
+    <div class="card">
+      <h2 class="card-title">
+        <i>⚙️</i> Procesamiento
+      </h2>
+      
+      <div class="btn-group">
+        <button class="btn btn-primary" id="procesarBtn">
+          <i>🔍</i> Procesar y Subir
+        </button>
+        <button class="btn btn-secondary" id="procesarSinSubirBtn">
+          <i>🔍</i> Solo Procesar
+        </button>
+        <button class="btn btn-danger" id="limpiarBtn">
+          <i>🗑️</i> Limpiar Todo
+        </button>
+      </div>
+      
+      <div class="progress-container" id="progressContainer" style="display: none;">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">Procesando 0 de 0 imágenes</div>
+      </div>
+    </div>
+
+    <!-- Results Card -->
+    <div class="card" id="resultsCard" style="display: none;">
+      <h2 class="card-title">
+        <i>📊</i> Resultados del Procesamiento
+      </h2>
+      
+      <div class="results-container">
+        <div class="results-grid" id="resultsGrid"></div>
+      </div>
+    </div>
+
+    <!-- Log Card -->
+    <div class="card">
+      <h2 class="card-title">
+        <i>📝</i> Registro de Actividad
+      </h2>
+      
+      <div class="log-container">
+        <div class="log" id="log"></div>
+        <div class="log-actions">
+          <button class="btn btn-secondary" id="limpiarLogBtn">
+            <i>🗑️</i> Limpiar Registro
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <footer>
+    <p>OCR Portabilidades &copy; 2023 - Sistema de Captura Inteligente</p>
+  </footer>
+
   <script>
+    // Configuración
     const urlScript = "https://script.google.com/macros/s/AKfycbw-Nj4MqGW0mk4rTuEHFViPebKI1xmUXwJXguQW6LQHNEdh7qswD9KC_AOxnpGSOAww/exec";
+    const MAX_FILES = 10;
 
-    const inputImgs = document.getElementById("imagenes");
-    const log = document.getElementById("log");
-    const preview = document.getElementById("preview");
-    const btn = document.getElementById("procesar");
+    // Variables globales
+    let imagenesSeleccionadas = [];
+    let resultadosProcesamiento = [];
 
-    inputImgs.addEventListener("change", () => {
-      preview.innerHTML = "";
-      Array.from(inputImgs.files).forEach(file => {
-        const img = document.createElement("img");
-        img.src = URL.createObjectURL(file);
-        preview.appendChild(img);
-      });
+    // Elementos DOM
+    const elementos = {
+      promotor: document.getElementById("promotor"),
+      imagenes: document.getElementById("imagenes"),
+      uploadArea: document.getElementById("uploadArea"),
+      previewContainer: document.getElementById("previewContainer"),
+      previewGrid: document.getElementById("previewGrid"),
+      procesarBtn: document.getElementById("procesarBtn"),
+      procesarSinSubirBtn: document.getElementById("procesarSinSubirBtn"),
+      limpiarBtn: document.getElementById("limpiarBtn"),
+      progressContainer: document.getElementById("progressContainer"),
+      progressFill: document.getElementById("progressFill"),
+      progressText: document.getElementById("progressText"),
+      resultsCard: document.getElementById("resultsCard"),
+      resultsGrid: document.getElementById("resultsGrid"),
+      log: document.getElementById("log"),
+      limpiarLogBtn: document.getElementById("limpiarLogBtn")
+    };
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', function() {
+      configurarEventListeners();
+      agregarLog("✅ Aplicación inicializada. Selecciona imágenes para comenzar.", "info");
     });
 
-    btn.addEventListener("click", async () => {
-      const promotor = document.getElementById("promotor").value.trim();
-      const files = inputImgs.files;
-      if (!promotor) return alert("Escribe el nombre del promotor.");
-      if (files.length === 0) return alert("Selecciona al menos una imagen.");
+    // Configurar event listeners
+    function configurarEventListeners() {
+      // Área de carga
+      elementos.uploadArea.addEventListener('click', () => elementos.imagenes.click());
+      elementos.uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        elementos.uploadArea.classList.add('dragover');
+      });
+      elementos.uploadArea.addEventListener('dragleave', () => {
+        elementos.uploadArea.classList.remove('dragover');
+      });
+      elementos.uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        elementos.uploadArea.classList.remove('dragover');
+        manejarArchivos(e.dataTransfer.files);
+      });
 
-      log.textContent = "⏳ Procesando imágenes...\n";
+      // Input de archivos
+      elementos.imagenes.addEventListener('change', (e) => {
+        manejarArchivos(e.target.files);
+      });
 
-      for (const file of files) {
-        try {
-          const result = await Tesseract.recognize(file, "spa");
-          const texto = result.data.text;
-          const telefono = texto.match(/\b\d{10}\b/)?.[0] || "";
-          const icc = texto.match(/89\d{15,19}/)?.[0] || "";
+      // Botones
+      elementos.procesarBtn.addEventListener('click', () => procesarImagenes(true));
+      elementos.procesarSinSubirBtn.addEventListener('click', () => procesarImagenes(false));
+      elementos.limpiarBtn.addEventListener('click', limpiarTodo);
+      elementos.limpiarLogBtn.addEventListener('click', limpiarLog);
+    }
 
-          if (!telefono && !icc) {
-            log.textContent += `⚠️ No se detectó info válida en ${file.name}\n`;
-            continue;
-          }
-
-          const data = { promotor, telefono, icc };
-          const resp = await fetch(urlScript, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-          });
-          const text = await resp.text();
-          
-          if (text.includes("⚠️")) {
-            log.textContent += `⚠️ ${text} (${file.name})\n`;
-          } else if (text.includes("✅")) {
-            log.textContent += `✅ ${text} (${file.name})\n`;
-          } else {
-            log.textContent += `❌ Error inesperado (${file.name})\n`;
-          }
-
-        } catch (err) {
-          console.error(err);
-          log.textContent += `❌ Error al procesar ${file.name}\n`;
-        }
+    // Manejar archivos seleccionados o arrastrados
+    function manejarArchivos(files) {
+      if (files.length === 0) return;
+      
+      // Verificar límite de archivos
+      if (imagenesSeleccionadas.length + files.length > MAX_FILES) {
+        agregarLog(`❌ No puedes cargar más de ${MAX_FILES} imágenes.`, "error");
+        return;
       }
 
-      log.textContent += "\nProceso finalizado.";
-    });
+      // Convertir FileList a Array y agregar
+      Array.from(files).forEach(file => {
+        if (!file.type.startsWith('image/')) {
+          agregarLog(`❌ El archivo "${file.name}" no es una imagen válida.`, "error");
+          return;
+        }
+        
+        // Verificar si el archivo ya fue agregado
+        if (imagenesSeleccionadas.some(img => img.name === file.name && img.size === file.size)) {
+          agregarLog(`⚠️ La imagen "${file.name}" ya fue agregada.`, "warning");
+          return;
+        }
+        
+        imagenesSeleccionadas.push(file);
+      });
+
+      // Actualizar vista previa
+      actualizarVistaPrevia();
+      
+      // Mostrar mensaje
+      agregarLog(`✅ Se agregaron ${files.length} imagen(es). Total: ${imagenesSeleccionadas.length}/${MAX_FILES}`, "success");
+    }
+
+    // Actualizar vista previa de imágenes
+    function actualizarVistaPrevia() {
+      elementos.previewGrid.innerHTML = '';
+      
+      if (imagenesSeleccionadas.length === 0) {
+        elementos.previewContainer.style.display = 'none';
+        return;
+      }
+      
+      elementos.previewContainer.style.display = 'block';
+      
+      imagenesSeleccionadas.forEach((file, index) => {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+          const previewItem = document.createElement('div');
+          previewItem.className = 'preview-item';
+          
+          previewItem.innerHTML = `
+            <img src="${e.target.result}" class="preview-img" alt="${file.name}">
+            <div class="preview-overlay">
+              <span>${file.name}</span>
+              <button class="preview-remove" data-index="${index}">×</button>
+            </div>
+          `;
+          
+          elementos.previewGrid.appendChild(previewItem);
+          
+          // Agregar evento para eliminar imagen
+          const removeBtn = previewItem.querySelector('.preview-remove');
+          removeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            eliminarImagen(index);
+          });
+        };
+        
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Eliminar imagen de la selección
+    function eliminarImagen(index) {
+      const fileName = imagenesSeleccionadas[index].name;
+      imagenesSeleccionadas.splice(index, 1);
+      actualizarVistaPrevia();
+      agregarLog(`🗑️ Imagen "${fileName}" eliminada.`, "info");
+    }
+
+    // Procesar imágenes
+    async function procesarImagenes(subirDatos = true) {
+      // Validaciones
+      const promotor = elementos.promotor.value.trim();
+      if (!promotor) {
+        agregarLog("❌ Por favor, ingresa el nombre del promotor.", "error");
+        elementos.promotor.focus();
+        return;
+      }
+      
+      if (imagenesSeleccionadas.length === 0) {
+        agregarLog("❌ No hay imágenes para procesar.", "error");
+        return;
+      }
+      
+      // Configurar interfaz para procesamiento
+      elementos.procesarBtn.disabled = true;
+      elementos.procesarSinSubirBtn.disabled = true;
+      elementos.progressContainer.style.display = 'block';
+      elementos.progressFill.style.width = '0%';
+      
+      // Limpiar resultados anteriores
+      resultadosProcesamiento = [];
+      elementos.resultsGrid.innerHTML = '';
+      elementos.resultsCard.style.display = 'none';
+      
+      // Procesar cada imagen
+      let procesadas = 0;
+      const total = imagenesSeleccionadas.length;
+      
+      agregarLog(`🔍 Iniciando procesamiento de ${total} imagen(es)...`, "info");
+      
+      for (const file of imagenesSeleccionadas) {
+        try {
+          // Actualizar progreso
+          procesadas++;
+          const porcentaje = (procesadas / total) * 100;
+          elementos.progressFill.style.width = `${porcentaje}%`;
+          elementos.progressText.textContent = `Procesando ${procesadas} de ${total} imágenes`;
+          
+          agregarLog(`⏳ Procesando "${file.name}"...`, "info");
+          
+          // Realizar OCR
+          const resultadoOCR = await Tesseract.recognize(file, "spa");
+          const texto = resultadoOCR.data.text;
+          const telefono = texto.match(/\b\d{10}\b/)?.[0] || "";
+          const icc = texto.match(/89\d{15,19}/)?.[0] || "";
+          
+          // Determinar estado
+          let estado = "warning";
+          let mensajeEstado = "Datos incompletos";
+          
+          if (telefono && icc) {
+            estado = "success";
+            mensajeEstado = "Datos completos";
+          } else if (telefono || icc) {
+            estado = "warning";
+            mensajeEstado = "Datos parciales";
+          } else {
+            estado = "error";
+            mensajeEstado = "Sin datos válidos";
+          }
+          
+          // Subir datos si es necesario
+          let resultadoSubida = "";
+          if (subirDatos && (telefono || icc)) {
+            try {
+              const data = { promotor, telefono, icc };
+              const resp = await fetch(urlScript, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+              });
+              resultadoSubida = await resp.text();
+              
+              if (resultadoSubida.includes("⚠️")) {
+                agregarLog(`⚠️ ${resultadoSubida} (${file.name})`, "warning");
+              } else if (resultadoSubida.includes("✅")) {
+                agregarLog(`✅ ${resultadoSubida} (${file.name})`, "success");
+              } else {
+                agregarLog(`❌ Error inesperado: ${resultadoSubida} (${file.name})`, "error");
+              }
+            } catch (error) {
+              resultadoSubida = "Error en la subida";
+              agregarLog(`❌ Error al subir datos de "${file.name}": ${error.message}`, "error");
+            }
+          }
+          
+          // Guardar resultado
+          resultadosProcesamiento.push({
+            archivo: file.name,
+            textoExtraido: texto,
+            telefono,
+            icc,
+            estado,
+            mensajeEstado,
+            resultadoSubida
+          });
+          
+        } catch (error) {
+          console.error(error);
+          agregarLog(`❌ Error al procesar "${file.name}": ${error.message}`, "error");
+          
+          // Guardar resultado con error
+          resultadosProcesamiento.push({
+            archivo: file.name,
+            textoExtraido: "",
+            telefono: "",
+            icc: "",
+            estado: "error",
+            mensajeEstado: "Error en procesamiento",
+            resultadoSubida: ""
+          });
+        }
+      }
+      
+      // Finalizar procesamiento
+      elementos.progressText.textContent = "Procesamiento completado";
+      elementos.procesarBtn.disabled = false;
+      elementos.procesarSinSubirBtn.disabled = false;
+      
+      // Mostrar resultados
+      mostrarResultados();
+      
+      agregarLog("✅ Procesamiento finalizado.", "success");
+    }
+
+    // Mostrar resultados del procesamiento
+    function mostrarResultados() {
+      if (resultadosProcesamiento.length === 0) return;
+      
+      elementos.resultsCard.style.display = 'block';
+      
+      resultadosProcesamiento.forEach(resultado => {
+        const resultCard = document.createElement('div');
+        resultCard.className = 'result-card';
+        
+        resultCard.innerHTML = `
+          <div class="result-header">
+            <div class="result-filename">${resultado.archivo}</div>
+            <div class="result-status status-${resultado.estado}">${resultado.mensajeEstado}</div>
+          </div>
+          <div class="result-details">
+            <div class="result-field">
+              <span class="result-label">Teléfono:</span>
+              <span>${resultado.telefono || "No detectado"}</span>
+            </div>
+            <div class="result-field">
+              <span class="result-label">ICC:</span>
+              <span>${resultado.icc || "No detectado"}</span>
+            </div>
+            ${resultado.resultadoSubida ? `
+            <div class="result-field">
+              <span class="result-label">Subida:</span>
+              <span>${resultado.resultadoSubida}</span>
+            </div>
+            ` : ''}
+          </div>
+        `;
+        
+        elementos.resultsGrid.appendChild(resultCard);
+      });
+    }
+
+    // Limpiar todo
+    function limpiarTodo() {
+      imagenesSeleccionadas = [];
+      resultadosProcesamiento = [];
+      elementos.previewContainer.style.display = 'none';
+      elementos.resultsCard.style.display = 'none';
+      elementos.progressContainer.style.display = 'none';
+      elementos.promotor.value = '';
+      elementos.imagenes.value = '';
+      
+      agregarLog("🗑️ Todos los datos han sido limpiados.", "info");
+    }
+
+    // Agregar entrada al log
+    function agregarLog(mensaje, tipo = "info") {
+      const timestamp = new Date().toLocaleTimeString();
+      const logEntry = document.createElement('div');
+      logEntry.className = `log-entry ${tipo}`;
+      logEntry.textContent = `[${timestamp}] ${mensaje}`;
+      
+      elementos.log.appendChild(logEntry);
+      elementos.log.scrollTop = elementos.log.scrollHeight;
+    }
+
+    // Limpiar log
+    function limpiarLog() {
+      elementos.log.innerHTML = '';
+      agregarLog("Registro de actividad limpiado.", "info");
+    }
   </script>
 </body>
 </html>
