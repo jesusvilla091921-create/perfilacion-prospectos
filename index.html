@@ -407,6 +407,43 @@
       margin-top: 2rem;
     }
 
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius);
+      background-color: var(--white);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 1000;
+      transform: translateX(150%);
+      transition: transform 0.3s ease;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast-success {
+      border-left: 4px solid var(--success);
+    }
+
+    .toast-error {
+      border-left: 4px solid var(--danger);
+    }
+
+    .toast-icon {
+      font-size: 1.2rem;
+    }
+
+    .toast-message {
+      font-weight: 500;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .main-container {
@@ -529,9 +566,15 @@
     <p>OCR Portabilidades &copy; 2023 - Sistema de Captura Inteligente</p>
   </footer>
 
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <div class="toast-icon" id="toastIcon">✅</div>
+    <div class="toast-message" id="toastMessage">Operación completada con éxito</div>
+  </div>
+
   <script>
-    // Configuración
-    const urlScript = "https://script.google.com/macros/s/AKfycbw-Nj4MqGW0mk4rTuEHFViPebKI1xmUXwJXguQW6LQHNEdh7qswD9KC_AOxnpGSOAww/exec";
+    // Configuración - URL actualizada
+    const urlScript = "https://script.google.com/macros/s/AKfycbwnkp2GM38LTThczJ-ivva1LMIKNkJoLHNL-8jSroVxZMOjfmfV0D9s8NeHoyfa2fSQ/exec";
     const MAX_FILES = 10;
 
     // Variables globales
@@ -554,7 +597,10 @@
       resultsCard: document.getElementById("resultsCard"),
       resultsGrid: document.getElementById("resultsGrid"),
       log: document.getElementById("log"),
-      limpiarLogBtn: document.getElementById("limpiarLogBtn")
+      limpiarLogBtn: document.getElementById("limpiarLogBtn"),
+      toast: document.getElementById("toast"),
+      toastIcon: document.getElementById("toastIcon"),
+      toastMessage: document.getElementById("toastMessage")
     };
 
     // Inicialización
@@ -598,7 +644,7 @@
       
       // Verificar límite de archivos
       if (imagenesSeleccionadas.length + files.length > MAX_FILES) {
-        agregarLog(`❌ No puedes cargar más de ${MAX_FILES} imágenes.`, "error");
+        mostrarToast(`No puedes cargar más de ${MAX_FILES} imágenes`, "error");
         return;
       }
 
@@ -622,6 +668,7 @@
       actualizarVistaPrevia();
       
       // Mostrar mensaje
+      mostrarToast(`Se agregaron ${files.length} imagen(es)`, "success");
       agregarLog(`✅ Se agregaron ${files.length} imagen(es). Total: ${imagenesSeleccionadas.length}/${MAX_FILES}`, "success");
     }
 
@@ -678,13 +725,13 @@
       // Validaciones
       const promotor = elementos.promotor.value.trim();
       if (!promotor) {
-        agregarLog("❌ Por favor, ingresa el nombre del promotor.", "error");
+        mostrarToast("Por favor, ingresa el nombre del promotor", "error");
         elementos.promotor.focus();
         return;
       }
       
       if (imagenesSeleccionadas.length === 0) {
-        agregarLog("❌ No hay imágenes para procesar.", "error");
+        mostrarToast("No hay imágenes para procesar", "error");
         return;
       }
       
@@ -703,6 +750,7 @@
       let procesadas = 0;
       const total = imagenesSeleccionadas.length;
       
+      mostrarToast(`Iniciando procesamiento de ${total} imagen(es)...`, "info");
       agregarLog(`🔍 Iniciando procesamiento de ${total} imagen(es)...`, "info");
       
       for (const file of imagenesSeleccionadas) {
@@ -718,8 +766,10 @@
           // Realizar OCR
           const resultadoOCR = await Tesseract.recognize(file, "spa");
           const texto = resultadoOCR.data.text;
-          const telefono = texto.match(/\b\d{10}\b/)?.[0] || "";
-          const icc = texto.match(/89\d{15,19}/)?.[0] || "";
+          
+          // Mejorar la extracción de datos con patrones más robustos
+          const telefono = extraerTelefono(texto);
+          const icc = extraerICC(texto);
           
           // Determinar estado
           let estado = "warning";
@@ -797,7 +847,46 @@
       // Mostrar resultados
       mostrarResultados();
       
+      mostrarToast("Procesamiento completado", "success");
       agregarLog("✅ Procesamiento finalizado.", "success");
+    }
+
+    // Función mejorada para extraer teléfono
+    function extraerTelefono(texto) {
+      // Buscar números de 10 dígitos (formato mexicano)
+      const patrones = [
+        /\b\d{10}\b/,  // 10 dígitos consecutivos
+        /\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/,  // Con separadores
+        /(\+52)?\s?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/  // Con código de país
+      ];
+      
+      for (const patron of patrones) {
+        const match = texto.match(patron);
+        if (match) {
+          // Limpiar el número (quitar espacios, guiones, etc.)
+          return match[0].replace(/\D/g, '');
+        }
+      }
+      
+      return "";
+    }
+
+    // Función mejorada para extraer ICC
+    function extraerICC(texto) {
+      // Buscar números ICC (normalmente empiezan con 89 y tienen 18-20 dígitos)
+      const patrones = [
+        /89\d{16,18}/,  // ICC estándar
+        /\b\d{18,20}\b/  // Cualquier número de 18-20 dígitos
+      ];
+      
+      for (const patron of patrones) {
+        const match = texto.match(patron);
+        if (match) {
+          return match[0];
+        }
+      }
+      
+      return "";
     }
 
     // Mostrar resultados del procesamiento
@@ -830,6 +919,12 @@
               <span>${resultado.resultadoSubida}</span>
             </div>
             ` : ''}
+            <div class="result-field">
+              <span class="result-label">Texto detectado:</span>
+              <div style="margin-top: 0.5rem; font-size: 0.75rem; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; max-height: 100px; overflow-y: auto;">
+                ${resultado.textoExtraido || "No se detectó texto"}
+              </div>
+            </div>
           </div>
         `;
         
@@ -847,6 +942,7 @@
       elementos.promotor.value = '';
       elementos.imagenes.value = '';
       
+      mostrarToast("Todos los datos han sido limpiados", "info");
       agregarLog("🗑️ Todos los datos han sido limpiados.", "info");
     }
 
@@ -865,6 +961,20 @@
     function limpiarLog() {
       elementos.log.innerHTML = '';
       agregarLog("Registro de actividad limpiado.", "info");
+    }
+
+    // Mostrar notificación toast
+    function mostrarToast(mensaje, tipo = "success") {
+      elementos.toast.className = `toast toast-${tipo}`;
+      elementos.toastMessage.textContent = mensaje;
+      elementos.toastIcon.textContent = tipo === "success" ? "✅" : 
+                                       tipo === "error" ? "❌" : "ℹ️";
+      
+      elementos.toast.classList.add("show");
+      
+      setTimeout(() => {
+        elementos.toast.classList.remove("show");
+      }, 3000);
     }
   </script>
 </body>
