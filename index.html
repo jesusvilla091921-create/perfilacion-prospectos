@@ -31,12 +31,12 @@
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--light);
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4efe9 100%);
+      min-height: 100vh;
       color: var(--text);
       line-height: 1.6;
     }
 
-    /* Header */
     header {
       background: linear-gradient(135deg, var(--primary), var(--secondary));
       color: var(--white);
@@ -45,328 +45,198 @@
       text-align: center;
     }
 
+    .header-content {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
     .header-content h1 {
       font-size: 1.8rem;
-      margin-bottom: 0.5rem;
+      font-weight: 700;
     }
 
-    .header-content p {
-      opacity: 0.9;
-      font-size: 0.95rem;
+    .header-icon {
+      font-size: 2rem;
     }
 
-    /* Main Container */
-    .main-container {
-      max-width: 1000px;
+    .container {
+      max-width: 900px;
       margin: 2rem auto;
-      padding: 0 1.5rem;
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
     }
 
-    /* Card Styles */
     .card {
-      background-color: var(--white);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      box-shadow: var(--shadow);
+      padding: 2rem;
+    }
+
+    .card-header {
       margin-bottom: 1.5rem;
     }
 
-    .card-title {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+    .card-header h2 {
+      color: var(--primary);
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
     }
 
-    /* Form Styles */
+    .card-header p {
+      color: var(--text-light);
+    }
+
     .form-group {
-      margin-bottom: 1.2rem;
+      margin-bottom: 1.5rem;
     }
 
     .form-label {
       display: block;
-      font-weight: 600;
       margin-bottom: 0.5rem;
-      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
     }
 
-    .form-input {
+    .input {
       width: 100%;
-      padding: 0.75rem;
-      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
       border: 1px solid var(--gray);
-      font-size: 0.9rem;
+      border-radius: var(--radius);
+      font-size: 1rem;
       transition: all 0.3s ease;
     }
 
-    .form-input:focus {
+    .input:focus {
       outline: none;
       border-color: var(--primary);
       box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.1);
     }
 
-    /* Upload Area */
-    .upload-area {
-      border: 2px dashed var(--gray);
-      border-radius: var(--radius);
-      padding: 2rem;
-      text-align: center;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      margin-bottom: 1rem;
-    }
-
-    .upload-area:hover, .upload-area.dragover {
-      border-color: var(--primary);
-      background-color: rgba(9, 132, 227, 0.05);
-    }
-
-    .upload-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      color: var(--primary);
-    }
-
-    .upload-text {
-      margin-bottom: 1rem;
-    }
-
-    .upload-hint {
-      font-size: 0.85rem;
-      color: var(--text-light);
-    }
-
-    /* Preview Styles */
-    .preview-container {
-      margin-top: 1.5rem;
-    }
-
-    .preview-title {
-      font-size: 1.1rem;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .preview-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 1rem;
-    }
-
-    .preview-item {
+    .file-input-wrapper {
       position: relative;
-      border-radius: var(--radius);
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .preview-img {
+      display: inline-block;
       width: 100%;
-      height: 150px;
-      object-fit: cover;
-      display: block;
     }
 
-    .preview-overlay {
+    .file-input-wrapper input[type=file] {
       position: absolute;
-      bottom: 0;
       left: 0;
-      right: 0;
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 0.5rem;
-      font-size: 0.8rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
     }
 
-    .preview-remove {
-      background: var(--danger);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
+    .file-input-custom {
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      font-size: 0.8rem;
-    }
-
-    /* Buttons */
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border-radius: var(--radius);
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
       gap: 0.5rem;
-      font-size: 0.9rem;
+      padding: 0.75rem 1rem;
+      background: var(--light);
+      border: 2px dashed var(--gray);
+      border-radius: var(--radius);
+      color: var(--text-light);
+      text-align: center;
+      transition: all 0.3s ease;
     }
 
-    .btn-primary {
-      background-color: var(--primary);
+    .file-input-custom:hover {
+      border-color: var(--primary);
+      background: rgba(9, 132, 227, 0.05);
+    }
+
+    .file-input-custom.has-files {
+      border-color: var(--success);
+      background: rgba(0, 184, 148, 0.05);
+    }
+
+    .btn {
+      background: var(--primary);
       color: var(--white);
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      width: 100%;
     }
 
-    .btn-primary:hover {
-      background-color: var(--primary-dark);
+    .btn:hover {
+      background: var(--primary-dark);
       transform: translateY(-2px);
+      box-shadow: var(--shadow);
     }
 
-    .btn-secondary {
-      background-color: var(--secondary);
-      color: var(--white);
-    }
-
-    .btn-secondary:hover {
-      background-color: #00b5b0;
-      transform: translateY(-2px);
-    }
-
-    .btn-danger {
-      background-color: var(--danger);
-      color: var(--white);
-    }
-
-    .btn-danger:hover {
-      background-color: #d35400;
-      transform: translateY(-2px);
+    .btn:active {
+      transform: translateY(0);
     }
 
     .btn:disabled {
-      background-color: var(--gray);
-      color: var(--text-light);
+      background: var(--gray);
       cursor: not-allowed;
       transform: none;
+      box-shadow: none;
     }
 
-    .btn-group {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1.5rem;
+    .btn-icon {
+      font-size: 1.2rem;
     }
 
-    /* Progress */
-    .progress-container {
-      margin-top: 1.5rem;
-    }
-
-    .progress-bar {
-      height: 8px;
-      background-color: var(--gray);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 0.5rem;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background-color: var(--primary);
-      width: 0%;
-      transition: width 0.3s ease;
-    }
-
-    .progress-text {
-      font-size: 0.85rem;
-      color: var(--text-light);
-      text-align: center;
-    }
-
-    /* Log Styles */
-    .log-container {
-      margin-top: 1.5rem;
-    }
-
-    .log {
-      background: #f8f9fa;
-      border-radius: var(--radius);
-      padding: 1rem;
-      max-height: 300px;
-      overflow-y: auto;
-      font-family: 'Courier New', monospace;
-      font-size: 0.85rem;
-      line-height: 1.5;
-    }
-
-    .log-entry {
-      margin-bottom: 0.5rem;
-      padding: 0.5rem;
-      border-radius: 4px;
-    }
-
-    .log-entry.success {
-      background-color: rgba(0, 184, 148, 0.1);
-      color: var(--success);
-      border-left: 3px solid var(--success);
-    }
-
-    .log-entry.error {
-      background-color: rgba(231, 76, 60, 0.1);
-      color: var(--danger);
-      border-left: 3px solid var(--danger);
-    }
-
-    .log-entry.warning {
-      background-color: rgba(253, 203, 110, 0.1);
-      color: #e67e22;
-      border-left: 3px solid #e67e22;
-    }
-
-    .log-entry.info {
-      background-color: rgba(9, 132, 227, 0.1);
-      color: var(--primary);
-      border-left: 3px solid var(--primary);
-    }
-
-    .log-actions {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 0.5rem;
-    }
-
-    /* Results */
     .results-container {
-      margin-top: 1.5rem;
+      margin-top: 2rem;
     }
 
-    .results-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1rem;
+    .results-title {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
     .result-card {
       border: 1px solid var(--gray);
       border-radius: var(--radius);
-      padding: 1rem;
-      background-color: var(--white);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      background: var(--light);
+      transition: all 0.3s ease;
+    }
+
+    .result-card:hover {
+      box-shadow: var(--shadow);
     }
 
     .result-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.5rem;
+      margin-bottom: 1rem;
     }
 
     .result-filename {
       font-weight: 600;
-      font-size: 0.9rem;
+      color: var(--text);
     }
 
     .result-status {
-      padding: 0.25rem 0.5rem;
+      padding: 0.25rem 0.75rem;
       border-radius: 20px;
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       font-weight: 600;
     }
 
@@ -375,30 +245,81 @@
       color: var(--success);
     }
 
-    .status-error {
-      background-color: rgba(231, 76, 60, 0.1);
-      color: var(--danger);
-    }
-
     .status-warning {
       background-color: rgba(253, 203, 110, 0.1);
-      color: #e67e22;
+      color: var(--warning);
+    }
+
+    .status-error {
+      background-color: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
     }
 
     .result-details {
-      font-size: 0.85rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
     }
 
     .result-field {
-      margin-bottom: 0.5rem;
+      display: flex;
+      flex-direction: column;
     }
 
     .result-label {
-      font-weight: 600;
-      margin-right: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-bottom: 0.25rem;
     }
 
-    /* Footer */
+    .result-value {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .result-response {
+      padding: 0.75rem;
+      background: var(--white);
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      border-left: 4px solid var(--primary);
+    }
+
+    .loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .spinner {
+      width: 30px;
+      height: 30px;
+      border: 3px solid rgba(9, 132, 227, 0.2);
+      border-left-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-light);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
     footer {
       text-align: center;
       padding: 1.5rem;
@@ -407,157 +328,68 @@
       margin-top: 2rem;
     }
 
-    /* Toast Notification */
-    .toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 1rem 1.5rem;
-      border-radius: var(--radius);
-      background-color: var(--white);
-      box-shadow: var(--shadow);
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      z-index: 1000;
-      transform: translateX(150%);
-      transition: transform 0.3s ease;
-    }
-
-    .toast.show {
-      transform: translateX(0);
-    }
-
-    .toast-success {
-      border-left: 4px solid var(--success);
-    }
-
-    .toast-error {
-      border-left: 4px solid var(--danger);
-    }
-
-    .toast-icon {
-      font-size: 1.2rem;
-    }
-
-    .toast-message {
-      font-weight: 500;
-    }
-
-    /* Responsive */
     @media (max-width: 768px) {
-      .main-container {
-        padding: 0 1rem;
+      .container {
+        margin: 1rem;
       }
       
-      .btn-group {
-        flex-direction: column;
+      .card {
+        padding: 1.5rem;
       }
       
-      .preview-grid {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      }
-      
-      .results-grid {
+      .result-details {
         grid-template-columns: 1fr;
+      }
+      
+      .header-content {
+        flex-direction: column;
+        text-align: center;
       }
     }
   </style>
 </head>
+
 <body>
   <header>
     <div class="header-content">
-      <h1>📷 OCR Portabilidades</h1>
-      <p>Procesa fotos y sube tus trámites automáticamente</p>
+      <div class="header-icon">📷</div>
+      <h1>OCR Portabilidades</h1>
     </div>
   </header>
 
-  <div class="main-container">
-    <!-- Form Card -->
+  <div class="container">
     <div class="card">
-      <h2 class="card-title">
-        <i>👤</i> Información del Promotor
-      </h2>
-      
+      <div class="card-header">
+        <h2>Procesa tus imágenes y sube tus trámites automáticamente</h2>
+        <p>Selecciona las imágenes de los documentos para extraer automáticamente números de teléfono e ICC</p>
+      </div>
+
       <div class="form-group">
-        <label class="form-label" for="promotor">Nombre del promotor:</label>
-        <input type="text" id="promotor" class="form-input" placeholder="Ej. Emilio Rodríguez" />
+        <label class="form-label" for="promotor">Nombre del promotor</label>
+        <input type="text" id="promotor" class="input" placeholder="Ej. Emilio Rodríguez" />
       </div>
-    </div>
 
-    <!-- Upload Card -->
-    <div class="card">
-      <h2 class="card-title">
-        <i>📁</i> Carga de Imágenes
-      </h2>
-      
-      <div class="upload-area" id="uploadArea">
-        <div class="upload-icon">📁</div>
-        <div class="upload-text">
-          <p>Arrastra y suelta tus imágenes aquí</p>
-          <p class="upload-hint">o haz clic para seleccionar archivos (máx. 10 imágenes)</p>
+      <div class="form-group">
+        <label class="form-label" for="imagenes">Selecciona tus imágenes</label>
+        <div class="file-input-wrapper">
+          <input type="file" id="imagenes" accept="image/*" multiple />
+          <div class="file-input-custom" id="file-input-display">
+            <span>📁 Selecciona o arrastra las imágenes aquí</span>
+          </div>
         </div>
-        <input type="file" id="imagenes" accept="image/*" multiple style="display: none;" />
       </div>
-      
-      <div class="preview-container" id="previewContainer" style="display: none;">
-        <h3 class="preview-title">
-          <i>🖼️</i> Vista Previa de Imágenes
+
+      <button class="btn" id="btn-procesar" onclick="procesarYSubir()">
+        <span class="btn-icon">🔍</span>
+        <span>Procesar y Subir</span>
+      </button>
+
+      <div class="results-container" id="resultados-container">
+        <h3 class="results-title">
+          <span>📋</span>
+          <span>Resultados del procesamiento</span>
         </h3>
-        <div class="preview-grid" id="previewGrid"></div>
-      </div>
-    </div>
-
-    <!-- Actions Card -->
-    <div class="card">
-      <h2 class="card-title">
-        <i>⚙️</i> Procesamiento
-      </h2>
-      
-      <div class="btn-group">
-        <button class="btn btn-primary" id="procesarBtn">
-          <i>🔍</i> Procesar y Subir
-        </button>
-        <button class="btn btn-secondary" id="procesarSinSubirBtn">
-          <i>🔍</i> Solo Procesar
-        </button>
-        <button class="btn btn-danger" id="limpiarBtn">
-          <i>🗑️</i> Limpiar Todo
-        </button>
-      </div>
-      
-      <div class="progress-container" id="progressContainer" style="display: none;">
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <div class="progress-text" id="progressText">Procesando 0 de 0 imágenes</div>
-      </div>
-    </div>
-
-    <!-- Results Card -->
-    <div class="card" id="resultsCard" style="display: none;">
-      <h2 class="card-title">
-        <i>📊</i> Resultados del Procesamiento
-      </h2>
-      
-      <div class="results-container">
-        <div class="results-grid" id="resultsGrid"></div>
-      </div>
-    </div>
-
-    <!-- Log Card -->
-    <div class="card">
-      <h2 class="card-title">
-        <i>📝</i> Registro de Actividad
-      </h2>
-      
-      <div class="log-container">
-        <div class="log" id="log"></div>
-        <div class="log-actions">
-          <button class="btn btn-secondary" id="limpiarLogBtn">
-            <i>🗑️</i> Limpiar Registro
-          </button>
-        </div>
+        <div id="resultados"></div>
       </div>
     </div>
   </div>
@@ -566,415 +398,163 @@
     <p>OCR Portabilidades &copy; 2023 - Sistema de Captura Inteligente</p>
   </footer>
 
-  <!-- Toast Notification -->
-  <div class="toast" id="toast">
-    <div class="toast-icon" id="toastIcon">✅</div>
-    <div class="toast-message" id="toastMessage">Operación completada con éxito</div>
-  </div>
-
   <script>
-    // Configuración - URL actualizada con la nueva proporcionada
-    const urlScript = "https://script.google.com/macros/s/AKfycbwnxFEkLcajvvBLSKG6vvaRW9kDZ9c17l8mDm126UAOZgMfY4gi7w98hCHVMK1QwCFV/exec";
-    const MAX_FILES = 10;
-
-    // Variables globales
-    let imagenesSeleccionadas = [];
-    let resultadosProcesamiento = [];
+    // ✅ Tu Apps Script
+    const urlScript = "https://script.google.com/macros/s/AKfycbxEB3H-_AiYnFl1QrCEo-3bAR5vqd3Bt6OcG96lM9Jggyt3RmcmSZ-xDUYvCIW1_1s/exec";
 
     // Elementos DOM
     const elementos = {
       promotor: document.getElementById("promotor"),
       imagenes: document.getElementById("imagenes"),
-      uploadArea: document.getElementById("uploadArea"),
-      previewContainer: document.getElementById("previewContainer"),
-      previewGrid: document.getElementById("previewGrid"),
-      procesarBtn: document.getElementById("procesarBtn"),
-      procesarSinSubirBtn: document.getElementById("procesarSinSubirBtn"),
-      limpiarBtn: document.getElementById("limpiarBtn"),
-      progressContainer: document.getElementById("progressContainer"),
-      progressFill: document.getElementById("progressFill"),
-      progressText: document.getElementById("progressText"),
-      resultsCard: document.getElementById("resultsCard"),
-      resultsGrid: document.getElementById("resultsGrid"),
-      log: document.getElementById("log"),
-      limpiarLogBtn: document.getElementById("limpiarLogBtn"),
-      toast: document.getElementById("toast"),
-      toastIcon: document.getElementById("toastIcon"),
-      toastMessage: document.getElementById("toastMessage")
+      fileInputDisplay: document.getElementById("file-input-display"),
+      btnProcesar: document.getElementById("btn-procesar"),
+      resultados: document.getElementById("resultados"),
+      resultadosContainer: document.getElementById("resultados-container")
     };
 
-    // Inicialización
-    document.addEventListener('DOMContentLoaded', function() {
-      configurarEventListeners();
-      agregarLog("✅ Aplicación inicializada. Selecciona imágenes para comenzar.", "info");
-    });
-
     // Configurar event listeners
-    function configurarEventListeners() {
-      // Área de carga
-      elementos.uploadArea.addEventListener('click', () => elementos.imagenes.click());
-      elementos.uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        elementos.uploadArea.classList.add('dragover');
-      });
-      elementos.uploadArea.addEventListener('dragleave', () => {
-        elementos.uploadArea.classList.remove('dragover');
-      });
-      elementos.uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        elementos.uploadArea.classList.remove('dragover');
-        manejarArchivos(e.dataTransfer.files);
-      });
-
-      // Input de archivos
-      elementos.imagenes.addEventListener('change', (e) => {
-        manejarArchivos(e.target.files);
-      });
-
-      // Botones
-      elementos.procesarBtn.addEventListener('click', () => procesarImagenes(true));
-      elementos.procesarSinSubirBtn.addEventListener('click', () => procesarImagenes(false));
-      elementos.limpiarBtn.addEventListener('click', limpiarTodo);
-      elementos.limpiarLogBtn.addEventListener('click', limpiarLog);
-    }
-
-    // Manejar archivos seleccionados o arrastrados
-    function manejarArchivos(files) {
-      if (files.length === 0) return;
-      
-      // Verificar límite de archivos
-      if (imagenesSeleccionadas.length + files.length > MAX_FILES) {
-        mostrarToast(`No puedes cargar más de ${MAX_FILES} imágenes`, "error");
-        return;
+    elementos.imagenes.addEventListener("change", actualizarDisplayArchivos);
+    
+    function actualizarDisplayArchivos() {
+      const archivos = elementos.imagenes.files;
+      if (archivos.length > 0) {
+        elementos.fileInputDisplay.innerHTML = `<span>📁 ${archivos.length} archivo(s) seleccionado(s)</span>`;
+        elementos.fileInputDisplay.classList.add("has-files");
+      } else {
+        elementos.fileInputDisplay.innerHTML = `<span>📁 Selecciona o arrastra las imágenes aquí</span>`;
+        elementos.fileInputDisplay.classList.remove("has-files");
       }
-
-      // Convertir FileList a Array y agregar
-      Array.from(files).forEach(file => {
-        if (!file.type.startsWith('image/')) {
-          agregarLog(`❌ El archivo "${file.name}" no es una imagen válida.`, "error");
-          return;
-        }
-        
-        // Verificar si el archivo ya fue agregado
-        if (imagenesSeleccionadas.some(img => img.name === file.name && img.size === file.size)) {
-          agregarLog(`⚠️ La imagen "${file.name}" ya fue agregada.`, "warning");
-          return;
-        }
-        
-        imagenesSeleccionadas.push(file);
-      });
-
-      // Actualizar vista previa
-      actualizarVistaPrevia();
-      
-      // Mostrar mensaje
-      mostrarToast(`Se agregaron ${files.length} imagen(es)`, "success");
-      agregarLog(`✅ Se agregaron ${files.length} imagen(es). Total: ${imagenesSeleccionadas.length}/${MAX_FILES}`, "success");
     }
 
-    // Actualizar vista previa de imágenes
-    function actualizarVistaPrevia() {
-      elementos.previewGrid.innerHTML = '';
-      
-      if (imagenesSeleccionadas.length === 0) {
-        elementos.previewContainer.style.display = 'none';
-        return;
-      }
-      
-      elementos.previewContainer.style.display = 'block';
-      
-      imagenesSeleccionadas.forEach((file, index) => {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-          const previewItem = document.createElement('div');
-          previewItem.className = 'preview-item';
-          
-          previewItem.innerHTML = `
-            <img src="${e.target.result}" class="preview-img" alt="${file.name}">
-            <div class="preview-overlay">
-              <span>${file.name}</span>
-              <button class="preview-remove" data-index="${index}">×</button>
-            </div>
-          `;
-          
-          elementos.previewGrid.appendChild(previewItem);
-          
-          // Agregar evento para eliminar imagen
-          const removeBtn = previewItem.querySelector('.preview-remove');
-          removeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            eliminarImagen(index);
-          });
-        };
-        
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // Eliminar imagen de la selección
-    function eliminarImagen(index) {
-      const fileName = imagenesSeleccionadas[index].name;
-      imagenesSeleccionadas.splice(index, 1);
-      actualizarVistaPrevia();
-      agregarLog(`🗑️ Imagen "${fileName}" eliminada.`, "info");
-    }
-
-    // Procesar imágenes
-    async function procesarImagenes(subirDatos = true) {
-      // Validaciones
+    async function procesarYSubir() {
       const promotor = elementos.promotor.value.trim();
+      const archivos = elementos.imagenes.files;
+
+      elementos.resultados.innerHTML = "";
+      elementos.btnProcesar.disabled = true;
+      elementos.btnProcesar.innerHTML = `<span class="btn-icon">⏳</span><span>Procesando...</span>`;
+
       if (!promotor) {
-        mostrarToast("Por favor, ingresa el nombre del promotor", "error");
-        elementos.promotor.focus();
+        alert("⚠️ Ingresa el nombre del promotor.");
+        elementos.btnProcesar.disabled = false;
+        elementos.btnProcesar.innerHTML = `<span class="btn-icon">🔍</span><span>Procesar y Subir</span>`;
         return;
       }
       
-      if (imagenesSeleccionadas.length === 0) {
-        mostrarToast("No hay imágenes para procesar", "error");
+      if (archivos.length === 0) {
+        alert("⚠️ Selecciona al menos una imagen.");
+        elementos.btnProcesar.disabled = false;
+        elementos.btnProcesar.innerHTML = `<span class="btn-icon">🔍</span><span>Procesar y Subir</span>`;
         return;
       }
-      
-      // Configurar interfaz para procesamiento
-      elementos.procesarBtn.disabled = true;
-      elementos.procesarSinSubirBtn.disabled = true;
-      elementos.progressContainer.style.display = 'block';
-      elementos.progressFill.style.width = '0%';
-      
-      // Limpiar resultados anteriores
-      resultadosProcesamiento = [];
-      elementos.resultsGrid.innerHTML = '';
-      elementos.resultsCard.style.display = 'none';
-      
-      // Procesar cada imagen
-      let procesadas = 0;
-      const total = imagenesSeleccionadas.length;
-      
-      mostrarToast(`Iniciando procesamiento de ${total} imagen(es)...`, "info");
-      agregarLog(`🔍 Iniciando procesamiento de ${total} imagen(es)...`, "info");
-      
-      for (const file of imagenesSeleccionadas) {
-        try {
-          // Actualizar progreso
-          procesadas++;
-          const porcentaje = (procesadas / total) * 100;
-          elementos.progressFill.style.width = `${porcentaje}%`;
-          elementos.progressText.textContent = `Procesando ${procesadas} de ${total} imágenes`;
-          
-          agregarLog(`⏳ Procesando "${file.name}"...`, "info");
-          
-          // Realizar OCR
-          const resultadoOCR = await Tesseract.recognize(file, "spa");
-          const texto = resultadoOCR.data.text;
-          
-          // Mejorar la extracción de datos con patrones más robustos
-          const telefono = extraerTelefono(texto);
-          const icc = extraerICC(texto);
-          
-          // Determinar estado
-          let estado = "warning";
-          let mensajeEstado = "Datos incompletos";
-          
-          if (telefono && icc) {
-            estado = "success";
-            mensajeEstado = "Datos completos";
-          } else if (telefono || icc) {
-            estado = "warning";
-            mensajeEstado = "Datos parciales";
-          } else {
-            estado = "error";
-            mensajeEstado = "Sin datos válidos";
-          }
-          
-          // Subir datos si es necesario
-          let resultadoSubida = "";
-          if (subirDatos && (telefono || icc)) {
-            try {
-              const data = { promotor, telefono, icc };
-              const resp = await fetch(urlScript, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-              });
-              resultadoSubida = await resp.text();
-              
-              if (resultadoSubida.includes("⚠️")) {
-                agregarLog(`⚠️ ${resultadoSubida} (${file.name})`, "warning");
-              } else if (resultadoSubida.includes("✅")) {
-                agregarLog(`✅ ${resultadoSubida} (${file.name})`, "success");
-              } else {
-                agregarLog(`❌ Error inesperado: ${resultadoSubida} (${file.name})`, "error");
-              }
-            } catch (error) {
-              resultadoSubida = "Error en la subida";
-              agregarLog(`❌ Error al subir datos de "${file.name}": ${error.message}`, "error");
-            }
-          }
-          
-          // Guardar resultado
-          resultadosProcesamiento.push({
-            archivo: file.name,
-            textoExtraido: texto,
-            telefono,
-            icc,
-            estado,
-            mensajeEstado,
-            resultadoSubida
-          });
-          
-        } catch (error) {
-          console.error(error);
-          agregarLog(`❌ Error al procesar "${file.name}": ${error.message}`, "error");
-          
-          // Guardar resultado con error
-          resultadosProcesamiento.push({
-            archivo: file.name,
-            textoExtraido: "",
-            telefono: "",
-            icc: "",
-            estado: "error",
-            mensajeEstado: "Error en procesamiento",
-            resultadoSubida: ""
-          });
-        }
-      }
-      
-      // Finalizar procesamiento
-      elementos.progressText.textContent = "Procesamiento completado";
-      elementos.procesarBtn.disabled = false;
-      elementos.procesarSinSubirBtn.disabled = false;
-      
-      // Mostrar resultados
-      mostrarResultados();
-      
-      mostrarToast("Procesamiento completado", "success");
-      agregarLog("✅ Procesamiento finalizado.", "success");
-    }
 
-    // Función mejorada para extraer teléfono
-    function extraerTelefono(texto) {
-      // Buscar números de 10 dígitos (formato mexicano)
-      const patrones = [
-        /\b\d{10}\b/,  // 10 dígitos consecutivos
-        /\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/,  // Con separadores
-        /(\+52)?\s?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/  // Con código de país
-      ];
-      
-      for (const patron of patrones) {
-        const match = texto.match(patron);
-        if (match) {
-          // Limpiar el número (quitar espacios, guiones, etc.)
-          return match[0].replace(/\D/g, '');
-        }
-      }
-      
-      return "";
-    }
-
-    // Función mejorada para extraer ICC
-    function extraerICC(texto) {
-      // Buscar números ICC (normalmente empiezan con 89 y tienen 18-20 dígitos)
-      const patrones = [
-        /89\d{16,18}/,  // ICC estándar
-        /\b\d{18,20}\b/  // Cualquier número de 18-20 dígitos
-      ];
-      
-      for (const patron of patrones) {
-        const match = texto.match(patron);
-        if (match) {
-          return match[0];
-        }
-      }
-      
-      return "";
-    }
-
-    // Mostrar resultados del procesamiento
-    function mostrarResultados() {
-      if (resultadosProcesamiento.length === 0) return;
-      
-      elementos.resultsCard.style.display = 'block';
-      
-      resultadosProcesamiento.forEach(resultado => {
-        const resultCard = document.createElement('div');
-        resultCard.className = 'result-card';
-        
-        resultCard.innerHTML = `
-          <div class="result-header">
-            <div class="result-filename">${resultado.archivo}</div>
-            <div class="result-status status-${resultado.estado}">${resultado.mensajeEstado}</div>
-          </div>
-          <div class="result-details">
-            <div class="result-field">
-              <span class="result-label">Teléfono:</span>
-              <span>${resultado.telefono || "No detectado"}</span>
-            </div>
-            <div class="result-field">
-              <span class="result-label">ICC:</span>
-              <span>${resultado.icc || "No detectado"}</span>
-            </div>
-            ${resultado.resultadoSubida ? `
-            <div class="result-field">
-              <span class="result-label">Subida:</span>
-              <span>${resultado.resultadoSubida}</span>
-            </div>
-            ` : ''}
-            <div class="result-field">
-              <span class="result-label">Texto detectado:</span>
-              <div style="margin-top: 0.5rem; font-size: 0.75rem; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; max-height: 100px; overflow-y: auto;">
-                ${resultado.textoExtraido || "No se detectó texto"}
-              </div>
-            </div>
+      // Mostrar estado vacío si no hay resultados
+      if (elementos.resultados.children.length === 0) {
+        elementos.resultados.innerHTML = `
+          <div class="loader">
+            <div class="spinner"></div>
           </div>
         `;
+      }
+
+      let procesados = 0;
+      
+      for (const archivo of archivos) {
+        const card = document.createElement("div");
+        card.className = "result-card";
+        card.innerHTML = `
+          <div class="result-header">
+            <div class="result-filename">${archivo.name}</div>
+            <div class="result-status status-warning">Procesando...</div>
+          </div>
+          <div class="loader">
+            <div class="spinner"></div>
+          </div>
+        `;
+        elementos.resultados.appendChild(card);
+
+        try {
+          // Extraer texto con Tesseract
+          const ocr = await Tesseract.recognize(archivo, "spa");
+          const texto = ocr.data.text;
+
+          const telefono = extraerTelefono(texto);
+          const icc = extraerICC(texto);
+
+          let estado = "error", mensaje = "Sin datos válidos";
+          if (telefono && icc) { 
+            estado = "success"; 
+            mensaje = "Datos completos"; 
+          }
+          else if (telefono || icc) { 
+            estado = "warning"; 
+            mensaje = "Datos parciales"; 
+          }
+
+          // Subir a Google Sheets
+          let respuesta = "No enviado";
+          if (telefono || icc) {
+            const datos = { promotor, telefono, icc };
+            const resp = await fetch(urlScript, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(datos)
+            });
+            respuesta = await resp.text();
+          }
+
+          card.innerHTML = `
+            <div class="result-header">
+              <div class="result-filename">${archivo.name}</div>
+              <div class="result-status status-${estado}">${mensaje}</div>
+            </div>
+            <div class="result-details">
+              <div class="result-field">
+                <div class="result-label">Teléfono</div>
+                <div class="result-value">${telefono || "No detectado"}</div>
+              </div>
+              <div class="result-field">
+                <div class="result-label">ICC</div>
+                <div class="result-value">${icc || "No detectado"}</div>
+              </div>
+            </div>
+            <div class="result-response">
+              <strong>Respuesta:</strong> ${respuesta}
+            </div>
+          `;
+
+        } catch (err) {
+          card.innerHTML = `
+            <div class="result-header">
+              <div class="result-filename">${archivo.name}</div>
+              <div class="result-status status-error">Error</div>
+            </div>
+            <div class="result-response">
+              <strong>Error:</strong> ${err.message}
+            </div>
+          `;
+        }
         
-        elementos.resultsGrid.appendChild(resultCard);
-      });
+        procesados++;
+        
+        // Actualizar contador de progreso
+        if (procesados === archivos.length) {
+          elementos.btnProcesar.disabled = false;
+          elementos.btnProcesar.innerHTML = `<span class="btn-icon">🔍</span><span>Procesar y Subir</span>`;
+        }
+      }
     }
 
-    // Limpiar todo
-    function limpiarTodo() {
-      imagenesSeleccionadas = [];
-      resultadosProcesamiento = [];
-      elementos.previewContainer.style.display = 'none';
-      elementos.resultsCard.style.display = 'none';
-      elementos.progressContainer.style.display = 'none';
-      elementos.promotor.value = '';
-      elementos.imagenes.value = '';
-      
-      mostrarToast("Todos los datos han sido limpiados", "info");
-      agregarLog("🗑️ Todos los datos han sido limpiados.", "info");
+    function extraerTelefono(texto) {
+      const patron = /\b\d{10}\b/;
+      const match = texto.match(patron);
+      return match ? match[0] : "";
     }
 
-    // Agregar entrada al log
-    function agregarLog(mensaje, tipo = "info") {
-      const timestamp = new Date().toLocaleTimeString();
-      const logEntry = document.createElement('div');
-      logEntry.className = `log-entry ${tipo}`;
-      logEntry.textContent = `[${timestamp}] ${mensaje}`;
-      
-      elementos.log.appendChild(logEntry);
-      elementos.log.scrollTop = elementos.log.scrollHeight;
-    }
-
-    // Limpiar log
-    function limpiarLog() {
-      elementos.log.innerHTML = '';
-      agregarLog("Registro de actividad limpiado.", "info");
-    }
-
-    // Mostrar notificación toast
-    function mostrarToast(mensaje, tipo = "success") {
-      elementos.toast.className = `toast toast-${tipo}`;
-      elementos.toastMessage.textContent = mensaje;
-      elementos.toastIcon.textContent = tipo === "success" ? "✅" : 
-                                       tipo === "error" ? "❌" : "ℹ️";
-      
-      elementos.toast.classList.add("show");
-      
-      setTimeout(() => {
-        elementos.toast.classList.remove("show");
-      }, 3000);
+    function extraerICC(texto) {
+      const patron = /89\d{16,18}/;
+      const match = texto.match(patron);
+      return match ? match[0] : "";
     }
   </script>
 </body>
