@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard del Supervisor</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -15,37 +15,37 @@
       font-family: "Segoe UI", sans-serif;
       background: var(--gris);
       margin: 0;
-      color: #2f3640;
+      color: #2d3436;
     }
     header {
       background: var(--azul);
       color: white;
-      padding: 15px;
       text-align: center;
+      padding: 15px;
     }
     .container {
       margin: 15px;
       background: var(--blanco);
       padding: 15px;
       border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
     .filtros {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
     label {
       font-weight: 600;
       font-size: 0.9rem;
     }
     input, select, button {
+      width: 100%;
       padding: 8px;
       border-radius: 6px;
       border: 1px solid #ccc;
       font-size: 0.9rem;
-      width: 100%;
     }
     button {
       background: var(--azul);
@@ -54,13 +54,12 @@
       font-weight: 600;
       cursor: pointer;
     }
-    button:hover {
-      background: #0772c5;
-    }
+    button:hover { background: #0772c5; }
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.85rem;
+      margin-top: 10px;
     }
     th, td {
       padding: 8px;
@@ -71,7 +70,6 @@
     th {
       background: #74b9ff;
       color: white;
-      font-size: 0.85rem;
     }
     tr:hover {
       background: #f1f2f6;
@@ -79,12 +77,12 @@
     canvas {
       width: 100%;
       max-height: 320px;
-      margin-top: 15px;
+      margin-top: 20px;
     }
     @media (min-width: 600px) {
       .filtros { flex-direction: row; justify-content: space-between; }
       .filtros div { flex: 1; }
-      .filtros button { flex: 0.5; }
+      .filtros button { flex: 0.5; align-self: end; }
     }
   </style>
 </head>
@@ -135,21 +133,85 @@
     const API_URL = `https://opensheet.elk.sh/${SHEET_ID}/${HOJA}`;
 
     const tabla = document.querySelector("#tabla tbody");
-    const ctx = document.getElementById("grafica").getContext("2d");
     const filtroPromotor = document.getElementById("filtroPromotor");
+    const ctx = document.getElementById("grafica").getContext("2d");
     const btnFiltrar = document.getElementById("btnFiltrar");
+
     let datosOriginales = [];
     let grafica;
 
+    // Cargar todos los datos (solo para la gráfica y los filtros)
     async function cargarDatos() {
       const res = await fetch(API_URL);
       const data = await res.json();
       datosOriginales = data;
-      llenarTabla(data);
       llenarPromotores(data);
-      graficar(data);
+      actualizarGrafica(data);
     }
 
+    // Llenar select de promotores sin duplicados
+    function llenarPromotores(data) {
+      const promotores = [...new Set(data.map(r => r[Object.keys(r)[1]]).filter(Boolean))];
+      filtroPromotor.innerHTML = "<option value=''>Todos</option>";
+      promotores.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p;
+        opt.textContent = p;
+        filtroPromotor.appendChild(opt);
+      });
+    }
+
+    // Graficar productividad total
+    function actualizarGrafica(data) {
+      const conteo = {};
+      data.forEach(r => {
+        const prom = r[Object.keys(r)[1]];
+        conteo[prom] = (conteo[prom] || 0) + 1;
+      });
+      const labels = Object.keys(conteo);
+      const valores = Object.values(conteo);
+      if (grafica) grafica.destroy();
+      grafica = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "Portabilidades",
+            data: valores,
+            backgroundColor: "#0984e3"
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: { display: true, text: "Productividad por Promotor" }
+          },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+      });
+    }
+
+    // Filtrar datos al presionar el botón
+    btnFiltrar.addEventListener("click", () => {
+      const inicio = document.getElementById("fechaInicio").value;
+      const fin = document.getElementById("fechaFin").value;
+      const promSel = filtroPromotor.value;
+      let filtrados = datosOriginales;
+
+      if (inicio)
+        filtrados = filtrados.filter(r => new Date(r[Object.keys(r)[0]]) >= new Date(inicio));
+      if (fin)
+        filtrados = filtrados.filter(r => new Date(r[Object.keys(r)[0]]) <= new Date(fin + "T23:59"));
+      if (promSel)
+        filtrados = filtrados.filter(r => r[Object.keys(r)[1]] === promSel);
+
+      // Solo mostrar los resultados filtrados
+      llenarTabla(filtrados);
+      actualizarGrafica(filtrados);
+    });
+
+    // Llenar tabla (vacía al principio)
     function llenarTabla(data) {
       tabla.innerHTML = "";
       data.forEach((fila, i) => {
@@ -166,47 +228,7 @@
       });
     }
 
-    function llenarPromotores(data) {
-      const promotores = [...new Set(data.map(r => r[Object.keys(r)[1]]).filter(Boolean))];
-      promotores.forEach(p => {
-        const opt = document.createElement("option");
-        opt.value = p; opt.textContent = p;
-        filtroPromotor.appendChild(opt);
-      });
-    }
-
-    function graficar(data) {
-      const conteo = {};
-      data.forEach(r => {
-        const prom = r[Object.keys(r)[1]];
-        conteo[prom] = (conteo[prom] || 0) + 1;
-      });
-      const labels = Object.keys(conteo);
-      const valores = Object.values(conteo);
-      if (grafica) grafica.destroy();
-      grafica = new Chart(ctx, {
-        type: "bar",
-        data: { labels, datasets: [{ label: "Portas", data: valores, backgroundColor: "#0984e3" }] },
-        options: { responsive: true, plugins: { legend: { display: false } } }
-      });
-    }
-
-    btnFiltrar.addEventListener("click", () => {
-      const inicio = document.getElementById("fechaInicio").value;
-      const fin = document.getElementById("fechaFin").value;
-      const promSel = filtroPromotor.value;
-      let filtrados = datosOriginales;
-      if (inicio)
-        filtrados = filtrados.filter(r => new Date(r[Object.keys(r)[0]]) >= new Date(inicio));
-      if (fin)
-        filtrados = filtrados.filter(r => new Date(r[Object.keys(r)[0]]) <= new Date(fin + "T23:59"));
-      if (promSel)
-        filtrados = filtrados.filter(r => r[Object.keys(r)[1]] === promSel);
-      llenarTabla(filtrados);
-      graficar(filtrados);
-    });
-
-    cargarDatos();
+    cargarDatos(); // Solo carga promotores + gráfica general
   </script>
 </body>
 </html>
