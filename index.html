@@ -1,162 +1,308 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OCR Portabilidades – Captura Inteligente</title>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
-  <style>
-    :root {
-      --primary: #0984e3;
-      --primary-dark: #0772c5;
-      --secondary: #00cec9;
-      --success: #00b894;
-      --warning: #fdcb6e;
-      --danger: #e17055;
-      --gray: #dfe6e9;
-      --text: #2d3436;
-      --text-light: #636e72;
-      --white: #ffffff;
-      --light: #f5f6fa;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      --radius: 8px;
-    }
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #f5f7fa, #e4efe9);
-      min-height: 100vh;
-      color: var(--text);
-    }
-    header {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: var(--white);
-      text-align: center;
-      padding: 1.5rem;
-      box-shadow: var(--shadow);
-    }
-    h1 { font-size: 1.8rem; }
-    .container {
-      max-width: 900px;
-      margin: 2rem auto;
-      background: var(--white);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 2rem;
-    }
-    .btn {
-      background: var(--primary);
-      color: var(--white);
-      border: none;
-      border-radius: var(--radius);
-      padding: .75rem 1.5rem;
-      font-weight: 600;
-      width: 100%;
-      cursor: pointer;
-      transition: .3s;
-    }
-    .btn:hover { background: var(--primary-dark); transform: translateY(-2px); }
-    .result-card {
-      background: var(--light);
-      border: 1px solid var(--gray);
-      border-radius: var(--radius);
-      padding: 1rem;
-      margin-top: 1rem;
-    }
-    .status-success { color: var(--success); }
-    .status-warning { color: var(--warning); }
-    .status-error { color: var(--danger); }
-    .spinner {
-      width: 25px; height: 25px;
-      border: 3px solid rgba(9,132,227,0.2);
-      border-left-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OCR Portabilidades – Captura Inteligente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
+    <style>
+        /* Definición de variables CSS para un diseño consistente */
+        :root {
+            --primary: #0077b6; /* Azul corporativo */
+            --primary-dark: #005f99;
+            --accent: #00b4d8; /* Azul claro para acentos */
+            --success: #4CAF50; /* Verde más estándar */
+            --warning: #FFC107; /* Amarillo estándar */
+            --danger: #d90429; /* Rojo llamativo */
+            --gray-light: #edf2f4;
+            --gray-medium: #8d99ae;
+            --text-dark: #2b2d42;
+            --white: #ffffff;
+            --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --radius-small: 6px;
+            --radius-medium: 12px;
+        }
+
+        /* Estilos generales del cuerpo */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--gray-light);
+            min-height: 100vh;
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Encabezado con degradado y sombra fuerte */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: var(--white);
+            text-align: center;
+            padding: 2rem 0;
+            box-shadow: var(--shadow-medium);
+            margin-bottom: 2rem;
+        }
+        h1 {
+            font-size: 2.2rem;
+            margin: 0;
+            font-weight: 700;
+        }
+        
+        /* Contenedor principal con efecto de "tarjeta" */
+        .container {
+            max-width: 960px;
+            margin: 0 auto 3rem auto;
+            background: var(--white);
+            border-radius: var(--radius-medium);
+            box-shadow: var(--shadow-medium);
+            padding: 2.5rem;
+            border-top: 5px solid var(--primary); /* Borde de acento */
+        }
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-top: 0;
+            border-bottom: 2px solid var(--gray-light);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Estilos para inputs y campos de formulario */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .input, #imagenes {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray-medium);
+            border-radius: var(--radius-small);
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        .input:focus, #imagenes:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.2);
+            outline: none;
+        }
+        #imagenes {
+            /* Estilo específico para input type="file" */
+            border-style: dashed;
+            cursor: pointer;
+            background-color: var(--gray-light);
+        }
+
+        /* Estilo del botón principal */
+        .btn {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-small);
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(0, 119, 182, 0.3);
+        }
+        .btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 119, 182, 0.4);
+        }
+        .btn:disabled {
+            background: var(--gray-medium);
+            cursor: not-allowed;
+            opacity: 0.7;
+            box-shadow: none;
+        }
+
+        /* Contenedor de resultados */
+        #resultados {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        /* Estilo de la tarjeta de resultado individual */
+        .result-card {
+            background: var(--white);
+            border: 1px solid var(--gray-light);
+            border-left: 5px solid var(--primary); /* Borde de acento */
+            border-radius: var(--radius-small);
+            padding: 1.2rem;
+            margin-top: 1rem;
+            box-shadow: var(--shadow-light);
+            transition: transform 0.3s;
+        }
+        .result-card:hover {
+            transform: translateY(-2px);
+        }
+        .result-card strong {
+            display: block;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+        }
+        .result-card b {
+            font-weight: 600;
+        }
+
+        /* Estilos de estado */
+        .status-success { color: var(--success); font-weight: 700; }
+        .status-warning { color: var(--warning); font-weight: 700; }
+        .status-error { color: var(--danger); font-weight: 700; }
+
+        /* Estilo del spinner de carga */
+        .spinner {
+            width: 25px; height: 25px;
+            border: 3px solid rgba(0, 119, 182, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0.5rem 0;
+            display: inline-block;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Pie de página */
+        footer {
+            text-align: center;
+            color: var(--gray-medium);
+            padding: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 
 <body>
-  <header><h1>📷 OCR Portabilidades</h1></header>
+    <header>
+        <h1><span style="color:var(--accent);">📷</span> OCR Portabilidades</h1>
+        <p style="font-weight: 300;">Automatización Inteligente de Trámites</p>
+    </header>
 
-  <div class="container">
-    <h2>Procesa tus imágenes y sube tus trámites automáticamente</h2>
-    <p>Selecciona las imágenes de los documentos para extraer número e ICC.</p>
+    <div class="container">
+        <h2>Procesamiento y Carga Automática</h2>
+        <p>Introduce el nombre del promotor y selecciona las imágenes de los documentos para la extracción de número y ICC.</p>
 
-    <input type="text" id="promotor" placeholder="Nombre del promotor" class="input" style="width:100%;margin-bottom:1rem;">
-    <input type="file" id="imagenes" accept="image/*" multiple style="margin-bottom:1rem;">
-    <button class="btn" id="btn-procesar" onclick="procesarYSubir()">🔍 Procesar y Subir</button>
-    <div id="resultados"></div>
-  </div>
+        <div class="form-group">
+            <input type="text" id="promotor" placeholder="👤 Nombre completo del promotor" class="input">
+        </div>
+        
+        <div class="form-group">
+            <input type="file" id="imagenes" accept="image/*" multiple>
+        </div>
 
-  <footer style="text-align:center;color:#636e72;">OCR Portabilidades &copy; 2025</footer>
+        <button class="btn" id="btn-procesar" onclick="procesarYSubir()">
+            🔍 Procesar y Subir Documentos
+        </button>
 
-  <script>
-    const urlScript = "https://script.google.com/macros/s/AKfycbyC3tFu-EPcJRTCzdfG6gzqi_3lMdrAOwLq8OpE3UDrw3kQAbAVZL7-UJ8r3QVP4P3H/exec";
-    
-    async function procesarYSubir() {
-      const promotor = document.getElementById("promotor").value.trim();
-      const archivos = document.getElementById("imagenes").files;
-      const resultados = document.getElementById("resultados");
-      resultados.innerHTML = "";
+        <div id="resultados">
+            </div>
+    </div>
 
-      if (!promotor) return alert("⚠️ Ingresa el nombre del promotor.");
-      if (!archivos.length) return alert("⚠️ Selecciona al menos una imagen.");
+    <footer>OCR Portabilidades &copy; 2025 – Tecnología de Captura Inteligente</footer>
 
-      document.getElementById("btn-procesar").disabled = true;
-      document.getElementById("btn-procesar").innerText = "Procesando...";
+    <script>
+        // URLs y IDs principales conservados
+        const urlScript = "https://script.google.com/macros/s/AKfycbyC3tFu-EPcJRTCzdfG6gzqi_3lMdrAOwLq8OpE3UDrw3kQAbAVZL7-UJ8r3QVP4P3H/exec";
+        
+        async function procesarYSubir() {
+            const promotor = document.getElementById("promotor").value.trim();
+            const archivos = document.getElementById("imagenes").files;
+            const resultados = document.getElementById("resultados");
+            resultados.innerHTML = "";
 
-      for (const archivo of archivos) {
-        const card = document.createElement("div");
-        card.className = "result-card";
-        card.innerHTML = `<strong>${archivo.name}</strong><div class='spinner'></div>`;
-        resultados.appendChild(card);
+            if (!promotor) return alert("⚠️ Error de Validación: Ingresa el nombre del promotor.");
+            if (!archivos.length) return alert("⚠️ Error de Validación: Selecciona al menos una imagen.");
 
-        try {
-          const ocr = await Tesseract.recognize(archivo, "spa");
-          const texto = ocr.data.text;
-          const telefono = extraerTelefono(texto);
-          const icc = extraerICC(texto);
+            // Deshabilitar botón y mostrar estado de carga
+            document.getElementById("btn-procesar").disabled = true;
+            document.getElementById("btn-procesar").innerText = "Procesando imágenes... (puede tardar)";
 
-          let estado = "status-error";
-          let mensaje = "Sin datos válidos";
-          if (telefono && icc) { estado = "status-success"; mensaje = "Datos completos"; }
-          else if (telefono || icc) { estado = "status-warning"; mensaje = "Datos parciales"; }
+            for (const archivo of archivos) {
+                const card = document.createElement("div");
+                card.className = "result-card";
+                card.innerHTML = `<strong>${archivo.name}</strong><div class='spinner'></div><small style="color:var(--gray-medium);">Extrayendo texto...</small>`;
+                resultados.appendChild(card);
+                
+                // Mover scroll al nuevo resultado
+                card.scrollIntoView({ behavior: 'smooth', block: 'end' });
 
-          // ✅ Enviar por GET (compatible con tu código.gs actual)
-          let respuesta = "No enviado";
-          if (telefono || icc) {
-            const url = `${urlScript}?promotor=${encodeURIComponent(promotor)}&telefono=${telefono}&icc=${icc}`;
-            const resp = await fetch(url);
-            respuesta = await resp.text();
-          }
 
-          card.innerHTML = `
-            <strong>${archivo.name}</strong><br>
-            <b class="${estado}">${mensaje}</b><br>
-            <b>Teléfono:</b> ${telefono || "No detectado"}<br>
-            <b>ICC:</b> ${icc || "No detectado"}<br>
-            <b>Respuesta:</b> ${respuesta}
-          `;
-        } catch (err) {
-          card.innerHTML = `<strong>${archivo.name}</strong><br><b class='status-error'>Error:</b> ${err.message}`;
+                try {
+                    // Tesseract.js para OCR
+                    const ocr = await Tesseract.recognize(archivo, "spa");
+                    const texto = ocr.data.text;
+                    const telefono = extraerTelefono(texto);
+                    const icc = extraerICC(texto);
+
+                    let estado = "status-error";
+                    let mensaje = "❌ Extracción Fallida: Sin datos válidos";
+                    let respuesta = "No enviado (Sin datos)";
+
+                    if (telefono && icc) { 
+                        estado = "status-success"; 
+                        mensaje = "✅ Datos Completos. Intentando Subir..."; 
+                    } else if (telefono || icc) { 
+                        estado = "status-warning"; 
+                        mensaje = "⚠️ Datos Parciales. Intentando Subir..."; 
+                    }
+
+                    // Actualizar tarjeta con datos extraídos antes de enviar
+                    card.innerHTML = `
+                        <strong>${archivo.name}</strong><br>
+                        <b class="${estado}">${mensaje}</b><br>
+                        <b>Teléfono:</b> ${telefono || "No detectado"}<br>
+                        <b>ICC:</b> ${icc || "No detectado"}<br>
+                        <small style="color:var(--gray-medium);">Respuesta del servidor: Cargando...</small>
+                    `;
+
+                    // Enviar por GET si se encontró algún dato
+                    if (telefono || icc) {
+                        const url = `${urlScript}?promotor=${encodeURIComponent(promotor)}&telefono=${telefono}&icc=${icc}`;
+                        const resp = await fetch(url);
+                        respuesta = await resp.text();
+                    }
+
+                    // Actualizar tarjeta con la respuesta final
+                    card.innerHTML = `
+                        <strong>${archivo.name}</strong><br>
+                        <b class="${estado}">${mensaje.replace('Intentando Subir...', 'Envío Finalizado.')}</b><br>
+                        <b>Teléfono:</b> ${telefono || "No detectado"}<br>
+                        <b>ICC:</b> ${icc || "No detectado"}<br>
+                        <b>Respuesta:</b> ${respuesta}
+                    `;
+                } catch (err) {
+                    // Manejo de errores de OCR o de red
+                    card.innerHTML = `<strong>${archivo.name}</strong><br><b class='status-error'>🛑 Error de Procesamiento:</b> ${err.message}`;
+                }
+            }
+
+            // Restablecer estado del botón
+            document.getElementById("btn-procesar").disabled = false;
+            document.getElementById("btn-procesar").innerText = "🔍 Procesar y Subir Documentos";
         }
-      }
 
-      document.getElementById("btn-procesar").disabled = false;
-      document.getElementById("btn-procesar").innerText = "🔍 Procesar y Subir";
-    }
+        // Función para extraer un número de 10 dígitos (teléfono)
+        function extraerTelefono(texto) {
+            // Busca 10 dígitos seguidos en límites de palabra
+            const match = texto.match(/\b\d{10}\b/);
+            return match ? match[0] : "";
+        }
 
-    function extraerTelefono(texto) {
-      const match = texto.match(/\b\d{10}\b/);
-      return match ? match[0] : "";
-    }
-
-    function extraerICC(texto) {
-      const match = texto.match(/89\d{16,18}/);
-      return match ? match[0] : "";
-    }
-  </script>
+        // Función para extraer el ICC (comienza con '89' y tiene 18 o 20 dígitos)
+        function extraerICC(texto) {
+            // Busca '89' seguido de 16 a 18 dígitos, lo que resulta en una longitud total de 18 a 20 dígitos (estándar ICCID)
+            const match = texto.match(/89\d{16,18}/);
+            return match ? match[0] : "";
+        }
+    </script>
 </body>
 </html>
