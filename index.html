@@ -124,6 +124,7 @@
           if (telefono && icc) { estado = "status-success"; mensaje = "Datos completos"; }
           else if (telefono || icc) { estado = "status-warning"; mensaje = "Datos parciales"; }
 
+          // ✅ Enviar por GET (compatible con tu código.gs actual)
           let respuesta = "No enviado";
           if (telefono || icc) {
             const url = `${urlScript}?promotor=${encodeURIComponent(promotor)}&telefono=${telefono}&icc=${icc}`;
@@ -148,12 +149,12 @@
     }
 
     function extraerTelefono(texto) {
-      const match = texto.match(/\\b\\d{10}\\b/);
+      const match = texto.match(/\b\d{10}\b/);
       return match ? match[0] : "";
     }
 
     function extraerICC(texto) {
-      const match = texto.match(/89\\d{16,18}/);
+      const match = texto.match(/89\d{16,18}/);
       return match ? match[0] : "";
     }
   </script>
