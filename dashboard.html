@@ -424,16 +424,6 @@
       display: block;
     }
 
-    .mobile-menu {
-      display: none;
-      background: var(--primary);
-      color: white;
-      padding: 1rem;
-      text-align: center;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
     @media (max-width: 768px) {
       header {
         padding: 1rem;
@@ -651,12 +641,6 @@
             <select class="filter-select" id="filterPromotor">
               <option value="">Todos los promotores</option>
             </select>
-            <select class="filter-select" id="filterEstado">
-              <option value="">Todos los estados</option>
-              <option value="completado">Completado</option>
-              <option value="pendiente">Pendiente</option>
-              <option value="error">Error</option>
-            </select>
             <button class="btn btn-sm" id="btnAplicarFiltros">
               <i class="fas fa-filter"></i> Aplicar
             </button>
@@ -698,7 +682,6 @@
                   <th>Fecha</th>
                   <th>Teléfono</th>
                   <th>ICC</th>
-                  <th>Estado</th>
                 </tr>
               </thead>
               <tbody id="tablaTelefonos">
@@ -814,7 +797,7 @@
             ...d,
             fechaObj,
             promotor: d.promotor || "Promotor " + Math.floor(Math.random() * 10 + 1),
-            estado: d.estado || ["completado","pendiente","error"][Math.floor(Math.random()*3)],
+            estado: 'completado', // Siempre completado
             tiempo: d.tiempo || Math.floor(Math.random()*120)+30,
             telefono: d.telefono || "55" + Math.floor(Math.random()*100000000).toString().padStart(8, '0'),
             icc: d.icc || "89" + Math.floor(Math.random()*10000000000000000).toString().padStart(16, '0')
@@ -896,11 +879,9 @@
       
       // Aplicar filtros adicionales
       const promotorFiltro = document.getElementById('filterPromotor').value;
-      const estadoFiltro = document.getElementById('filterEstado').value;
       
       const datosFiltradosTabla = datosFiltrados.filter(d => {
         if (promotorFiltro && d.promotor !== promotorFiltro) return false;
-        if (estadoFiltro && d.estado !== estadoFiltro) return false;
         return true;
       });
       
@@ -950,14 +931,13 @@
           <td>${formatearFecha(d.fechaObj)}</td>
           <td>${d.telefono}</td>
           <td>${d.icc}</td>
-          <td>${d.estado}</td>
         `;
         tabla.appendChild(fila);
       });
       
       if (datosMostrar.length === 0) {
         const fila = document.createElement('tr');
-        fila.innerHTML = `<td colspan="5" style="text-align: center;">No hay datos que coincidan con los filtros</td>`;
+        fila.innerHTML = `<td colspan="4" style="text-align: center;">No hay datos que coincidan con los filtros</td>`;
         tabla.appendChild(fila);
       }
     }
@@ -973,9 +953,8 @@
       datosFiltrados.forEach(d => conteo[d.promotor] = (conteo[d.promotor]||0)+1);
       const top = Object.entries(conteo).sort((a,b)=>b[1]-a[1])[0] || ["Sin datos",0];
       
-      // Calcular eficiencia
-      const completados = datosFiltrados.filter(d => d.estado === 'completado').length;
-      const successRate = total > 0 ? Math.round((completados / total) * 100) : 0;
+      // Calcular eficiencia (siempre 100% porque solo hay completados)
+      const successRate = 100;
       
       // Calcular tiempo promedio
       const tiempos = datosFiltrados.map(d => d.tiempo).filter(t => t);
@@ -1010,22 +989,19 @@
       // Destruir gráfica anterior si existe
       if (charts.eficiencia) charts.eficiencia.destroy();
       
+      // Solo hay completados
       const estados = {
-        completado: datosFiltrados.filter(d => d.estado === 'completado').length,
-        pendiente: datosFiltrados.filter(d => d.estado === 'pendiente').length,
-        error: datosFiltrados.filter(d => d.estado === 'error').length
+        completado: datosFiltrados.length
       };
       
       charts.eficiencia = new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: ['Completados', 'Pendientes', 'Con Errores'],
+          labels: ['Completados'],
           datasets: [{
-            data: [estados.completado, estados.pendiente, estados.error],
+            data: [estados.completado],
             backgroundColor: [
-              '#00b894',
-              '#fdcb6e',
-              '#e74c3c'
+              '#00b894'
             ],
             borderWidth: 2,
             borderColor: '#fff'
@@ -1043,9 +1019,7 @@
                 label: function(context) {
                   const label = context.label || '';
                   const value = context.raw || 0;
-                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                  const percentage = Math.round((value / total) * 100);
-                  return `${label}: ${value} (${percentage}%)`;
+                  return `${label}: ${value}`;
                 }
               }
             }
