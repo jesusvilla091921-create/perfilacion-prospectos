@@ -1,573 +1,787 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Supervisor | CAPTURAS MADA</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --primary: #0066cc;
-      --primary-dark: #004d99;
-      --primary-light: #3399ff;
-      --accent: #00b894;
-      --accent-light: #55d9b8;
-      --warning: #fdcb6e;
-      --danger: #e74c3c;
-      --light: #f8f9fa;
-      --gray: #e9ecef;
-      --gray-dark: #6c757d;
-      --dark: #212529;
-      --radius: 8px;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      --shadow-heavy: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: "Segoe UI", sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-      color: var(--dark);
-      min-height: 100vh;
-    }
-
-    header {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      text-align: center;
-      padding: 1.5rem;
-      font-size: 1.8rem;
-      box-shadow: var(--shadow-heavy);
-      position: relative;
-      overflow: hidden;
-    }
-
-    header::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
-      background-size: cover;
-    }
-
-    .header-content {
-      position: relative;
-      z-index: 1;
-    }
-
-    .subtitle {
-      font-size: 1.1rem;
-      font-weight: 300;
-      opacity: 0.9;
-      margin-top: 0.5rem;
-    }
-
-    .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-      padding: 2rem;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .card {
-      background: white;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 1.5rem;
-      transition: transform 0.3s, box-shadow 0.3s;
-      border-top: 4px solid var(--primary);
-    }
-
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-heavy);
-    }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid var(--gray);
-    }
-
-    .card-icon {
-      background: var(--primary);
-      color: white;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 1rem;
-      font-size: 1.2rem;
-    }
-
-    h2 { 
-      font-size: 1.3rem; 
-      margin: 0;
-      color: var(--primary-dark);
-    }
-
-    .stat-value {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin: 0.5rem 0;
-    }
-
-    .stat-description {
-      color: var(--gray-dark);
-      font-size: 0.9rem;
-    }
-
-    canvas { 
-      width: 100% !important; 
-      height: 250px !important; 
-    }
-
-    .loading {
-      text-align: center;
-      color: var(--gray-dark);
-      font-size: 1.1rem;
-      margin-top: 2rem;
-      padding: 1.5rem;
-    }
-
-    .spinner {
-      width: 30px;
-      height: 30px;
-      border: 4px solid rgba(0, 102, 204, 0.2);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 1rem;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .metric-item {
-      text-align: center;
-      padding: 1rem;
-      border-radius: var(--radius);
-      background: var(--light);
-    }
-
-    .metric-value {
-      font-size: 1.8rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-    }
-
-    .metric-label {
-      font-size: 0.85rem;
-      color: var(--gray-dark);
-    }
-
-    .metric-success .metric-value {
-      color: var(--accent);
-    }
-
-    .metric-warning .metric-value {
-      color: var(--warning);
-    }
-
-    .metric-danger .metric-value {
-      color: var(--danger);
-    }
-
-    .full-width {
-      grid-column: 1 / -1;
-    }
-
-    .controls {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 1.5rem;
-      gap: 1rem;
-    }
-
-    .btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: var(--radius);
-      padding: 0.75rem 1.5rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .btn:hover {
-      background: var(--primary-dark);
-    }
-
-    .date-filter {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-
-    .date-input {
-      padding: 0.75rem;
-      border: 1px solid var(--gray);
-      border-radius: var(--radius);
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        grid-template-columns: 1fr;
-        padding: 1rem;
-      }
-
-      .metrics-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .controls {
-        flex-direction: column;
-      }
-
-      .date-filter {
-        justify-content: space-between;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | CAPTURAS MADA</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0066cc;
+            --primary-dark: #004d99;
+            --primary-light: #3399ff;
+            --accent: #00b894;
+            --accent-light: #55d9b8;
+            --warning: #fdcb6e;
+            --error: #e74c3c;
+            --success: #2ecc71;
+            --light: #f8f9fa;
+            --gray: #e9ecef;
+            --gray-dark: #6c757d;
+            --dark: #212529;
+            --radius: 8px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-heavy: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            color: var(--dark);
+            min-height: 100vh;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 1.8rem;
+            box-shadow: var(--shadow-heavy);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: cover;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            font-weight: 300;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            padding: 1.5rem;
+            background: white;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .date-filter {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .date-input {
+            padding: 0.75rem;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius);
+        }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-accent {
+            background: var(--accent);
+        }
+        
+        .btn-accent:hover {
+            background: var(--accent-light);
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 0 1.5rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-top: 4px solid var(--primary);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-heavy);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--gray);
+        }
+        
+        .card-icon {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        h2 { 
+            font-size: 1.3rem; 
+            margin: 0;
+            color: var(--primary-dark);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0.5rem 0;
+        }
+        
+        .stat-description {
+            color: var(--gray-dark);
+            font-size: 0.9rem;
+        }
+        
+        canvas { 
+            width: 100% !important; 
+            height: 250px !important; 
+        }
+        
+        .loading {
+            text-align: center;
+            color: var(--gray-dark);
+            font-size: 1.1rem;
+            margin-top: 2rem;
+            padding: 1.5rem;
+        }
+        
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 4px solid rgba(0, 102, 204, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .metric-item {
+            text-align: center;
+            padding: 1rem;
+            border-radius: var(--radius);
+            background: var(--light);
+        }
+        
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--gray-dark);
+        }
+        
+        .metric-success .metric-value {
+            color: var(--accent);
+        }
+        
+        .metric-warning .metric-value {
+            color: var(--warning);
+        }
+        
+        .metric-danger .metric-value {
+            color: var(--error);
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin-top: 1rem;
+        }
+        
+        .promotor-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+        
+        .promotor-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--gray);
+        }
+        
+        .promotor-name {
+            font-weight: 500;
+        }
+        
+        .promotor-count {
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.85rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 0 1rem 2rem;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .date-filter {
+                justify-content: space-between;
+            }
+        }
+    </style>
 </head>
 
 <body>
-  <header>
-    <div class="header-content">
-      <i class="fas fa-chart-line"></i> Dashboard Supervisor – CAPTURAS MADA
-      <div class="subtitle">Sistema de Validación de Trámites para Nómina</div>
-    </div>
-  </header>
-
-  <div class="controls">
-    <button class="btn" id="btnExport">
-      <i class="fas fa-file-export"></i> Exportar Reporte
-    </button>
-    <div class="date-filter">
-      <input type="date" id="dateFrom" class="date-input">
-      <span>a</span>
-      <input type="date" id="dateTo" class="date-input">
-      <button class="btn" id="btnFilter">
-        <i class="fas fa-filter"></i> Filtrar
-      </button>
-    </div>
-  </div>
-
-  <div class="container">
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon">
-          <i class="fas fa-file-alt"></i>
+    <header>
+        <div class="header-content">
+            <i class="fas fa-chart-line"></i> Dashboard – CAPTURAS MADA
+            <div class="subtitle">Sistema de Validación de Trámites para Nómina</div>
         </div>
-        <h2>Total de Trámites</h2>
-      </div>
-      <div class="stat-value" id="total">0</div>
-      <div class="stat-description">Trámites procesados en el período seleccionado</div>
+    </header>
+
+    <div class="controls">
+        <button class="btn" id="btnExport">
+            <i class="fas fa-file-export"></i> Exportar Reporte
+        </button>
+        <div class="date-filter">
+            <input type="date" id="dateFrom" class="date-input">
+            <span>a</span>
+            <input type="date" id="dateTo" class="date-input">
+            <button class="btn btn-accent" id="btnFilter">
+                <i class="fas fa-filter"></i> Filtrar
+            </button>
+            <button class="btn" id="btnRefresh">
+                <i class="fas fa-sync-alt"></i> Actualizar
+            </button>
+        </div>
     </div>
 
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon">
-          <i class="fas fa-chart-bar"></i>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h2>Total de Trámites</h2>
+            </div>
+            <div class="stat-value" id="total">0</div>
+            <div class="stat-description">Trámites procesados en el período seleccionado</div>
         </div>
-        <h2>Promedio Diario</h2>
-      </div>
-      <div class="stat-value" id="promedio">0</div>
-      <div class="stat-description">Promedio de trámites por día</div>
+        
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h2>Promedio Diario</h2>
+            </div>
+            <div class="stat-value" id="promedio">0</div>
+            <div class="stat-description">Promedio de trámites por día</div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <h2>Top Promotor</h2>
+            </div>
+            <div class="stat-value" id="top-count">0</div>
+            <div class="stat-description" id="top-name">Cargando...</div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h2>Eficiencia del Mes</h2>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-item metric-success">
+                    <div class="metric-value" id="success-rate">0%</div>
+                    <div class="metric-label">Completados</div>
+                </div>
+                <div class="metric-item metric-warning">
+                    <div class="metric-value" id="pending-rate">0%</div>
+                    <div class="metric-label">Pendientes</div>
+                </div>
+                <div class="metric-item metric-danger">
+                    <div class="metric-value" id="error-rate">0%</div>
+                    <div class="metric-label">Con Errores</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value" id="avg-time">0h</div>
+                    <div class="metric-label">Tiempo Promedio</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card full-width">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h2>Tendencia Mensual</h2>
+            </div>
+            <canvas id="chartTendencia"></canvas>
+        </div>
+        
+        <div class="card full-width">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h2>Desempeño por Promotor</h2>
+            </div>
+            <canvas id="chartPromotores"></canvas>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-week"></i>
+                </div>
+                <h2>Actividad por Día</h2>
+            </div>
+            <canvas id="chartDias"></canvas>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-list-ol"></i>
+                </div>
+                <h2>Ranking de Promotores</h2>
+            </div>
+            <div class="promotor-list" id="promotorList">
+                <!-- Lista de promotores se generará aquí -->
+            </div>
+        </div>
+        
+        <div class="card full-width">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <h2>Distribución por Estado</h2>
+            </div>
+            <canvas id="chartEstados"></canvas>
+        </div>
     </div>
 
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon">
-          <i class="fas fa-trophy"></i>
-        </div>
-        <h2>Top Promotor</h2>
-      </div>
-      <div class="stat-value" id="top-count">0</div>
-      <div class="stat-description" id="top-name">Cargando...</div>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        Cargando datos en tiempo real...
     </div>
 
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon">
-          <i class="fas fa-calendar-alt"></i>
-        </div>
-        <h2>Eficiencia del Mes</h2>
-      </div>
-      <div class="metrics-grid">
-        <div class="metric-item metric-success">
-          <div class="metric-value" id="success-rate">0%</div>
-          <div class="metric-label">Completados</div>
-        </div>
-        <div class="metric-item metric-warning">
-          <div class="metric-value" id="pending-rate">0%</div>
-          <div class="metric-label">Pendientes</div>
-        </div>
-        <div class="metric-item metric-danger">
-          <div class="metric-value" id="error-rate">0%</div>
-          <div class="metric-label">Con Errores</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-value" id="avg-time">0h</div>
-          <div class="metric-label">Tiempo Promedio</div>
-        </div>
-      </div>
-    </div>
+    <script>
+        // URL de la hoja de Google Sheets
+        const SHEET_URL = "https://opensheet.elk.sh/1-ys3hF-4a8KtI5kYsBsPNTzx0bxTZk1NkVjXrpQP8ug/Hoja1";
+        let datos = [];
+        let datosFiltrados = [];
 
-    <div class="card full-width">
-      <div class="card-header">
-        <div class="card-icon">
-          <i class="fas fa-chart-line"></i>
-        </div>
-        <h2>Tendencia Mensual</h2>
-      </div>
-      <canvas id="chartTendencia"></canvas>
-    </div>
+        // Configurar fechas por defecto (últimos 30 días)
+        const hoy = new Date();
+        const hace30Dias = new Date();
+        hace30Dias.setDate(hoy.getDate() - 30);
+        
+        document.getElementById('dateFrom').valueAsDate = hace30Dias;
+        document.getElementById('dateTo').valueAsDate = hoy;
 
-    <div class="card full-width">
-      <div class="card-header">
-        <div class="card-icon">
-          <i class="fas fa-users"></i>
-        </div>
-        <h2>Desempeño por Promotor</h2>
-      </div>
-      <canvas id="chartPromotores"></canvas>
-    </div>
+        // Cargar datos desde Google Sheets
+        async function cargarDatos() {
+            try {
+                const resp = await fetch(SHEET_URL);
+                datos = await resp.json();
+                
+                // Procesar datos
+                datos.forEach(d => {
+                    // Asegurar que la fecha esté en formato correcto
+                    if (d.fecha) {
+                        d.fechaObj = new Date(d.fecha);
+                    }
+                    
+                    // Si no hay estado, asignar uno aleatorio para demostración
+                    if (!d.estado) {
+                        const estados = ['completado', 'pendiente', 'error'];
+                        d.estado = estados[Math.floor(Math.random() * estados.length)];
+                    }
+                    
+                    // Si no hay tiempo de procesamiento, asignar uno aleatorio
+                    if (!d.tiempo) {
+                        d.tiempo = Math.floor(Math.random() * 120) + 30; // entre 30 y 150 minutos
+                    }
+                });
+                
+                aplicarFiltros();
+                document.getElementById("loading").style.display = "none";
+            } catch (err) {
+                document.getElementById("loading").innerHTML = `<div class="error">Error cargando datos: ${err.message}</div>`;
+            }
+        }
 
-    <div class="card full-width">
-      <div class="card-header">
-        <div class="card-icon">
-          <i class="fas fa-calendar-week"></i>
-        </div>
-        <h2>Actividad por Día de la Semana</h2>
-      </div>
-      <canvas id="chartDias"></canvas>
-    </div>
-  </div>
+        // Aplicar filtros de fecha
+        function aplicarFiltros() {
+            const fechaDesde = new Date(document.getElementById('dateFrom').value);
+            const fechaHasta = new Date(document.getElementById('dateTo').value);
+            fechaHasta.setHours(23, 59, 59, 999); // Incluir todo el día
+            
+            datosFiltrados = datos.filter(d => {
+                if (!d.fechaObj) return false;
+                return d.fechaObj >= fechaDesde && d.fechaObj <= fechaHasta;
+            });
+            
+            actualizarIndicadores();
+            generarGraficas();
+            actualizarListaPromotores();
+        }
 
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    Cargando datos en tiempo real...
-  </div>
+        // Actualizar los indicadores principales
+        function actualizarIndicadores() {
+            const total = datosFiltrados.length;
+            const fechas = datosFiltrados.map(d => d.fechaObj);
+            const diasUnicos = [...new Set(fechas.map(f => f.toDateString()))].length;
+            const promotores = [...new Set(datosFiltrados.map(d => d.promotor))];
 
-  <script>
-    const hoja = "https://opensheet.elk.sh/1-ys3hF-4a8KtI5kYsBsPNTzx0bxTZk1NkVjXrpQP8ug/Hoja%201";
-    let datos = [];
-    let datosFiltrados = [];
+            // Promedio diario
+            const promedio = total / (diasUnicos || 1);
 
-    // Configurar fechas por defecto (últimos 30 días)
-    const hoy = new Date();
-    const hace30Dias = new Date();
-    hace30Dias.setDate(hoy.getDate() - 30);
+            // Top promotor
+            const conteo = {};
+            datosFiltrados.forEach(d => {
+                if (!conteo[d.promotor]) conteo[d.promotor] = 0;
+                conteo[d.promotor]++;
+            });
+            const topPromotor = Object.entries(conteo).sort((a,b)=>b[1]-a[1])[0];
 
-    document.getElementById('dateFrom').valueAsDate = hace30Dias;
-    document.getElementById('dateTo').valueAsDate = hoy;
+            // Calcular métricas de eficiencia
+            const estados = {
+                completado: datosFiltrados.filter(d => d.estado === 'completado').length,
+                pendiente: datosFiltrados.filter(d => d.estado === 'pendiente').length,
+                error: datosFiltrados.filter(d => d.estado === 'error').length
+            };
+            
+            const successRate = total > 0 ? Math.round((estados.completado / total) * 100) : 0;
+            const pendingRate = total > 0 ? Math.round((estados.pendiente / total) * 100) : 0;
+            const errorRate = total > 0 ? Math.round((estados.error / total) * 100) : 0;
+            
+            // Tiempo promedio de procesamiento
+            const tiempos = datosFiltrados.map(d => d.tiempo).filter(t => t);
+            const avgTime = tiempos.length > 0 ? Math.round(tiempos.reduce((a, b) => a + b, 0) / tiempos.length) : 0;
 
-    async function cargarDatos() {
-      try {
-        const resp = await fetch(hoja);
-        datos = await resp.json();
+            // Actualizar la interfaz
+            document.getElementById("total").innerText = total;
+            document.getElementById("promedio").innerText = promedio.toFixed(1);
+            
+            if (topPromotor) {
+                document.getElementById("top-count").innerText = topPromotor[1];
+                document.getElementById("top-name").innerText = topPromotor[0];
+            } else {
+                document.getElementById("top-count").innerText = "0";
+                document.getElementById("top-name").innerText = "Sin datos";
+            }
+            
+            document.getElementById("success-rate").innerText = `${successRate}%`;
+            document.getElementById("pending-rate").innerText = `${pendingRate}%`;
+            document.getElementById("error-rate").innerText = `${errorRate}%`;
+            document.getElementById("avg-time").innerText = `${Math.floor(avgTime / 60)}h ${avgTime % 60}m`;
+        }
 
-        datos.forEach(d => {
-          if (d.fecha) d.fechaObj = new Date(d.fecha);
+        // Generar todas las gráficas
+        function generarGraficas() {
+            // Tendencia mensual
+            const agrupadoPorMes = agruparPorMes(datosFiltrados);
+            const etiquetasMes = Object.keys(agrupadoPorMes);
+            const valoresMes = Object.values(agrupadoPorMes);
+            
+            const ctxTendencia = document.getElementById("chartTendencia").getContext("2d");
+            if (window.chartTendencia) window.chartTendencia.destroy();
+            
+            window.chartTendencia = new Chart(ctxTendencia, {
+                type: 'line',
+                data: {
+                    labels: etiquetasMes,
+                    datasets: [{
+                        label: 'Trámites por mes',
+                        data: valoresMes,
+                        borderColor: '#0066cc',
+                        backgroundColor: 'rgba(0, 102, 204, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    plugins: { 
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Evolución de trámites mensuales'
+                        }
+                    } 
+                }
+            });
 
-          if (!d.estado) {
-            const estados = ['completado', 'pendiente', 'error'];
-            d.estado = estados[Math.floor(Math.random() * estados.length)];
-          }
+            // Desempeño por promotor (top 10)
+            const agrupadoPorPromotor = agruparPorPromotor(datosFiltrados);
+            const top10Promotores = Object.entries(agrupadoPorPromotor)
+                .sort((a,b)=>b[1]-a[1])
+                .slice(0, 10);
+            
+            const etiquetasPromotor = top10Promotores.map(p => p[0]);
+            const valoresPromotor = top10Promotores.map(p => p[1]);
+            
+            const ctxPromotores = document.getElementById("chartPromotores").getContext("2d");
+            if (window.chartPromotores) window.chartPromotores.destroy();
+            
+            window.chartPromotores = new Chart(ctxPromotores, {
+                type: 'bar',
+                data: {
+                    labels: etiquetasPromotor,
+                    datasets: [{
+                        label: 'Trámites',
+                        data: valoresPromotor,
+                        backgroundColor: '#00b894'
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    plugins: { 
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Top 10 promotores por trámites realizados'
+                        }
+                    } 
+                }
+            });
 
-          if (!d.tiempo) {
-            d.tiempo = Math.floor(Math.random() * 120) + 30;
-          }
+            // Actividad por día de la semana
+            const actividadPorDia = agruparPorDiaSemana(datosFiltrados);
+            const ctxDias = document.getElementById("chartDias").getContext("2d");
+            if (window.chartDias) window.chartDias.destroy();
+            
+            window.chartDias = new Chart(ctxDias, {
+                type: 'bar',
+                data: {
+                    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                    datasets: [{
+                        label: 'Trámites',
+                        data: actividadPorDia,
+                        backgroundColor: '#3399ff'
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    plugins: { 
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Distribución de trámites por día de la semana'
+                        }
+                    } 
+                }
+            });
+
+            // Distribución por estado
+            const estados = {
+                completado: datosFiltrados.filter(d => d.estado === 'completado').length,
+                pendiente: datosFiltrados.filter(d => d.estado === 'pendiente').length,
+                error: datosFiltrados.filter(d => d.estado === 'error').length
+            };
+            
+            const ctxEstados = document.getElementById("chartEstados").getContext("2d");
+            if (window.chartEstados) window.chartEstados.destroy();
+            
+            window.chartEstados = new Chart(ctxEstados, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completados', 'Pendientes', 'Con Errores'],
+                    datasets: [{
+                        data: [estados.completado, estados.pendiente, estados.error],
+                        backgroundColor: ['#00b894', '#fdcb6e', '#e74c3c']
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Distribución de trámites por estado'
+                        }
+                    } 
+                }
+            });
+        }
+
+        // Actualizar la lista de promotores
+        function actualizarListaPromotores() {
+            const agrupadoPorPromotor = agruparPorPromotor(datosFiltrados);
+            const promotoresOrdenados = Object.entries(agrupadoPorPromotor)
+                .sort((a,b)=>b[1]-a[1]);
+            
+            const promotorList = document.getElementById('promotorList');
+            promotorList.innerHTML = '';
+            
+            promotoresOrdenados.forEach(([nombre, count]) => {
+                const item = document.createElement('div');
+                item.className = 'promotor-item';
+                item.innerHTML = `
+                    <span class="promotor-name">${nombre}</span>
+                    <span class="promotor-count">${count}</span>
+                `;
+                promotorList.appendChild(item);
+            });
+        }
+
+        // Funciones auxiliares para agrupar datos
+        function agruparPorMes(data) {
+            const conteo = {};
+            data.forEach(d => {
+                const f = d.fechaObj;
+                if (isNaN(f)) return;
+                const clave = f.toLocaleString('es-MX', { month: 'short', year: '2-digit' });
+                conteo[clave] = (conteo[clave] || 0) + 1;
+            });
+            return conteo;
+        }
+
+        function agruparPorPromotor(data) {
+            const conteo = {};
+            data.forEach(d => {
+                if (!d.promotor) return;
+                conteo[d.promotor] = (conteo[d.promotor] || 0) + 1;
+            });
+            return conteo;
+        }
+        
+        function agruparPorDiaSemana(data) {
+            const dias = [0, 0, 0, 0, 0, 0, 0]; // 0: Lunes, 1: Martes, ..., 6: Domingo
+            data.forEach(d => {
+                const f = d.fechaObj;
+                if (isNaN(f)) return;
+                // Ajustar para que Lunes sea 0 y Domingo 6
+                const dia = (f.getDay() + 6) % 7;
+                dias[dia]++;
+            });
+            return dias;
+        }
+        
+        // Función para exportar reporte
+        document.getElementById('btnExport').addEventListener('click', function() {
+            // Crear un libro de trabajo
+            const wb = XLSX.utils.book_new();
+            
+            // Preparar datos para exportar
+            const datosExportar = datosFiltrados.map(d => {
+                return {
+                    'Promotor': d.promotor,
+                    'Fecha': d.fecha,
+                    'Teléfono': d.telefono,
+                    'ICC': d.icc,
+                    'Estado': d.estado,
+                    'Tiempo (min)': d.tiempo
+                };
+            });
+            
+            // Crear hoja de cálculo
+            const ws = XLSX.utils.json_to_sheet(datosExportar);
+            
+            // Agregar la hoja al libro
+            XLSX.utils.book_append_sheet(wb, ws, "Reporte CAPTURAS MADA");
+            
+            // Exportar el archivo
+            XLSX.writeFile(wb, `Reporte_CAPTURAS_MADA_${new Date().toISOString().split('T')[0]}.xlsx`);
         });
+        
+        // Aplicar filtros cuando se haga clic en el botón
+        document.getElementById('btnFilter').addEventListener('click', aplicarFiltros);
+        
+        // Actualizar datos
+        document.getElementById('btnRefresh').addEventListener('click', cargarDatos);
 
-        aplicarFiltros();
-        document.getElementById("loading").style.display = "none";
-      } catch (err) {
-        document.getElementById("loading").innerHTML = `<div class="error">Error cargando datos: ${err.message}</div>`;
-      }
-    }
-
-    function aplicarFiltros() {
-      const fechaDesde = new Date(document.getElementById('dateFrom').value);
-      const fechaHasta = new Date(document.getElementById('dateTo').value);
-      fechaHasta.setHours(23, 59, 59, 999);
-
-      datosFiltrados = datos.filter(d => d.fechaObj && d.fechaObj >= fechaDesde && d.fechaObj <= fechaHasta);
-
-      actualizarIndicadores();
-      generarGraficas();
-    }
-
-    function actualizarIndicadores() {
-      const total = datosFiltrados.length;
-      const fechas = datosFiltrados.map(d => d.fechaObj);
-      const diasUnicos = [...new Set(fechas.map(f => f.toDateString()))].length;
-
-      const promedio = total / (diasUnicos || 1);
-
-      const conteo = {};
-      datosFiltrados.forEach(d => {
-        if (!conteo[d.promotor]) conteo[d.promotor] = 0;
-        conteo[d.promotor]++;
-      });
-      const topPromotor = Object.entries(conteo).sort((a,b)=>b[1]-a[1])[0];
-
-      const estados = {
-        completado: datosFiltrados.filter(d => d.estado === 'completado').length,
-        pendiente: datosFiltrados.filter(d => d.estado === 'pendiente').length,
-        error: datosFiltrados.filter(d => d.estado === 'error').length
-      };
-
-      const successRate = total ? Math.round((estados.completado / total) * 100) : 0;
-      const pendingRate = total ? Math.round((estados.pendiente / total) * 100) : 0;
-      const errorRate = total ? Math.round((estados.error / total) * 100) : 0;
-
-      const tiempos = datosFiltrados.map(d => d.tiempo).filter(t => t);
-      const avgTime = tiempos.length ? Math.round(tiempos.reduce((a, b) => a + b, 0) / tiempos.length) : 0;
-
-      document.getElementById("total").innerText = total;
-      document.getElementById("promedio").innerText = promedio.toFixed(1);
-      document.getElementById("top-count").innerText = topPromotor ? topPromotor[1] : "0";
-      document.getElementById("top-name").innerText = topPromotor ? topPromotor[0] : "Sin datos";
-
-      document.getElementById("success-rate").innerText = `${successRate}%`;
-      document.getElementById("pending-rate").innerText = `${pendingRate}%`;
-      document.getElementById("error-rate").innerText = `${errorRate}%`;
-      document.getElementById("avg-time").innerText = `${Math.floor(avgTime / 60)}h ${avgTime % 60}m`;
-    }
-
-    function generarGraficas() {
-      const agrupadoPorMes = agruparPorMes(datosFiltrados);
-      const etiquetasMes = Object.keys(agrupadoPorMes);
-      const valoresMes = Object.values(agrupadoPorMes);
-
-      const ctxTendencia = document.getElementById("chartTendencia").getContext("2d");
-      if (window.chartTendencia) window.chartTendencia.destroy();
-
-      window.chartTendencia = new Chart(ctxTendencia, {
-        type: 'line',
-        data: {
-          labels: etiquetasMes,
-          datasets: [{
-            label: 'Trámites por mes',
-            data: valoresMes,
-            borderColor: '#0066cc',
-            backgroundColor: 'rgba(0, 102, 204, 0.1)',
-            tension: 0.3,
-            fill: true
-          }]
-        },
-        options: { responsive: true, plugins: { legend: { display: false } } }
-      });
-
-      const agrupadoPorPromotor = agruparPorPromotor(datosFiltrados);
-      const etiquetasPromotor = Object.keys(agrupadoPorPromotor);
-      const valoresPromotor = Object.values(agrupadoPorPromotor);
-
-      const ctxPromotores = document.getElementById("chartPromotores").getContext("2d");
-      if (window.chartPromotores) window.chartPromotores.destroy();
-
-      window.chartPromotores = new Chart(ctxPromotores, {
-        type: 'bar',
-        data: {
-          labels: etiquetasPromotor,
-          datasets: [{ label: 'Trámites', data: valoresPromotor, backgroundColor: '#00b894' }]
-        },
-        options: { responsive: true, plugins: { legend: { display: false } } }
-      });
-
-      const actividadPorDia = agruparPorDiaSemana(datosFiltrados);
-      const ctxDias = document.getElementById("chartDias").getContext("2d");
-      if (window.chartDias) window.chartDias.destroy();
-
-      window.chartDias = new Chart(ctxDias, {
-        type: 'bar',
-        data: {
-          labels: ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'],
-          datasets: [{ label: 'Trámites', data: actividadPorDia, backgroundColor: '#3399ff' }]
-        },
-        options: { responsive: true, plugins: { legend: { display: false } } }
-      });
-    }
-
-    function agruparPorMes(data) {
-      const conteo = {};
-      data.forEach(d => {
-        const f = d.fechaObj;
-        if (isNaN(f)) return;
-        const clave = f.toLocaleString('es-MX', { month: 'short', year: '2-digit' });
-        conteo[clave] = (conteo[clave] || 0) + 1;
-      });
-      return conteo;
-    }
-
-    function agruparPorPromotor(data) {
-      const conteo = {};
-      data.forEach(d => {
-        if (!d.promotor) return;
-        conteo[d.promotor] = (conteo[d.promotor] || 0) + 1;
-      });
-      return conteo;
-    }
-
-    function agruparPorDiaSemana(data) {
-      const dias = [0, 0, 0, 0, 0, 0, 0];
-      data.forEach(d => {
-        const f = d.fechaObj;
-        if (isNaN(f)) return;
-        const dia = (f.getDay() + 6) % 7;
-        dias[dia]++;
-      });
-      return dias;
-    }
-
-    document.getElementById('btnExport').addEventListener('click', function() {
-      const wb = XLSX.utils.book_new();
-      const datosExportar = datosFiltrados.map(d => ({
-        'Promotor': d.promotor,
-        'Fecha': d.fecha,
-        'Estado': d.estado,
-        'Tiempo (min)': d.tiempo
-      }));
-      const ws = XLSX.utils.json_to_sheet(datosExportar);
-      XLSX.utils.book_append_sheet(wb, ws, "Reporte CAPTURAS MADA");
-      XLSX.writeFile(wb, `Reporte_CAPTURAS_MADA_${new Date().toISOString().split('T')[0]}.xlsx`);
-    });
-
-    document.getElementById('btnFilter').addEventListener('click', aplicarFiltros);
-
-    cargarDatos();
-    setInterval(cargarDatos, 120000);
-  </script>
+        // Cargar datos al iniciar
+        cargarDatos();
+        
+        // Actualizar cada 2 minutos
+        setInterval(cargarDatos, 120000);
+    </script>
 </body>
 </html>
