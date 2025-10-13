@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard | CAPTURAS MADA</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
@@ -13,15 +12,10 @@
     :root {
       --primary: #0066cc;
       --primary-dark: #004d99;
-      --primary-light: #3399ff;
       --accent: #00b894;
-      --accent-light: #55d9b8;
       --warning: #fdcb6e;
       --error: #e74c3c;
-      --success: #2ecc71;
-      --light: #f8f9fa;
       --gray: #e9ecef;
-      --gray-dark: #6c757d;
       --dark: #212529;
       --radius: 8px;
       --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -41,10 +35,7 @@
       padding: 1.5rem;
       font-size: 1.8rem;
       box-shadow: var(--shadow-heavy);
-      position: relative;
-      overflow: hidden;
     }
-    .header-content { position: relative; z-index: 1; }
     .subtitle { font-size: 1.1rem; font-weight: 300; opacity: 0.9; margin-top: 0.5rem; }
     .controls {
       display: flex; justify-content: space-between; padding: 1.5rem;
@@ -63,7 +54,7 @@
     }
     .btn:hover { background: var(--primary-dark); }
     .btn-accent { background: var(--accent); }
-    .btn-accent:hover { background: var(--accent-light); }
+    .btn-accent:hover { background: #55d9b8; }
     .container {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -77,25 +68,19 @@
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 1.5rem;
-      transition: transform 0.3s, box-shadow 0.3s;
       border-top: 4px solid var(--primary);
     }
-    .card:hover { transform: translateY(-5px); box-shadow: var(--shadow-heavy); }
-    .card-header {
-      display: flex; align-items: center; margin-bottom: 1rem;
-      padding-bottom: 0.75rem; border-bottom: 1px solid var(--gray);
-    }
+    .card-header { display: flex; align-items: center; margin-bottom: 1rem; }
     .card-icon {
       background: var(--primary); color: white;
       width: 40px; height: 40px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      margin-right: 1rem; font-size: 1.2rem;
+      margin-right: 1rem;
     }
-    h2 { font-size: 1.3rem; margin: 0; color: var(--primary-dark); }
-    .stat-value { font-size: 2.5rem; font-weight: 700; color: var(--primary); margin: 0.5rem 0; }
-    .stat-description { color: var(--gray-dark); font-size: 0.9rem; }
-    canvas { width: 100% !important; height: 250px !important; }
-    .loading { text-align: center; color: var(--gray-dark); font-size: 1.1rem; margin-top: 2rem; padding: 1.5rem; }
+    h2 { font-size: 1.3rem; color: var(--primary-dark); margin: 0; }
+    .stat-value { font-size: 2.5rem; font-weight: 700; color: var(--primary); }
+    .stat-description { color: #6c757d; font-size: 0.9rem; }
+    .loading { text-align: center; color: #6c757d; font-size: 1.1rem; margin-top: 2rem; }
     .spinner {
       width: 30px; height: 30px; border: 4px solid rgba(0, 102, 204, 0.2);
       border-top-color: var(--primary); border-radius: 50%;
@@ -107,7 +92,7 @@
 
 <body>
   <header>
-    <div class="header-content">
+    <div>
       <i class="fas fa-chart-line"></i> Dashboard – CAPTURAS MADA
       <div class="subtitle">Sistema de Validación de Trámites para Nómina</div>
     </div>
@@ -131,9 +116,23 @@
   </div>
 
   <div class="container">
-    <div class="card"><div class="card-header"><div class="card-icon"><i class="fas fa-file-alt"></i></div><h2>Total de Trámites</h2></div><div class="stat-value" id="total">0</div><div class="stat-description">Trámites procesados en el período seleccionado</div></div>
-    <div class="card"><div class="card-header"><div class="card-icon"><i class="fas fa-chart-bar"></i></div><h2>Promedio Diario</h2></div><div class="stat-value" id="promedio">0</div><div class="stat-description">Promedio de trámites por día</div></div>
-    <div class="card"><div class="card-header"><div class="card-icon"><i class="fas fa-trophy"></i></div><h2>Top Promotor</h2></div><div class="stat-value" id="top-count">0</div><div class="stat-description" id="top-name">Cargando...</div></div>
+    <div class="card">
+      <div class="card-header"><div class="card-icon"><i class="fas fa-file-alt"></i></div><h2>Total de Trámites</h2></div>
+      <div class="stat-value" id="total">0</div>
+      <div class="stat-description">Trámites procesados en el período seleccionado</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-icon"><i class="fas fa-chart-bar"></i></div><h2>Promedio Diario</h2></div>
+      <div class="stat-value" id="promedio">0</div>
+      <div class="stat-description">Promedio de trámites por día</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-icon"><i class="fas fa-trophy"></i></div><h2>Top Promotor</h2></div>
+      <div class="stat-value" id="top-count">0</div>
+      <div class="stat-description" id="top-name">Cargando...</div>
+    </div>
   </div>
 
   <div class="loading" id="loading">
@@ -152,37 +151,41 @@
     document.getElementById('dateFrom').valueAsDate = hace30Dias;
     document.getElementById('dateTo').valueAsDate = hoy;
 
+    // 🔧 Cargar datos del Sheet con validación
     async function cargarDatos() {
       try {
         const resp = await fetch(SHEET_URL);
-        datos = await resp.json();
+        const contenido = await resp.json();
+        console.log("Respuesta del Sheet:", contenido);
 
-        datos.forEach(d => {
-          // Conversión segura de fecha
+        if (!Array.isArray(contenido)) {
+          throw new Error("Formato inesperado en la respuesta del Sheet");
+        }
+
+        datos = contenido.map(d => {
+          let fechaObj = null;
+
           if (d.fecha) {
             const partes = d.fecha.split(" ");
             if (partes.length >= 2) {
               const [dia, mes, año] = partes[0].split("/");
               const fechaISO = `${año}-${mes}-${dia}T${partes[1]}`;
-              d.fechaObj = new Date(fechaISO);
+              fechaObj = new Date(fechaISO);
             } else {
-              d.fechaObj = new Date(d.fecha);
+              fechaObj = new Date(d.fecha);
             }
           }
 
-          if (!d.estado) {
-            const estados = ['completado', 'pendiente', 'error'];
-            d.estado = estados[Math.floor(Math.random() * estados.length)];
-          }
+          const estado = d.estado || ['completado', 'pendiente', 'error'][Math.floor(Math.random() * 3)];
+          const tiempo = d.tiempo || Math.floor(Math.random() * 120) + 30;
 
-          if (!d.tiempo) {
-            d.tiempo = Math.floor(Math.random() * 120) + 30;
-          }
+          return { ...d, fechaObj, estado, tiempo };
         });
 
         aplicarFiltros();
         document.getElementById("loading").style.display = "none";
       } catch (err) {
+        console.error("Error cargando datos:", err);
         document.getElementById("loading").innerHTML = `<div class="error">Error cargando datos: ${err.message}</div>`;
       }
     }
@@ -191,12 +194,30 @@
       const desde = new Date(document.getElementById('dateFrom').value);
       const hasta = new Date(document.getElementById('dateTo').value);
       hasta.setHours(23,59,59,999);
+
       datosFiltrados = datos.filter(d => d.fechaObj && d.fechaObj >= desde && d.fechaObj <= hasta);
-      document.getElementById("total").innerText = datosFiltrados.length;
+      const total = datosFiltrados.length;
+      const fechas = datosFiltrados.map(d => d.fechaObj);
+      const diasUnicos = [...new Set(fechas.map(f => f.toDateString()))].length;
+      const promedio = total / (diasUnicos || 1);
+
+      // Top promotor
+      const conteo = {};
+      datosFiltrados.forEach(d => {
+        if (!conteo[d.promotor]) conteo[d.promotor] = 0;
+        conteo[d.promotor]++;
+      });
+      const topPromotor = Object.entries(conteo).sort((a,b)=>b[1]-a[1])[0];
+
+      document.getElementById("total").innerText = total;
+      document.getElementById("promedio").innerText = promedio.toFixed(1);
+      document.getElementById("top-count").innerText = topPromotor ? topPromotor[1] : "0";
+      document.getElementById("top-name").innerText = topPromotor ? topPromotor[0] : "Sin datos";
     }
 
     document.getElementById('btnFilter').addEventListener('click', aplicarFiltros);
     document.getElementById('btnRefresh').addEventListener('click', cargarDatos);
+
     cargarDatos();
   </script>
 </body>
