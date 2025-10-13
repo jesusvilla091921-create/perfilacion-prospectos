@@ -79,14 +79,28 @@
       gap: 1rem;
     }
 
-    .date-filter { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .date-filter { 
+      display: flex; 
+      gap: 0.5rem; 
+      align-items: center; 
+      flex-wrap: wrap;
+    }
+    
+    .date-input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
     .date-input {
       padding: 0.75rem;
       border: 1px solid var(--gray);
       border-radius: var(--radius);
       transition: var(--transition);
       font-size: 0.9rem;
+      min-width: 140px;
     }
+    
     .date-input:focus {
       border-color: var(--primary);
       box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.2);
@@ -109,19 +123,23 @@
       font-size: 0.9rem;
       white-space: nowrap;
     }
+    
     .btn:hover { 
       background: var(--primary-dark); 
       transform: translateY(-2px);
       box-shadow: 0 6px 15px rgba(0, 102, 204, 0.4);
     }
+    
     .btn-accent { 
       background: var(--accent);
       box-shadow: 0 4px 10px rgba(0, 184, 148, 0.3);
     }
+    
     .btn-accent:hover { 
       background: var(--accent-light);
       box-shadow: 0 6px 15px rgba(0, 184, 148, 0.4);
     }
+    
     .btn-sm {
       padding: 0.5rem 0.75rem;
       font-size: 0.8rem;
@@ -339,7 +357,6 @@
       border-radius: var(--radius);
       font-weight: 600;
       font-size: 0.9rem;
-      margin-left: 0.5rem;
     }
 
     .data-table {
@@ -439,11 +456,24 @@
       .controls { 
         flex-direction: column; 
         padding: 0.75rem;
+        gap: 0.75rem;
       }
       
       .date-filter { 
         justify-content: center; 
         width: 100%;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      
+      .date-input-group {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .date-input {
+        flex: 1;
+        min-width: unset;
       }
       
       .metrics-grid { 
@@ -466,6 +496,8 @@
       .btn {
         padding: 0.6rem 0.8rem;
         font-size: 0.85rem;
+        width: 100%;
+        justify-content: center;
       }
       
       .table-container {
@@ -499,14 +531,8 @@
     }
 
     @media (max-width: 480px) {
-      .date-filter {
+      .date-input-group {
         flex-direction: column;
-        align-items: stretch;
-      }
-      
-      .week-indicator {
-        margin: 0.5rem 0;
-        text-align: center;
       }
       
       .chart-container {
@@ -539,8 +565,15 @@
       </button>
     </div>
     <div class="date-filter">
-      <span id="weekRange" class="week-indicator">Semana Actual</span>
-      <button class="btn btn-accent" id="btnCurrentWeek">
+      <div class="date-input-group">
+        <input type="date" id="dateFrom" class="date-input">
+        <span>a</span>
+        <input type="date" id="dateTo" class="date-input">
+      </div>
+      <button class="btn btn-accent" id="btnFilter">
+        <i class="fas fa-filter"></i> Filtrar por Fecha
+      </button>
+      <button class="btn" id="btnCurrentWeek">
         <i class="fas fa-calendar-week"></i> Semana Actual
       </button>
       <button class="btn" id="btnRefresh">
@@ -804,9 +837,14 @@
           };
         });
 
-        aplicarFiltroSemanal();
+        // Configurar fechas por defecto (semana actual)
+        const semanaActual = calcularSemanaActual();
+        document.getElementById('dateFrom').valueAsDate = semanaActual.inicio;
+        document.getElementById('dateTo').valueAsDate = semanaActual.fin;
+
+        aplicarFiltroPorFecha();
         document.getElementById("loading").style.display = "none";
-        showNotification("Datos de la semana actual cargados correctamente", "success");
+        showNotification("Datos cargados correctamente", "success");
       } catch (err) {
         document.getElementById("loading").innerHTML = `
           <div class="error">
@@ -818,18 +856,15 @@
       }
     }
 
-    // Aplicar filtro de semana actual
-    function aplicarFiltroSemanal() {
-      currentWeekRange = calcularSemanaActual();
+    // Aplicar filtro por fecha seleccionada
+    function aplicarFiltroPorFecha() {
+      const desde = new Date(document.getElementById("dateFrom").value);
+      const hasta = new Date(document.getElementById("dateTo").value);
+      hasta.setHours(23,59,59,999);
       
-      // Actualizar el indicador de rango semanal
-      document.getElementById('weekRange').textContent = 
-        `Semana: ${formatearFecha(currentWeekRange.inicio)} - ${formatearFecha(currentWeekRange.fin)}`;
-      
-      // Aplicar filtro a los datos
       datosFiltrados = datos.filter(d => {
         if (!d.fechaObj) return false;
-        return d.fechaObj >= currentWeekRange.inicio && d.fechaObj <= currentWeekRange.fin;
+        return d.fechaObj >= desde && d.fechaObj <= hasta;
       });
       
       actualizarIndicadores();
@@ -837,6 +872,19 @@
       actualizarListaPromotores();
       actualizarTablas();
       actualizarFiltros();
+    }
+
+    // Aplicar filtro de semana actual
+    function aplicarFiltroSemanal() {
+      currentWeekRange = calcularSemanaActual();
+      
+      // Actualizar los inputs de fecha
+      document.getElementById('dateFrom').valueAsDate = currentWeekRange.inicio;
+      document.getElementById('dateTo').valueAsDate = currentWeekRange.fin;
+      
+      // Aplicar filtro a los datos
+      aplicarFiltroPorFecha();
+      showNotification("Filtro aplicado: Semana actual", "success");
     }
 
     // Actualizar filtros de promotores
@@ -1034,27 +1082,23 @@
       
       if (charts.tendencia) charts.tendencia.destroy();
       
-      // Agrupar por día de la semana actual
-      const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      // Agrupar por día del rango seleccionado
       const agrupado = {};
-      
-      // Inicializar contadores para cada día
-      dias.forEach(dia => agrupado[dia] = 0);
       
       // Contar trámites por día
       datosFiltrados.forEach(d => {
-        const diaSemana = (d.fechaObj.getDay() + 6) % 7; // Ajustar para que Lunes sea 0
-        if (diaSemana < 6) { // Solo de lunes a sábado (0-5)
-          agrupado[dias[diaSemana]]++;
-        }
+        const fechaStr = formatearFecha(d.fechaObj);
+        agrupado[fechaStr] = (agrupado[fechaStr] || 0) + 1;
       });
       
-      const valores = dias.map(dia => agrupado[dia]);
+      // Ordenar por fecha
+      const fechasOrdenadas = Object.keys(agrupado).sort((a, b) => new Date(a) - new Date(b));
+      const valores = fechasOrdenadas.map(fecha => agrupado[fecha]);
       
       charts.tendencia = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: dias,
+          labels: fechasOrdenadas,
           datasets: [{
             label: 'Trámites por día',
             data: valores,
@@ -1143,18 +1187,16 @@
       if (charts.dias) charts.dias.destroy();
       
       // Agrupar por día de la semana
-      const dias = [0, 0, 0, 0, 0, 0]; // 0: Lunes, 5: Sábado
+      const dias = [0, 0, 0, 0, 0, 0, 0]; // 0: Domingo, 1: Lunes, ..., 6: Sábado
       datosFiltrados.forEach(d => {
-        const dia = (d.fechaObj.getDay() + 6) % 7; // Ajustar para que Lunes sea 0
-        if (dia < 6) { // Solo de lunes a sábado
-          dias[dia]++;
-        }
+        const dia = d.fechaObj.getDay(); // 0: Domingo, 1: Lunes, ..., 6: Sábado
+        dias[dia]++;
       });
       
       charts.dias = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+          labels: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
           datasets: [{
             label: 'Trámites',
             data: dias,
@@ -1219,9 +1261,9 @@
           'Tiempo (min)': d.tiempo
         })));
         
-        XLSX.utils.book_append_sheet(wb, ws, "Reporte Semanal CAPTURAS MADA");
-        XLSX.writeFile(wb, `Reporte_Semanal_CAPTURAS_MADA_${new Date().toISOString().split('T')[0]}.xlsx`);
-        showNotification("Reporte semanal exportado correctamente", "success");
+        XLSX.utils.book_append_sheet(wb, ws, "Reporte CAPTURAS MADA");
+        XLSX.writeFile(wb, `Reporte_CAPTURAS_MADA_${new Date().toISOString().split('T')[0]}.xlsx`);
+        showNotification("Reporte exportado correctamente", "success");
       } catch (err) {
         showNotification("Error al exportar el reporte", "error");
       }
@@ -1232,6 +1274,7 @@
     document.getElementById("btnExport").addEventListener("click", exportarAExcel);
     document.getElementById("btnPrint").addEventListener("click", () => window.print());
     document.getElementById("btnCurrentWeek").addEventListener("click", aplicarFiltroSemanal);
+    document.getElementById("btnFilter").addEventListener("click", aplicarFiltroPorFecha);
     document.getElementById("btnAplicarFiltros").addEventListener("click", actualizarTablaResumen);
     document.getElementById("btnAplicarFiltrosTelefonos").addEventListener("click", actualizarTablaTelefonos);
 
