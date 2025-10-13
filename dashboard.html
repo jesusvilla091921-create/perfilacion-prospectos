@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Semanal | CAPTURAS MADA</title>
+  <title>Dashboard Avanzado | CAPTURAS MADA</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/luxon@3.0.4/build/global/luxon.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.min.js"></script>
@@ -48,7 +48,7 @@
       color: white;
       text-align: center;
       padding: 1.5rem;
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       box-shadow: var(--shadow-heavy);
       position: relative;
       overflow: hidden;
@@ -66,26 +66,25 @@
     }
 
     .header-content { position: relative; z-index: 1; }
-    .subtitle { font-size: 1rem; font-weight: 300; opacity: 0.9; margin-top: 0.5rem; }
+    .subtitle { font-size: 1.1rem; font-weight: 300; opacity: 0.9; margin-top: 0.5rem; }
 
     .controls {
       display: flex;
       justify-content: space-between;
-      padding: 1rem;
+      padding: 1.5rem;
       background: white;
       box-shadow: var(--shadow);
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       flex-wrap: wrap;
       gap: 1rem;
     }
 
-    .date-filter { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .date-filter { display: flex; gap: 0.5rem; align-items: center; }
     .date-input {
       padding: 0.75rem;
       border: 1px solid var(--gray);
       border-radius: var(--radius);
       transition: var(--transition);
-      font-size: 0.9rem;
     }
     .date-input:focus {
       border-color: var(--primary);
@@ -98,7 +97,7 @@
       color: white;
       border: none;
       border-radius: var(--radius);
-      padding: 0.75rem 1rem;
+      padding: 0.75rem 1.5rem;
       font-weight: 600;
       cursor: pointer;
       transition: var(--transition);
@@ -106,8 +105,6 @@
       align-items: center;
       gap: 0.5rem;
       box-shadow: 0 4px 10px rgba(0, 102, 204, 0.3);
-      font-size: 0.9rem;
-      white-space: nowrap;
     }
     .btn:hover { 
       background: var(--primary-dark); 
@@ -122,16 +119,12 @@
       background: var(--accent-light);
       box-shadow: 0 6px 15px rgba(0, 184, 148, 0.4);
     }
-    .btn-sm {
-      padding: 0.5rem 0.75rem;
-      font-size: 0.8rem;
-    }
 
     .container {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1rem;
-      padding: 0 1rem 2rem;
+      gap: 1.5rem;
+      padding: 0 1.5rem 2rem;
       max-width: 1600px;
       margin: 0 auto;
     }
@@ -140,13 +133,13 @@
       background: white;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 1rem;
+      padding: 1.5rem;
       transition: var(--transition);
       border-top: 4px solid var(--primary);
     }
 
     .card:hover { 
-      transform: translateY(-3px); 
+      transform: translateY(-5px); 
       box-shadow: var(--shadow-heavy);
     }
 
@@ -161,49 +154,49 @@
     .card-icon {
       background: var(--primary);
       color: white;
-      width: 35px;
-      height: 35px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-right: 0.75rem;
-      font-size: 1rem;
+      margin-right: 1rem;
+      font-size: 1.2rem;
     }
 
-    h2 { font-size: 1.2rem; margin: 0; color: var(--primary-dark); }
+    h2 { font-size: 1.3rem; margin: 0; color: var(--primary-dark); }
 
-    .stat-value { font-size: 2rem; font-weight: 700; color: var(--primary); margin: 0.5rem 0; }
-    .stat-description { color: var(--gray-dark); font-size: 0.85rem; }
+    .stat-value { font-size: 2.5rem; font-weight: 700; color: var(--primary); margin: 0.5rem 0; }
+    .stat-description { color: var(--gray-dark); font-size: 0.9rem; }
 
     .metrics-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
+      gap: 1rem;
       margin-top: 1rem;
     }
 
     .metric-item {
       text-align: center;
-      padding: 0.75rem;
+      padding: 1rem;
       border-radius: var(--radius);
       background: var(--light);
       transition: var(--transition);
     }
 
     .metric-item:hover {
-      transform: translateY(-2px);
+      transform: translateY(-3px);
       box-shadow: var(--shadow);
     }
 
     .metric-value {
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       font-weight: 700;
       margin-bottom: 0.25rem;
     }
 
     .metric-label {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: var(--gray-dark);
     }
 
@@ -215,12 +208,12 @@
 
     .chart-container {
       width: 100%;
-      height: 250px;
+      height: 300px;
       margin-top: 1rem;
     }
 
     .promotor-list {
-      max-height: 250px;
+      max-height: 300px;
       overflow-y: auto;
       margin-top: 1rem;
       border-radius: var(--radius);
@@ -241,30 +234,29 @@
 
     .promotor-name {
       font-weight: 500;
-      font-size: 0.9rem;
     }
 
     .promotor-count {
       background: var(--primary);
       color: white;
       border-radius: 20px;
-      padding: 0.25rem 0.5rem;
-      font-size: 0.8rem;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.85rem;
       font-weight: 600;
     }
 
     .loading { 
       text-align: center; 
       color: var(--gray-dark); 
-      font-size: 1rem; 
+      font-size: 1.1rem; 
       margin-top: 2rem; 
-      padding: 1rem; 
+      padding: 1.5rem; 
     }
     
     .spinner {
-      width: 25px; 
-      height: 25px;
-      border: 3px solid rgba(0, 102, 204, 0.2);
+      width: 30px; 
+      height: 30px;
+      border: 4px solid rgba(0, 102, 204, 0.2);
       border-top-color: var(--primary);
       border-radius: 50%;
       animation: spin 1s linear infinite;
@@ -277,17 +269,16 @@
 
     .notification {
       position: fixed;
-      top: 10px;
-      right: 10px;
-      padding: 0.75rem 1rem;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
       border-radius: var(--radius);
       box-shadow: var(--shadow-heavy);
       color: white;
       z-index: 1000;
       transform: translateX(150%);
       transition: transform 0.4s ease;
-      max-width: 300px;
-      font-size: 0.9rem;
+      max-width: 350px;
     }
 
     .notification.show {
@@ -305,20 +296,20 @@
     .notification-content {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.75rem;
     }
 
     .notification-close {
       background: none;
       border: none;
       color: inherit;
-      font-size: 1rem;
+      font-size: 1.2rem;
       cursor: pointer;
       margin-left: auto;
     }
 
     .progress-bar {
-      height: 6px;
+      height: 8px;
       background: var(--gray);
       border-radius: 4px;
       overflow: hidden;
@@ -332,191 +323,22 @@
       transition: width 0.5s ease;
     }
 
-    .week-indicator {
-      background: var(--primary);
-      color: white;
-      padding: 0.5rem 0.75rem;
-      border-radius: var(--radius);
-      font-weight: 600;
+    .trend-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
       font-size: 0.9rem;
       margin-left: 0.5rem;
     }
 
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-      font-size: 0.85rem;
-    }
-
-    .data-table th,
-    .data-table td {
-      padding: 0.5rem;
-      text-align: left;
-      border-bottom: 1px solid var(--gray);
-    }
-
-    .data-table th {
-      background-color: var(--light);
-      font-weight: 600;
-      position: sticky;
-      top: 0;
-    }
-
-    .data-table tr:hover {
-      background-color: var(--light);
-    }
-
-    .table-container {
-      max-height: 400px;
-      overflow: auto;
-      margin-top: 1rem;
-      border-radius: var(--radius);
-      border: 1px solid var(--gray);
-    }
-
-    .filter-controls {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .filter-select {
-      padding: 0.5rem;
-      border: 1px solid var(--gray);
-      border-radius: var(--radius);
-      background: white;
-      font-size: 0.9rem;
-      flex: 1;
-      min-width: 120px;
-    }
-
-    .tab-container {
-      margin-top: 1rem;
-    }
-
-    .tabs {
-      display: flex;
-      border-bottom: 1px solid var(--gray);
-      margin-bottom: 1rem;
-    }
-
-    .tab {
-      padding: 0.75rem 1rem;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      transition: var(--transition);
-      font-weight: 500;
-      font-size: 0.9rem;
-    }
-
-    .tab.active {
-      border-bottom-color: var(--primary);
-      color: var(--primary);
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
+    .trend-up { color: var(--success); }
+    .trend-down { color: var(--error); }
 
     @media (max-width: 768px) {
-      header {
-        padding: 1rem;
-        font-size: 1.3rem;
-      }
-      
-      .container { 
-        grid-template-columns: 1fr; 
-        padding: 0 0.5rem 1rem;
-        gap: 0.75rem;
-      }
-      
-      .controls { 
-        flex-direction: column; 
-        padding: 0.75rem;
-      }
-      
-      .date-filter { 
-        justify-content: center; 
-        width: 100%;
-      }
-      
-      .metrics-grid { 
-        grid-template-columns: 1fr; 
-        gap: 0.5rem;
-      }
-      
-      .card {
-        padding: 0.75rem;
-      }
-      
-      .stat-value {
-        font-size: 1.75rem;
-      }
-      
-      .chart-container {
-        height: 200px;
-      }
-      
-      .btn {
-        padding: 0.6rem 0.8rem;
-        font-size: 0.85rem;
-      }
-      
-      .table-container {
-        font-size: 0.8rem;
-      }
-      
-      .data-table th,
-      .data-table td {
-        padding: 0.4rem;
-        font-size: 0.8rem;
-      }
-      
-      .filter-controls {
-        flex-direction: column;
-      }
-      
-      .filter-select {
-        width: 100%;
-      }
-      
-      .tabs {
-        flex-wrap: wrap;
-      }
-      
-      .tab {
-        flex: 1;
-        min-width: 120px;
-        text-align: center;
-        padding: 0.6rem 0.5rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .date-filter {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      
-      .week-indicator {
-        margin: 0.5rem 0;
-        text-align: center;
-      }
-      
-      .chart-container {
-        height: 180px;
-      }
-      
-      .tab {
-        min-width: 100px;
-        font-size: 0.8rem;
-      }
+      .container { grid-template-columns: 1fr; padding: 0 1rem 2rem; }
+      .controls { flex-direction: column; }
+      .date-filter { justify-content: space-between; }
+      .metrics-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -524,24 +346,26 @@
 <body>
   <header>
     <div class="header-content">
-      <i class="fas fa-chart-line"></i> Dashboard Semanal – CAPTURAS MADA
+      <i class="fas fa-chart-line"></i> Dashboard Avanzado – CAPTURAS MADA
       <div class="subtitle">Sistema de Validación de Trámites para Nómina</div>
     </div>
   </header>
 
   <div class="controls">
-    <div class="btn-group">
+    <div>
       <button class="btn" id="btnExport">
-        <i class="fas fa-file-export"></i> Exportar
+        <i class="fas fa-file-export"></i> Exportar Reporte
       </button>
       <button class="btn" id="btnPrint">
         <i class="fas fa-print"></i> Imprimir
       </button>
     </div>
     <div class="date-filter">
-      <span id="weekRange" class="week-indicator">Semana Actual</span>
-      <button class="btn btn-accent" id="btnCurrentWeek">
-        <i class="fas fa-calendar-week"></i> Semana Actual
+      <input type="date" id="dateFrom" class="date-input">
+      <span>a</span>
+      <input type="date" id="dateTo" class="date-input">
+      <button class="btn btn-accent" id="btnFilter">
+        <i class="fas fa-filter"></i> Filtrar
       </button>
       <button class="btn" id="btnRefresh">
         <i class="fas fa-sync-alt"></i> Actualizar
@@ -554,7 +378,7 @@
     <div class="card full-width">
       <div class="card-header">
         <div class="card-icon"><i class="fas fa-tachometer-alt"></i></div>
-        <h2>Resumen Semanal</h2>
+        <h2>Resumen General</h2>
       </div>
       <div class="metrics-grid">
         <div class="metric-item">
@@ -594,18 +418,18 @@
     <div class="card">
       <div class="card-header">
         <div class="card-icon"><i class="fas fa-chart-pie"></i></div>
-        <h2>Eficiencia Semanal</h2>
+        <h2>Eficiencia</h2>
       </div>
       <div class="chart-container">
         <canvas id="chartEficiencia"></canvas>
       </div>
     </div>
 
-    <!-- Tarjeta de Tendencia Diaria -->
+    <!-- Tarjeta de Tendencia Mensual -->
     <div class="card full-width">
       <div class="card-header">
         <div class="card-icon"><i class="fas fa-chart-line"></i></div>
-        <h2>Tendencia Diaria</h2>
+        <h2>Tendencia Mensual</h2>
       </div>
       <div class="chart-container">
         <canvas id="chartTendencia"></canvas>
@@ -623,116 +447,46 @@
       </div>
     </div>
 
-    <!-- Tarjeta de Datos Detallados -->
-    <div class="card full-width">
+    <!-- Tarjeta de Actividad por Día -->
+    <div class="card">
       <div class="card-header">
-        <div class="card-icon"><i class="fas fa-table"></i></div>
-        <h2>Datos Detallados</h2>
+        <div class="card-icon"><i class="fas fa-calendar-week"></i></div>
+        <h2>Actividad por Día</h2>
       </div>
-      
-      <div class="tab-container">
-        <div class="tabs">
-          <div class="tab active" data-tab="tabResumen">Resumen</div>
-          <div class="tab" data-tab="tabTelefonos">Teléfonos e ICC</div>
-        </div>
-        
-        <div class="tab-content active" id="tabResumen">
-          <div class="filter-controls">
-            <select class="filter-select" id="filterPromotor">
-              <option value="">Todos los promotores</option>
-            </select>
-            <button class="btn btn-sm" id="btnAplicarFiltros">
-              <i class="fas fa-filter"></i> Aplicar
-            </button>
-          </div>
-          
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Promotor</th>
-                  <th>Fecha</th>
-                  <th>Estado</th>
-                  <th>Tiempo</th>
-                </tr>
-              </thead>
-              <tbody id="tablaResumen">
-                <!-- Datos se cargarán aquí -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-        
-        <div class="tab-content" id="tabTelefonos">
-          <div class="filter-controls">
-            <select class="filter-select" id="filterPromotorTelefonos">
-              <option value="">Todos los promotores</option>
-            </select>
-            <input type="text" class="filter-select" id="filterTelefono" placeholder="Filtrar por teléfono">
-            <button class="btn btn-sm" id="btnAplicarFiltrosTelefonos">
-              <i class="fas fa-filter"></i> Aplicar
-            </button>
-          </div>
-          
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Promotor</th>
-                  <th>Fecha</th>
-                  <th>Teléfono</th>
-                  <th>ICC</th>
-                </tr>
-              </thead>
-              <tbody id="tablaTelefonos">
-                <!-- Datos se cargarán aquí -->
-              </tbody>
-            </table>
-          </div>
-        </div>
+      <div class="chart-container">
+        <canvas id="chartDias"></canvas>
+      </div>
+    </div>
+
+    <!-- Tarjeta de Tiempos de Procesamiento -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-clock"></i></div>
+        <h2>Tiempos de Procesamiento</h2>
+      </div>
+      <div class="chart-container">
+        <canvas id="chartTiempos"></canvas>
       </div>
     </div>
   </div>
 
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    Cargando datos de la semana actual...
+    Cargando datos en tiempo real...
   </div>
 
   <script>
-    // URL de la hoja con espacio - CORREGIDA
-    const SHEET_URL = "https://opensheet.elk.sh/1-ys3hF-4a8KtI5kYsBsPNTzx0bxTZk1NkVjXrpQP8ug/Hoja 1";
+    // URL de la hoja (nota: el espacio se codifica como %20)
+    const SHEET_URL = "https://opensheet.elk.sh/1-ys3hF-4a8KtI5kYsBsPNTzx0bxTZk1NkVjXrpQP8ug/Hoja%201";
     let datos = [], datosFiltrados = [];
     let charts = {};
-    let currentWeekRange = {};
 
-    // Función para calcular el rango de la semana actual (lunes a sábado)
-    function calcularSemanaActual() {
-      const hoy = new Date();
-      const diaSemana = hoy.getDay(); // 0: Domingo, 1: Lunes, ..., 6: Sábado
-      
-      // Calcular el lunes de esta semana
-      const lunes = new Date(hoy);
-      lunes.setDate(hoy.getDate() - (diaSemana === 0 ? 6 : diaSemana - 1));
-      
-      // Calcular el sábado de esta semana
-      const sabado = new Date(lunes);
-      sabado.setDate(lunes.getDate() + 5);
-      
-      return {
-        inicio: lunes,
-        fin: sabado
-      };
-    }
-
-    // Función para formatear fecha como texto
-    function formatearFecha(fecha) {
-      return fecha.toLocaleDateString('es-MX', { 
-        day: '2-digit', 
-        month: '2-digit', 
-        year: 'numeric' 
-      });
-    }
+    // Configuración de fechas
+    const hoy = new Date();
+    const hace30 = new Date();
+    hace30.setDate(hoy.getDate() - 30);
+    document.getElementById("dateFrom").valueAsDate = hace30;
+    document.getElementById("dateTo").valueAsDate = hoy;
 
     // Función para mostrar notificaciones
     function showNotification(message, type = 'success') {
@@ -772,9 +526,7 @@
       try {
         document.getElementById("loading").style.display = "block";
         
-        // Codificar la URL para manejar el espacio en "Hoja 1"
-        const urlCodificada = encodeURI(SHEET_URL);
-        const resp = await fetch(urlCodificada);
+        const resp = await fetch(SHEET_URL);
         const contenido = await resp.json();
 
         if (!Array.isArray(contenido)) {
@@ -799,16 +551,16 @@
             ...d,
             fechaObj,
             promotor: d.promotor || "Promotor " + Math.floor(Math.random() * 10 + 1),
-            estado: 'completado', // Siempre completado
+            estado: d.estado || ["completado","pendiente","error"][Math.floor(Math.random()*3)],
             tiempo: d.tiempo || Math.floor(Math.random()*120)+30,
             telefono: d.telefono || "55" + Math.floor(Math.random()*100000000).toString().padStart(8, '0'),
             icc: d.icc || "89" + Math.floor(Math.random()*10000000000000000).toString().padStart(16, '0')
           };
         });
 
-        aplicarFiltroSemanal();
+        aplicarFiltros();
         document.getElementById("loading").style.display = "none";
-        showNotification("Datos de la semana actual cargados correctamente", "success");
+        showNotification("Datos cargados correctamente", "success");
       } catch (err) {
         document.getElementById("loading").innerHTML = `
           <div class="error">
@@ -820,128 +572,17 @@
       }
     }
 
-    // Aplicar filtro de semana actual
-    function aplicarFiltroSemanal() {
-      currentWeekRange = calcularSemanaActual();
+    // Aplicar filtros de fecha
+    function aplicarFiltros() {
+      const desde = new Date(document.getElementById("dateFrom").value);
+      const hasta = new Date(document.getElementById("dateTo").value);
+      hasta.setHours(23,59,59,999);
       
-      // Actualizar el indicador de rango semanal
-      document.getElementById('weekRange').textContent = 
-        `Semana: ${formatearFecha(currentWeekRange.inicio)} - ${formatearFecha(currentWeekRange.fin)}`;
-      
-      // Aplicar filtro a los datos
-      datosFiltrados = datos.filter(d => {
-        if (!d.fechaObj) return false;
-        return d.fechaObj >= currentWeekRange.inicio && d.fechaObj <= currentWeekRange.fin;
-      });
+      datosFiltrados = datos.filter(d => d.fechaObj && d.fechaObj >= desde && d.fechaObj <= hasta);
       
       actualizarIndicadores();
       generarGraficas();
       actualizarListaPromotores();
-      actualizarTablas();
-      actualizarFiltros();
-    }
-
-    // Actualizar filtros de promotores
-    function actualizarFiltros() {
-      const promotores = [...new Set(datosFiltrados.map(d => d.promotor))].sort();
-      
-      const filterPromotor = document.getElementById('filterPromotor');
-      const filterPromotorTelefonos = document.getElementById('filterPromotorTelefonos');
-      
-      // Limpiar opciones existentes (excepto la primera)
-      while (filterPromotor.options.length > 1) {
-        filterPromotor.remove(1);
-      }
-      
-      while (filterPromotorTelefonos.options.length > 1) {
-        filterPromotorTelefonos.remove(1);
-      }
-      
-      // Agregar promotores a los filtros
-      promotores.forEach(promotor => {
-        const option = document.createElement('option');
-        option.value = promotor;
-        option.textContent = promotor;
-        
-        filterPromotor.appendChild(option.cloneNode(true));
-        filterPromotorTelefonos.appendChild(option);
-      });
-    }
-
-    // Actualizar tablas de datos
-    function actualizarTablas() {
-      actualizarTablaResumen();
-      actualizarTablaTelefonos();
-    }
-
-    // Actualizar tabla de resumen
-    function actualizarTablaResumen() {
-      const tabla = document.getElementById('tablaResumen');
-      tabla.innerHTML = '';
-      
-      // Aplicar filtros adicionales
-      const promotorFiltro = document.getElementById('filterPromotor').value;
-      
-      const datosFiltradosTabla = datosFiltrados.filter(d => {
-        if (promotorFiltro && d.promotor !== promotorFiltro) return false;
-        return true;
-      });
-      
-      // Limitar a 100 registros para rendimiento
-      const datosMostrar = datosFiltradosTabla.slice(0, 100);
-      
-      datosMostrar.forEach(d => {
-        const fila = document.createElement('tr');
-        fila.innerHTML = `
-          <td>${d.promotor}</td>
-          <td>${formatearFecha(d.fechaObj)}</td>
-          <td>${d.estado}</td>
-          <td>${d.tiempo} min</td>
-        `;
-        tabla.appendChild(fila);
-      });
-      
-      if (datosMostrar.length === 0) {
-        const fila = document.createElement('tr');
-        fila.innerHTML = `<td colspan="4" style="text-align: center;">No hay datos que coincidan con los filtros</td>`;
-        tabla.appendChild(fila);
-      }
-    }
-
-    // Actualizar tabla de teléfonos e ICC
-    function actualizarTablaTelefonos() {
-      const tabla = document.getElementById('tablaTelefonos');
-      tabla.innerHTML = '';
-      
-      // Aplicar filtros adicionales
-      const promotorFiltro = document.getElementById('filterPromotorTelefonos').value;
-      const telefonoFiltro = document.getElementById('filterTelefono').value.toLowerCase();
-      
-      const datosFiltradosTabla = datosFiltrados.filter(d => {
-        if (promotorFiltro && d.promotor !== promotorFiltro) return false;
-        if (telefonoFiltro && !d.telefono.toLowerCase().includes(telefonoFiltro)) return false;
-        return true;
-      });
-      
-      // Limitar a 100 registros para rendimiento
-      const datosMostrar = datosFiltradosTabla.slice(0, 100);
-      
-      datosMostrar.forEach(d => {
-        const fila = document.createElement('tr');
-        fila.innerHTML = `
-          <td>${d.promotor}</td>
-          <td>${formatearFecha(d.fechaObj)}</td>
-          <td>${d.telefono}</td>
-          <td>${d.icc}</td>
-        `;
-        tabla.appendChild(fila);
-      });
-      
-      if (datosMostrar.length === 0) {
-        const fila = document.createElement('tr');
-        fila.innerHTML = `<td colspan="4" style="text-align: center;">No hay datos que coincidan con los filtros</td>`;
-        tabla.appendChild(fila);
-      }
     }
 
     // Actualizar indicadores principales
@@ -955,8 +596,9 @@
       datosFiltrados.forEach(d => conteo[d.promotor] = (conteo[d.promotor]||0)+1);
       const top = Object.entries(conteo).sort((a,b)=>b[1]-a[1])[0] || ["Sin datos",0];
       
-      // Calcular eficiencia (siempre 100% porque solo hay completados)
-      const successRate = 100;
+      // Calcular eficiencia
+      const completados = datosFiltrados.filter(d => d.estado === 'completado').length;
+      const successRate = total > 0 ? Math.round((completados / total) * 100) : 0;
       
       // Calcular tiempo promedio
       const tiempos = datosFiltrados.map(d => d.tiempo).filter(t => t);
@@ -982,6 +624,7 @@
       generarGraficaTendencia();
       generarGraficaPromotores();
       generarGraficaDias();
+      generarGraficaTiempos();
     }
 
     // Gráfica de eficiencia (dona)
@@ -991,19 +634,22 @@
       // Destruir gráfica anterior si existe
       if (charts.eficiencia) charts.eficiencia.destroy();
       
-      // Solo hay completados
       const estados = {
-        completado: datosFiltrados.length
+        completado: datosFiltrados.filter(d => d.estado === 'completado').length,
+        pendiente: datosFiltrados.filter(d => d.estado === 'pendiente').length,
+        error: datosFiltrados.filter(d => d.estado === 'error').length
       };
       
       charts.eficiencia = new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: ['Completados'],
+          labels: ['Completados', 'Pendientes', 'Con Errores'],
           datasets: [{
-            data: [estados.completado],
+            data: [estados.completado, estados.pendiente, estados.error],
             backgroundColor: [
-              '#00b894'
+              '#00b894',
+              '#fdcb6e',
+              '#e74c3c'
             ],
             borderWidth: 2,
             borderColor: '#fff'
@@ -1021,7 +667,9 @@
                 label: function(context) {
                   const label = context.label || '';
                   const value = context.raw || 0;
-                  return `${label}: ${value}`;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${label}: ${value} (${percentage}%)`;
                 }
               }
             }
@@ -1030,35 +678,28 @@
       });
     }
 
-    // Gráfica de tendencia diaria
+    // Gráfica de tendencia mensual
     function generarGraficaTendencia() {
       const ctx = document.getElementById('chartTendencia').getContext('2d');
       
       if (charts.tendencia) charts.tendencia.destroy();
       
-      // Agrupar por día de la semana actual
-      const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      // Agrupar por mes
       const agrupado = {};
-      
-      // Inicializar contadores para cada día
-      dias.forEach(dia => agrupado[dia] = 0);
-      
-      // Contar trámites por día
       datosFiltrados.forEach(d => {
-        const diaSemana = (d.fechaObj.getDay() + 6) % 7; // Ajustar para que Lunes sea 0
-        if (diaSemana < 6) { // Solo de lunes a sábado (0-5)
-          agrupado[dias[diaSemana]]++;
-        }
+        const mes = d.fechaObj.toLocaleString('es-MX', { month: 'short', year: '2-digit' });
+        agrupado[mes] = (agrupado[mes] || 0) + 1;
       });
       
-      const valores = dias.map(dia => agrupado[dia]);
+      const etiquetas = Object.keys(agrupado);
+      const valores = Object.values(agrupado);
       
       charts.tendencia = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: dias,
+          labels: etiquetas,
           datasets: [{
-            label: 'Trámites por día',
+            label: 'Trámites por mes',
             data: valores,
             borderColor: '#0066cc',
             backgroundColor: 'rgba(0, 102, 204, 0.1)',
@@ -1145,22 +786,73 @@
       if (charts.dias) charts.dias.destroy();
       
       // Agrupar por día de la semana
-      const dias = [0, 0, 0, 0, 0, 0]; // 0: Lunes, 5: Sábado
+      const dias = [0, 0, 0, 0, 0, 0, 0]; // 0: Lunes, 6: Domingo
       datosFiltrados.forEach(d => {
         const dia = (d.fechaObj.getDay() + 6) % 7; // Ajustar para que Lunes sea 0
-        if (dia < 6) { // Solo de lunes a sábado
-          dias[dia]++;
-        }
+        dias[dia]++;
       });
       
       charts.dias = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+          labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
           datasets: [{
             label: 'Trámites',
             data: dias,
             backgroundColor: '#3399ff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Cantidad de Trámites'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Gráfica de tiempos de procesamiento
+    function generarGraficaTiempos() {
+      const ctx = document.getElementById('chartTiempos').getContext('2d');
+      
+      if (charts.tiempos) charts.tiempos.destroy();
+      
+      // Crear rangos de tiempo
+      const rangos = {
+        '0-30 min': 0,
+        '30-60 min': 0,
+        '1-2 horas': 0,
+        '2+ horas': 0
+      };
+      
+      datosFiltrados.forEach(d => {
+        const tiempo = d.tiempo || 0;
+        if (tiempo <= 30) rangos['0-30 min']++;
+        else if (tiempo <= 60) rangos['30-60 min']++;
+        else if (tiempo <= 120) rangos['1-2 horas']++;
+        else rangos['2+ horas']++;
+      });
+      
+      charts.tiempos = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(rangos),
+          datasets: [{
+            label: 'Trámites',
+            data: Object.values(rangos),
+            backgroundColor: '#fdcb6e'
           }]
         },
         options: {
@@ -1221,34 +913,19 @@
           'Tiempo (min)': d.tiempo
         })));
         
-        XLSX.utils.book_append_sheet(wb, ws, "Reporte Semanal CAPTURAS MADA");
-        XLSX.writeFile(wb, `Reporte_Semanal_CAPTURAS_MADA_${new Date().toISOString().split('T')[0]}.xlsx`);
-        showNotification("Reporte semanal exportado correctamente", "success");
+        XLSX.utils.book_append_sheet(wb, ws, "Reporte CAPTURAS MADA");
+        XLSX.writeFile(wb, `Reporte_CAPTURAS_MADA_${new Date().toISOString().split('T')[0]}.xlsx`);
+        showNotification("Reporte exportado correctamente", "success");
       } catch (err) {
         showNotification("Error al exportar el reporte", "error");
       }
     }
 
     // Event Listeners
+    document.getElementById("btnFilter").addEventListener("click", aplicarFiltros);
     document.getElementById("btnRefresh").addEventListener("click", cargarDatos);
     document.getElementById("btnExport").addEventListener("click", exportarAExcel);
     document.getElementById("btnPrint").addEventListener("click", () => window.print());
-    document.getElementById("btnCurrentWeek").addEventListener("click", aplicarFiltroSemanal);
-    document.getElementById("btnAplicarFiltros").addEventListener("click", actualizarTablaResumen);
-    document.getElementById("btnAplicarFiltrosTelefonos").addEventListener("click", actualizarTablaTelefonos);
-
-    // Tabs functionality
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        // Remover clase active de todas las pestañas y contenidos
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
-        // Agregar clase active a la pestaña clickeada y su contenido
-        tab.classList.add('active');
-        document.getElementById(tab.dataset.tab).classList.add('active');
-      });
-    });
 
     // Cargar datos al iniciar
     cargarDatos();
