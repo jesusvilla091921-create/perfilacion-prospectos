@@ -471,8 +471,18 @@
                 // Procesar datos
                 datos.forEach(d => {
                     // Asegurar que la fecha esté en formato correcto
-                    if (d.fecha) {
-                        d.fechaObj = new Date(d.fecha);
+                    // Conversión segura de fecha (de DD/MM/YYYY HH:mm → YYYY-MM-DDTHH:mm)
+if (d.fecha) {
+  const partes = d.fecha.split(" ");
+  if (partes.length >= 2) {
+    const [dia, mes, año] = partes[0].split("/");
+    const fechaISO = `${año}-${mes}-${dia}T${partes[1]}`;
+    d.fechaObj = new Date(fechaISO);
+  } else {
+    d.fechaObj = new Date(d.fecha);
+  }
+}
+
                     }
                     
                     // Si no hay estado, asignar uno aleatorio para demostración
