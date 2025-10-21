@@ -877,7 +877,13 @@
         return;
       }
       
-      const payload = { promotor, telefono, icc };
+      const payload = {
+        fecha: new Date().toLocaleString("es-MX"),
+        promotor,
+        telefono,
+        icc,
+        estado: "PENDIENTE"
+      };
       
       // Mostrar progreso
       elementos.progressContainer.style.display = 'block';
@@ -887,12 +893,15 @@
       agregarLog("🚀 Enviando datos al backend...", "info");
       
       try {
-        await fetch(WEBAPP_URL, {
+        const res = await fetch(WEBAPP_URL, {
           method: 'POST',
-          mode: 'no-cors',
+          mode: 'cors',
           headers: { 'Content-Type': 'application/json; charset=utf-8' },
           body: JSON.stringify(payload)
         });
+        
+        const texto = await res.text();
+        console.log("Respuesta backend:", texto);
         
         elementos.progressFill.style.width = '100%';
         elementos.progressText.textContent = "Envío completado";
@@ -900,7 +909,6 @@
         mostrarToast("Datos enviados correctamente", "success");
         agregarLog("✅ Registro enviado correctamente.", "success");
         
-        // Ocultar barra de progreso después de un tiempo
         setTimeout(() => {
           elementos.progressContainer.style.display = 'none';
         }, 2000);
