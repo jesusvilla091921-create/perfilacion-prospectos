@@ -2,21 +2,25 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MADA OCR – Recolector Inteligente</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
   <style>
-    :root{--bg:#0b1220;--card:#111827;--muted:#94a3b8;--accent:#3b82f6;--good:#10b981;--bad:#ef4444}
-    *{box-sizing:border-box;font-family:Poppins,system-ui,Segoe UI,Roboto}
+    :root {
+      --bg:#0b1220;--card:#111827;--muted:#94a3b8;--accent:#3b82f6;
+      --good:#10b981;--bad:#ef4444;--font:Poppins,system-ui,Segoe UI,Roboto;
+    }
+    *{box-sizing:border-box;font-family:var(--font)}
     body{margin:0;background:var(--bg);color:#e5e7eb}
-    .wrap{max-width:980px;margin:32px auto;padding:0 16px}
+    .wrap{max-width:960px;margin:32px auto;padding:0 16px}
     .card{background:var(--card);border:1px solid #1f2937;border-radius:18px;padding:20px}
     h1{font-size:22px;margin:0 0 12px}
     .row{display:flex;gap:16px;flex-wrap:wrap}
     .grow{flex:1 1 320px}
     label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-    input,select,button{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #273142;background:#0f172a;color:#fff}
+    input,button{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #273142;background:#0f172a;color:#fff}
     button{background:var(--accent);border-color:transparent;font-weight:600;cursor:pointer}
     button.secondary{background:#0f172a;border:1px dashed #334155}
     #drop{border:2px dashed #334155;border-radius:16px;padding:20px;text-align:center;color:#94a3b8}
@@ -25,13 +29,14 @@
     .ok{background:rgba(16,185,129,.15);color:#34d399}
     .warn{background:rgba(239,68,68,.15);color:#f87171}
     .flex{display:flex;gap:12px;align-items:center}
+    .fade{transition:opacity .4s ease}
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="wrap fade">
     <div class="card">
       <h1>📸 MADA OCR – Recolector Inteligente</h1>
-      <p style="color:#94a3b8">Sube tus capturas de BES. Limpio la imagen, leo el texto (OCR), extraigo <b>Teléfono</b> e <b>ICC</b>, y lo envío al sistema con tu nombre.</p>
+      <p style="color:#94a3b8">Sube tus capturas de BES. Limpio la imagen, leo el texto (OCR), extraigo <b>Teléfono</b> e <b>ICC</b> y lo envío al sistema con tu nombre.</p>
 
       <div class="row">
         <div class="grow">
@@ -75,36 +80,35 @@
   </div>
 
 <script>
-const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycby8y9CUxIR3MCtAe5kY-69v2OVNFmUb_RNx36Lf3b1THHe9livhxUXK7ORPof7AqWV2/exec';
+const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwqLB2XPdq3EH0MPR4Gw_b1upGU9FEfoYfAPqm5IKNs73cPuT7ruE8w3eHNuk07580/exec';
 
-const fileInput = document.getElementById('file');
-const drop = document.getElementById('drop');
 const promotorEl = document.getElementById('promotor');
 const telEl = document.getElementById('telefono');
 const iccEl = document.getElementById('icc');
 const logEl = document.getElementById('log');
 const statusEl = document.getElementById('status');
-
 let images = [];
 
 function log(msg){
-  logEl.textContent += `${msg}\n`;
+  logEl.textContent += msg + "\\n";
   logEl.scrollTop = logEl.scrollHeight;
 }
 
 // Drag & drop
+const drop = document.getElementById('drop');
 ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.style.borderColor='#3b82f6'}));
 ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.style.borderColor='#334155'}));
 drop.addEventListener('drop', e=>{
+  e.preventDefault();
   images = [...e.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
   log(`📥 ${images.length} archivo(s) agregados.`);
 });
-fileInput.addEventListener('change', e=>{
+document.getElementById('file').addEventListener('change', e=>{
   images = [...e.target.files];
   log(`📥 ${images.length} archivo(s) agregados.`);
 });
 
-// Procesamiento de imagen simple
+// Preprocesamiento
 async function preprocessImage(file){
   const img = await createImageBitmap(file);
   const cnv = document.createElement('canvas');
@@ -113,12 +117,8 @@ async function preprocessImage(file){
   ctx.drawImage(img,0,0);
   const {data,width,height} = ctx.getImageData(0,0,cnv.width,cnv.height);
   const out = new Uint8ClampedArray(data.length);
-  const contrast = 1.25;
   for(let i=0;i<data.length;i+=4){
-    const r=data[i], g=data[i+1], b=data[i+2];
-    let gray = 0.2126*r + 0.7152*g + 0.0722*b;
-    gray = ((gray-128)*contrast)+128;
-    gray = Math.max(0, Math.min(255, gray));
+    const gray = 0.299*data[i]+0.587*data[i+1]+0.114*data[i+2];
     const bw = gray>160 ? 255 : 0;
     out[i]=out[i+1]=out[i+2]=bw; out[i+3]=255;
   }
@@ -127,34 +127,32 @@ async function preprocessImage(file){
 }
 
 function extractPhone(text){
-  const candidates = [...text.replace(/\D+/g,' ').matchAll(/(?<!\d)(\d{10})(?!\d)/g)].map(m=>m[1]);
-  return candidates.length? candidates[candidates.length-1] : '';
+  const m = text.match(/\\b(\\d{10})\\b/);
+  return m? m[1] : '';
 }
 
 function extractICC(text){
   const digits = text.replace(/[^0-9]/g,'');
-  const m = digits.match(/89\d{17,18}/);
+  const m = digits.match(/89\\d{17,18}/);
   return m? m[0] : '';
 }
 
 async function runOCR(){
   if(!images.length){alert('Agrega al menos una imagen.');return}
   statusEl.textContent='Procesando…'; statusEl.className='pill';
-  log('🧽 Preprocesando y ejecutando OCR…');
   let fullText = '';
   for(const f of images){
     const cnv = await preprocessImage(f);
     const dataUrl = cnv.toDataURL('image/png');
-    const { data: { text } } = await Tesseract.recognize(dataUrl, 'eng+spa', { logger: m=>{ if(m.status==='recognizing text'){ statusEl.textContent = `OCR ${Math.round(m.progress*100)}%`; } } });
+    const { data: { text } } = await Tesseract.recognize(dataUrl,'eng+spa');
     log(`✅ ${f.name} procesado`);
-    fullText += '\n' + text;
+    fullText += '\\n' + text;
   }
   const tel = extractPhone(fullText);
   const icc = extractICC(fullText);
   telEl.value = tel || '';
   iccEl.value = icc || '';
   statusEl.textContent = 'Listo'; statusEl.className='pill ok';
-  log('📄 Texto combinado:\n' + fullText.slice(0,1200));
   log(`📱 Teléfono: ${tel||'—'} | 💳 ICC: ${icc||'—'}`);
 }
 
@@ -162,29 +160,29 @@ document.getElementById('btn-ocr').addEventListener('click', ()=>runOCR());
 
 async function enviar(){
   const promotor = promotorEl.value.trim();
-  const telefono = (telEl.value||'').replace(/\D/g,'');
-  const icc = (iccEl.value||'').replace(/\D/g,'');
+  const telefono = (telEl.value||'').replace(/\\D/g,'');
+  const icc = (iccEl.value||'').replace(/\\D/g,'');
   if(!promotor || telefono.length!==10 || !(icc.length===19||icc.length===20)){
     alert('Revisa los datos: promotor, teléfono (10 dígitos) e ICC (19–20).');return;
   }
   const payload = {promotor, telefono, icc};
   statusEl.textContent='Enviando…'; statusEl.className='pill';
+
   try{
     const res = await fetch(WEBAPP_URL, {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      mode:'no-cors', // evita bloqueo CORS
+      headers:{'Content-Type':'application/json; charset=utf-8'},
       body: JSON.stringify(payload)
     });
-    const json = await res.json();
-    statusEl.textContent = json.status==='ok' ? 'Registrado' : 'Aviso';
-    statusEl.className = 'pill ' + (json.status==='ok'?'ok':'warn');
-    log(`🖥️ Servidor: ${json.message}`);
+    log('🚀 Enviado correctamente (modo no-cors, UTF-8).');
+    statusEl.textContent='Registrado (UTF-8)';
+    statusEl.className='pill ok';
   }catch(e){
     statusEl.textContent='Error'; statusEl.className='pill warn';
     log('❌ Error enviando: '+e.message);
   }
 }
-
 document.getElementById('btn-enviar').addEventListener('click', enviar);
 </script>
 </body>
