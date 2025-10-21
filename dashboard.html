@@ -1,152 +1,195 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MADA OCR – Dashboard de Trámites</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MADA OCR – Centro de Control</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body{background:#0b1220;color:#e5e7eb;font-family:Poppins,system-ui;margin:0;padding:20px}
-    .wrap{max-width:1100px;margin:auto}
-    .card{background:#111827;border:1px solid #1e293b;border-radius:20px;padding:20px;margin-bottom:20px}
-    h1{margin-top:0;font-size:22px}
-    input,select,button{padding:10px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#fff}
-    button{background:#3b82f6;border:none;cursor:pointer;font-weight:600}
-    table{width:100%;border-collapse:collapse;margin-top:10px}
-    th,td{padding:8px;border-bottom:1px solid #1f2937;font-size:14px}
-    th{color:#94a3b8;text-align:left}
-    .kpi{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px}
-    .kpi>div{flex:1 1 0;background:#0e1526;border-radius:16px;padding:14px;border:1px solid #1f2937}
-    .num{font-size:22px;font-weight:700}
-    canvas{background:#0e1526;border-radius:16px;padding:10px}
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #38bdf8;
+    }
+    .panel {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 0 20px rgba(56,189,248,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border-bottom: 1px solid #334155;
+      padding: 8px;
+      text-align: left;
+    }
+    th { color: #38bdf8; }
+    select, input, button {
+      background: #0f172a;
+      border: 1px solid #334155;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 6px 10px;
+      margin: 4px;
+    }
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin: 1rem 0;
+    }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 1rem;
+      width: 30%;
+      text-align: center;
+      color: #38bdf8;
+    }
+    canvas {
+      background: #0f172a;
+      margin-top: 20px;
+      border-radius: 8px;
+      padding: 10px;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>📊 MADA OCR – Centro de Control</h1>
-      <div style="display:flex;flex-wrap:wrap;gap:12px">
-        <div><label>Desde</label><br><input type="date" id="desde"></div>
-        <div><label>Hasta</label><br><input type="date" id="hasta"></div>
-        <div><label>Promotor</label><br><select id="promotor"><option value="">Todos</option></select></div>
-        <div><label>Estado</label><br><select id="estado"><option value="">Todos</option><option>PENDIENTE</option><option>LISTO</option></select></div>
-        <div style="align-self:end"><button id="btnActualizar">Actualizar</button></div>
-      </div>
-
-      <div class="kpi">
-        <div><div>Total trámites</div><div id="k_total" class="num">0</div></div>
-        <div><div>Promedio diario</div><div id="k_avg" class="num">0</div></div>
-        <div><div>Eficiencia (%)</div><div id="k_eff" class="num">0</div></div>
-      </div>
+  <h1>📊 MADA OCR – Centro de Control</h1>
+  <div class="panel">
+    <div>
+      <label>Desde:</label><input type="date" id="f1">
+      <label>Hasta:</label><input type="date" id="f2">
+      <label>Promotor:</label><input type="text" id="promotor">
+      <label>Estado:</label>
+      <select id="estado">
+        <option value="">Todos</option>
+        <option value="PENDIENTE">Pendiente</option>
+        <option value="LISTO">Listo</option>
+      </select>
+      <button onclick="cargarDatos()">Actualizar</button>
     </div>
 
-    <div class="card">
-      <canvas id="graficoBarras"></canvas>
-    </div>
-    <div class="card">
-      <canvas id="graficoTorta"></canvas>
+    <div class="cards">
+      <div class="card"><h3 id="total">0</h3><p>Total trámites</p></div>
+      <div class="card"><h3 id="promedio">0</h3><p>Promedio diario</p></div>
+      <div class="card"><h3 id="eficiencia">0%</h3><p>Eficiencia</p></div>
     </div>
 
-    <div class="card">
-      <h2>📋 Registros</h2>
-      <table id="tabla">
-        <thead>
-          <tr><th>Fecha</th><th>Promotor</th><th>Teléfono</th><th>ICC</th><th>Estado</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
+    <canvas id="grafica" height="80"></canvas>
+
+    <table id="tabla">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Promotor</th>
+          <th>Teléfono</th>
+          <th>ICC</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
 
-<script>
-const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwqLB2XPdq3EH0MPR4Gw_b1upGU9FEfoYfAPqm5IKNs73cPuT7ruE8w3eHNuk07580/exec?action=list';
-let registros=[];
+  <script>
+    // 👇 Backend oficial (actualizado)
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzEwcWgHmLImxi7VOmVioVoXUZQGZHgFUeos1YRAYFKCGsDH5CIya5eiJRayqIundZO/exec";
 
-async function cargarDatos(){
-  try{
-    const res = await fetch(WEBAPP_URL);
-    const json = await res.json();
-    registros = json.rows || [];
-    poblarFiltros();
-    renderizar();
-  }catch(err){
-    alert("Error al cargar datos: "+err.message);
-  }
-}
+    async function cargarDatos() {
+      try {
+        const resp = await fetch(WEBAPP_URL + "?action=list", {
+          method: "GET",
+          headers: { "Content-Type": "application/json; charset=utf-8" },
+          mode: "cors"
+        });
+        const data = await resp.json();
+        if (!data.rows) throw new Error("No hay datos disponibles");
+        renderTabla(data.rows);
+        renderGraficas(data.rows);
+        resumen(data.rows);
+      } catch (err) {
+        alert("Error al cargar datos: " + err.message);
+      }
+    }
 
-function poblarFiltros(){
-  const select = document.getElementById('promotor');
-  const lista = [...new Set(registros.map(r=>r.Promotor).filter(Boolean))].sort();
-  select.innerHTML = '<option value="">Todos</option>'+lista.map(p=>`<option>${p}</option>`).join('');
-}
+    function renderTabla(rows) {
+      const body = document.querySelector("#tabla tbody");
+      body.innerHTML = "";
 
-function filtrar(){
-  const desde = document.getElementById('desde').value;
-  const hasta = document.getElementById('hasta').value;
-  const promotor = document.getElementById('promotor').value;
-  const estado = document.getElementById('estado').value;
+      const promotorFiltro = document.getElementById("promotor").value.toLowerCase();
+      const estadoFiltro = document.getElementById("estado").value;
+      const f1 = document.getElementById("f1").value ? new Date(document.getElementById("f1").value) : null;
+      const f2 = document.getElementById("f2").value ? new Date(document.getElementById("f2").value) : null;
 
-  return registros.filter(r=>{
-    const fecha = r.Fecha.slice(0,10);
-    if(desde && fecha<desde) return false;
-    if(hasta && fecha>hasta) return false;
-    if(promotor && r.Promotor!==promotor) return false;
-    if(estado && r.Estado!==estado) return false;
-    return true;
-  });
-}
+      rows.forEach(r => {
+        const fecha = new Date(r.Fecha);
+        if (f1 && fecha < f1) return;
+        if (f2 && fecha > f2) return;
+        if (promotorFiltro && !r.Promotor.toLowerCase().includes(promotorFiltro)) return;
+        if (estadoFiltro && r.Estado !== estadoFiltro) return;
 
-function renderizar(){
-  const datos = filtrar();
-  const total = datos.length;
-  const porDia = {};
-  let listos=0;
-  datos.forEach(r=>{
-    const d=r.Fecha.slice(0,10);
-    porDia[d]=(porDia[d]||0)+1;
-    if(r.Estado==='LISTO') listos++;
-  });
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${new Date(r.Fecha).toLocaleString("es-MX")}</td>
+          <td>${r.Promotor}</td>
+          <td>${r.Telefono}</td>
+          <td>${r.ICC}</td>
+          <td>${r.Estado}</td>
+        `;
+        body.appendChild(tr);
+      });
+    }
 
-  const promedio = total ? (total/Object.keys(porDia).length).toFixed(1):0;
-  const eficiencia = total ? Math.round((listos/total)*100):0;
+    function resumen(rows) {
+      document.getElementById("total").textContent = rows.length;
+      if (rows.length > 0) {
+        const fechas = rows.map(r => new Date(r.Fecha).toLocaleDateString("es-MX"));
+        const diasUnicos = [...new Set(fechas)];
+        const promedio = (rows.length / diasUnicos.length).toFixed(1);
+        const eficiencia = ((rows.filter(r => r.Estado === "LISTO").length / rows.length) * 100).toFixed(1);
+        document.getElementById("promedio").textContent = promedio;
+        document.getElementById("eficiencia").textContent = eficiencia + "%";
+      }
+    }
 
-  document.getElementById('k_total').textContent=total;
-  document.getElementById('k_avg').textContent=promedio;
-  document.getElementById('k_eff').textContent=eficiencia;
+    function renderGraficas(rows) {
+      const ctx = document.getElementById("grafica").getContext("2d");
+      const conteo = {};
+      rows.forEach(r => conteo[r.Promotor] = (conteo[r.Promotor] || 0) + 1);
+      const labels = Object.keys(conteo);
+      const values = Object.values(conteo);
 
-  const tbody=document.querySelector('#tabla tbody');
-  tbody.innerHTML = datos.map(r=>`<tr>
-    <td>${r.Fecha}</td><td>${r.Promotor}</td>
-    <td>${r.Telefono}</td><td>${r.ICC}</td><td>${r.Estado}</td></tr>`).join('');
+      if (window.grafica) window.grafica.destroy();
+      window.grafica = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "Trámites por promotor",
+            data: values,
+            backgroundColor: "rgba(56,189,248,0.6)"
+          }]
+        },
+        options: { scales: { y: { beginAtZero: true } } }
+      });
+    }
 
-  dibujarBarras(Object.keys(porDia),Object.values(porDia));
-  dibujarTorta(listos,total-listos);
-}
-
-let grafBarras,grafTorta;
-function dibujarBarras(labels,data){
-  const ctx=document.getElementById('graficoBarras');
-  if(grafBarras) grafBarras.destroy();
-  grafBarras=new Chart(ctx,{
-    type:'bar',
-    data:{labels,datasets:[{label:'Trámites por día',data,backgroundColor:'#3b82f6'}]},
-    options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#94a3b8'}},y:{ticks:{color:'#94a3b8'}}}}
-  });
-}
-function dibujarTorta(listos,pendientes){
-  const ctx=document.getElementById('graficoTorta');
-  if(grafTorta) grafTorta.destroy();
-  grafTorta=new Chart(ctx,{
-    type:'pie',
-    data:{labels:['LISTO','PENDIENTE'],datasets:[{data:[listos,pendientes],backgroundColor:['#10b981','#ef4444']}]},
-    options:{plugins:{legend:{labels:{color:'#94a3b8'}}}}
-  });
-}
-
-document.getElementById('btnActualizar').addEventListener('click',renderizar);
-cargarDatos();
-</script>
+    cargarDatos(); // carga al iniciar
+  </script>
 </body>
 </html>
