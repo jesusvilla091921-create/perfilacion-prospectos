@@ -1,937 +1,146 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Avanzado | CAPTURAS MADA</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/luxon@3.0.4/build/global/luxon.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MADA OCR – Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
-    :root {
-      --primary: #0066cc;
-      --primary-dark: #004d99;
-      --primary-light: #3399ff;
-      --accent: #00b894;
-      --accent-light: #55d9b8;
-      --warning: #fdcb6e;
-      --error: #e74c3c;
-      --success: #2ecc71;
-      --light: #f8f9fa;
-      --gray: #e9ecef;
-      --gray-dark: #6c757d;
-      --dark: #212529;
-      --radius: 8px;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      --shadow-heavy: 0 10px 30px rgba(0, 0, 0, 0.1);
-      --transition: all 0.3s ease;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-      color: var(--dark);
-      min-height: 100vh;
-    }
-
-    header {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      text-align: center;
-      padding: 1.5rem;
-      font-size: 1.8rem;
-      box-shadow: var(--shadow-heavy);
-      position: relative;
-      overflow: hidden;
-    }
-
-    header::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
-      background-size: cover;
-    }
-
-    .header-content { position: relative; z-index: 1; }
-    .subtitle { font-size: 1.1rem; font-weight: 300; opacity: 0.9; margin-top: 0.5rem; }
-
-    .controls {
-      display: flex;
-      justify-content: space-between;
-      padding: 1.5rem;
-      background: white;
-      box-shadow: var(--shadow);
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .date-filter { display: flex; gap: 0.5rem; align-items: center; }
-    .date-input {
-      padding: 0.75rem;
-      border: 1px solid var(--gray);
-      border-radius: var(--radius);
-      transition: var(--transition);
-    }
-    .date-input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.2);
-      outline: none;
-    }
-
-    .btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: var(--radius);
-      padding: 0.75rem 1.5rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      box-shadow: 0 4px 10px rgba(0, 102, 204, 0.3);
-    }
-    .btn:hover { 
-      background: var(--primary-dark); 
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(0, 102, 204, 0.4);
-    }
-    .btn-accent { 
-      background: var(--accent);
-      box-shadow: 0 4px 10px rgba(0, 184, 148, 0.3);
-    }
-    .btn-accent:hover { 
-      background: var(--accent-light);
-      box-shadow: 0 6px 15px rgba(0, 184, 148, 0.4);
-    }
-
-    .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-      padding: 0 1.5rem 2rem;
-      max-width: 1600px;
-      margin: 0 auto;
-    }
-
-    .card {
-      background: white;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 1.5rem;
-      transition: var(--transition);
-      border-top: 4px solid var(--primary);
-    }
-
-    .card:hover { 
-      transform: translateY(-5px); 
-      box-shadow: var(--shadow-heavy);
-    }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid var(--gray);
-    }
-
-    .card-icon {
-      background: var(--primary);
-      color: white;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 1rem;
-      font-size: 1.2rem;
-    }
-
-    h2 { font-size: 1.3rem; margin: 0; color: var(--primary-dark); }
-
-    .stat-value { font-size: 2.5rem; font-weight: 700; color: var(--primary); margin: 0.5rem 0; }
-    .stat-description { color: var(--gray-dark); font-size: 0.9rem; }
-
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .metric-item {
-      text-align: center;
-      padding: 1rem;
-      border-radius: var(--radius);
-      background: var(--light);
-      transition: var(--transition);
-    }
-
-    .metric-item:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow);
-    }
-
-    .metric-value {
-      font-size: 1.8rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-    }
-
-    .metric-label {
-      font-size: 0.85rem;
-      color: var(--gray-dark);
-    }
-
-    .metric-success .metric-value { color: var(--success); }
-    .metric-warning .metric-value { color: var(--warning); }
-    .metric-danger .metric-value { color: var(--error); }
-
-    .full-width { grid-column: 1 / -1; }
-
-    .chart-container {
-      width: 100%;
-      height: 300px;
-      margin-top: 1rem;
-    }
-
-    .promotor-list {
-      max-height: 300px;
-      overflow-y: auto;
-      margin-top: 1rem;
-      border-radius: var(--radius);
-      border: 1px solid var(--gray);
-    }
-
-    .promotor-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.75rem;
-      border-bottom: 1px solid var(--gray);
-      transition: var(--transition);
-    }
-
-    .promotor-item:hover {
-      background: var(--light);
-    }
-
-    .promotor-name {
-      font-weight: 500;
-    }
-
-    .promotor-count {
-      background: var(--primary);
-      color: white;
-      border-radius: 20px;
-      padding: 0.25rem 0.75rem;
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-
-    .loading { 
-      text-align: center; 
-      color: var(--gray-dark); 
-      font-size: 1.1rem; 
-      margin-top: 2rem; 
-      padding: 1.5rem; 
-    }
-    
-    .spinner {
-      width: 30px; 
-      height: 30px;
-      border: 4px solid rgba(0, 102, 204, 0.2);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 1rem;
-    }
-    
-    @keyframes spin { 
-      to { transform: rotate(360deg); } 
-    }
-
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 1rem 1.5rem;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-heavy);
-      color: white;
-      z-index: 1000;
-      transform: translateX(150%);
-      transition: transform 0.4s ease;
-      max-width: 350px;
-    }
-
-    .notification.show {
-      transform: translateX(0);
-    }
-
-    .notification.success {
-      background: var(--success);
-    }
-
-    .notification.error {
-      background: var(--error);
-    }
-
-    .notification-content {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .notification-close {
-      background: none;
-      border: none;
-      color: inherit;
-      font-size: 1.2rem;
-      cursor: pointer;
-      margin-left: auto;
-    }
-
-    .progress-bar {
-      height: 8px;
-      background: var(--gray);
-      border-radius: 4px;
-      overflow: hidden;
-      margin: 1rem 0;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--primary), var(--accent));
-      width: 0%;
-      transition: width 0.5s ease;
-    }
-
-    .trend-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      font-size: 0.9rem;
-      margin-left: 0.5rem;
-    }
-
-    .trend-up { color: var(--success); }
-    .trend-down { color: var(--error); }
-
-    @media (max-width: 768px) {
-      .container { grid-template-columns: 1fr; padding: 0 1rem 2rem; }
-      .controls { flex-direction: column; }
-      .date-filter { justify-content: space-between; }
-      .metrics-grid { grid-template-columns: 1fr; }
-    }
+    :root{--bg:#0b1220;--card:#111827;--muted:#94a3b8;--accent:#3b82f6}
+    *{box-sizing:border-box;font-family:Poppins,system-ui,Segoe UI,Roboto}
+    body{margin:0;background:var(--bg);color:#e5e7eb}
+    .wrap{max-width:1100px;margin:32px auto;padding:0 16px}
+    .card{background:var(--card);border:1px solid #1f2937;border-radius:18px;padding:18px}
+    h1{font-size:22px;margin:0 0 12px}
+    .row{display:flex;gap:16px;flex-wrap:wrap}
+    .grow{flex:1 1 260px}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    input,select,button{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #273142;background:#0f172a;color:#fff}
+    button{background:var(--accent);border-color:transparent;font-weight:600;cursor:pointer}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:8px 10px;border-bottom:1px solid #1f2937;font-size:13px}
+    th{color:#94a3b8;text-align:left}
+    .kpi{display:flex;gap:16px}
+    .kpi>div{flex:1 1 0;background:#0e1526;border-radius:16px;padding:14px;border:1px solid #1f2937}
+    .num{font-size:22px;font-weight:700}
   </style>
 </head>
-
 <body>
-  <header>
-    <div class="header-content">
-      <i class="fas fa-chart-line"></i> Dashboard Avanzado – CAPTURAS MADA
-      <div class="subtitle">Sistema de Validación de Trámites para Nómina</div>
-    </div>
-  </header>
-
-  <div class="controls">
-    <div>
-      <button class="btn" id="btnExport">
-        <i class="fas fa-file-export"></i> Exportar Reporte
-      </button>
-      <button class="btn" id="btnPrint">
-        <i class="fas fa-print"></i> Imprimir
-      </button>
-    </div>
-    <div class="date-filter">
-      <input type="date" id="dateFrom" class="date-input">
-      <span>a</span>
-      <input type="date" id="dateTo" class="date-input">
-      <button class="btn btn-accent" id="btnFilter">
-        <i class="fas fa-filter"></i> Filtrar
-      </button>
-      <button class="btn" id="btnRefresh">
-        <i class="fas fa-sync-alt"></i> Actualizar
-      </button>
-    </div>
-  </div>
-
-  <div class="container">
-    <!-- Tarjeta de Resumen General -->
-    <div class="card full-width">
-      <div class="card-header">
-        <div class="card-icon"><i class="fas fa-tachometer-alt"></i></div>
-        <h2>Resumen General</h2>
-      </div>
-      <div class="metrics-grid">
-        <div class="metric-item">
-          <div class="metric-value" id="total">0</div>
-          <div class="metric-label">Total de Trámites</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-value" id="promedio">0</div>
-          <div class="metric-label">Promedio Diario</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-value" id="success-rate">0%</div>
-          <div class="metric-label">Tasa de Éxito</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-value" id="avg-time">0h</div>
-          <div class="metric-label">Tiempo Promedio</div>
-        </div>
-      </div>
+<div class="wrap">
+  <div class="card">
+    <h1>📊 Dashboard – Centro de Control</h1>
+    <div class="row">
+      <div class="grow"><label>Rango inicial</label><input type="date" id="start"></div>
+      <div class="grow"><label>Rango final</label><input type="date" id="end"></div>
+      <div class="grow"><label>Promotor</label><select id="promotor"><option value="">Todos</option></select></div>
+      <div class="grow"><label>Estado</label><select id="estado"><option value="">Todos</option><option>LISTO</option><option>PENDIENTE</option></select></div>
+      <div class="grow"><label>&nbsp;</label><button id="refresh">Actualizar</button></div>
     </div>
 
-    <!-- Tarjeta de Top Promotor -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon"><i class="fas fa-trophy"></i></div>
-        <h2>Top Promotor</h2>
-      </div>
-      <div class="stat-value" id="top-count">0</div>
-      <div class="stat-description" id="top-name">Cargando...</div>
-      <div class="progress-bar">
-        <div class="progress-fill" id="top-progress"></div>
-      </div>
-      <div class="promotor-list" id="promotorList"></div>
+    <div class="kpi" style="margin-top:14px">
+      <div><div>Total portabilidades</div><div id="k_total" class="num">0</div></div>
+      <div><div>Promedio diario</div><div id="k_avg" class="num">0</div></div>
+      <div><div>Eficiencia (%)</div><div id="k_eff" class="num">0</div></div>
     </div>
 
-    <!-- Tarjeta de Eficiencia -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon"><i class="fas fa-chart-pie"></i></div>
-        <h2>Eficiencia</h2>
-      </div>
-      <div class="chart-container">
-        <canvas id="chartEficiencia"></canvas>
-      </div>
+    <div class="row" style="margin-top:14px">
+      <div class="grow card" style="background:#0e1526"><canvas id="chartBars"></canvas></div>
+      <div class="grow card" style="background:#0e1526"><canvas id="chartPie"></canvas></div>
     </div>
 
-    <!-- Tarjeta de Tendencia Mensual -->
-    <div class="card full-width">
-      <div class="card-header">
-        <div class="card-icon"><i class="fas fa-chart-line"></i></div>
-        <h2>Tendencia Mensual</h2>
-      </div>
-      <div class="chart-container">
-        <canvas id="chartTendencia"></canvas>
-      </div>
-    </div>
-
-    <!-- Tarjeta de Desempeño por Promotor -->
-    <div class="card full-width">
-      <div class="card-header">
-        <div class="card-icon"><i class="fas fa-users"></i></div>
-        <h2>Desempeño por Promotor</h2>
-      </div>
-      <div class="chart-container">
-        <canvas id="chartPromotores"></canvas>
-      </div>
-    </div>
-
-    <!-- Tarjeta de Actividad por Día -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon"><i class="fas fa-calendar-week"></i></div>
-        <h2>Actividad por Día</h2>
-      </div>
-      <div class="chart-container">
-        <canvas id="chartDias"></canvas>
-      </div>
-    </div>
-
-    <!-- Tarjeta de Tiempos de Procesamiento -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon"><i class="fas fa-clock"></i></div>
-        <h2>Tiempos de Procesamiento</h2>
-      </div>
-      <div class="chart-container">
-        <canvas id="chartTiempos"></canvas>
-      </div>
+    <div class="card" style="margin-top:14px;background:#0e1526">
+      <table id="tbl">
+        <thead><tr><th>Fecha</th><th>Promotor</th><th>Teléfono</th><th>ICC</th><th>Estado</th></tr></thead>
+        <tbody></tbody>
+      </table>
     </div>
   </div>
+</div>
 
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    Cargando datos en tiempo real...
-  </div>
+<script>
+const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycby8y9CUxIR3MCtAe5kY-69v2OVNFmUb_RNx36Lf3b1THHe9livhxUXK7ORPof7AqWV2/exec?action=list';
+let raw = [];
 
-  <script>
-    // URL de la hoja (nota: el espacio se codifica como %20)
-    const SHEET_URL = "https://opensheet.elk.sh/1-ys3hF-4a8KtI5kYsBsPNTzx0bxTZk1NkVjXrpQP8ug/Hoja%201";
-    let datos = [], datosFiltrados = [];
-    let charts = {};
+async function fetchData(){
+  try {
+    const res = await fetch(WEBAPP_URL);
+    const json = await res.json();
+    raw = json.rows || [];
+    hydrateFilters(raw);
+    render();
+  } catch (e) {
+    alert("Error al cargar datos: " + e.message);
+  }
+}
 
-    // Configuración de fechas
-    const hoy = new Date();
-    const hace30 = new Date();
-    hace30.setDate(hoy.getDate() - 30);
-    document.getElementById("dateFrom").valueAsDate = hace30;
-    document.getElementById("dateTo").valueAsDate = hoy;
+function hydrateFilters(rows){
+  const sel = document.getElementById('promotor');
+  const set = new Set(rows.map(r=>r.Promotor).filter(Boolean));
+  sel.innerHTML = '<option value=\"\">Todos</option>' + [...set].sort().map(p=>`<option>${p}</option>`).join('');
+}
 
-    // Función para mostrar notificaciones
-    function showNotification(message, type = 'success') {
-      const notification = document.createElement('div');
-      notification.className = `notification ${type}`;
-      
-      let icon = 'check-circle';
-      if (type === 'error') icon = 'exclamation-triangle';
-      
-      notification.innerHTML = `
-        <div class="notification-content">
-          <i class="fas fa-${icon}"></i>
-          <span>${message}</span>
-          <button class="notification-close">&times;</button>
-        </div>
-      `;
-      
-      document.body.appendChild(notification);
-      
-      setTimeout(() => notification.classList.add('show'), 10);
-      
-      notification.querySelector('.notification-close').addEventListener('click', () => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 400);
-      });
-      
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.classList.remove('show');
-          setTimeout(() => notification.remove(), 400);
-        }
-      }, 5000);
-    }
+function applyFilters(){
+  const s = document.getElementById('start').value;
+  const e = document.getElementById('end').value;
+  const p = document.getElementById('promotor').value;
+  const est = document.getElementById('estado').value;
+  return raw.filter(r=>{
+    const d = r.Fecha.slice(0,10);
+    if(s && d < s) return false;
+    if(e && d > e) return false;
+    if(p && r.Promotor!==p) return false;
+    if(est && r.Estado!==est) return false;
+    return true;
+  });
+}
 
-    // Cargar datos desde Google Sheets
-    async function cargarDatos() {
-      try {
-        document.getElementById("loading").style.display = "block";
-        
-        const resp = await fetch(SHEET_URL);
-        const contenido = await resp.json();
+function render(){
+  const rows = applyFilters();
+  const total = rows.length;
+  const byDate = {};
+  let listo = 0;
+  rows.forEach(r=>{
+    const d=r.Fecha.slice(0,10);
+    byDate[d]=(byDate[d]||0)+1;
+    if(r.Estado==='LISTO') listo++;
+  });
+  const days = Object.keys(byDate).length || 1;
+  const avg = (total/days).toFixed(1);
+  const eff = total? Math.round((listo/total)*100) : 0;
+  document.getElementById('k_total').textContent = total;
+  document.getElementById('k_avg').textContent = avg;
+  document.getElementById('k_eff').textContent = eff;
 
-        if (!Array.isArray(contenido)) {
-          throw new Error("Formato inesperado en la respuesta del Sheet");
-        }
+  const tbody = document.querySelector('#tbl tbody');
+  tbody.innerHTML = rows.map(r=>`<tr><td>${r.Fecha}</td><td>${r.Promotor}</td><td>${r.Telefono}</td><td>${r.ICC}</td><td>${r.Estado}</td></tr>`).join('');
 
-        datos = contenido.map(d => {
-          let fechaObj = null;
-          if (d.fecha) {
-            const partes = d.fecha.split(" ");
-            if (partes.length >= 2) {
-              const [dia, mes, año] = partes[0].split("/");
-              const iso = `${año}-${mes}-${dia}T${partes[1]}`;
-              fechaObj = new Date(iso);
-            } else {
-              fechaObj = new Date(d.fecha);
-            }
-          }
-          
-          // Generar datos de ejemplo si no existen
-          return {
-            ...d,
-            fechaObj,
-            promotor: d.promotor || "Promotor " + Math.floor(Math.random() * 10 + 1),
-            estado: d.estado || ["completado","pendiente","error"][Math.floor(Math.random()*3)],
-            tiempo: d.tiempo || Math.floor(Math.random()*120)+30,
-            telefono: d.telefono || "55" + Math.floor(Math.random()*100000000).toString().padStart(8, '0'),
-            icc: d.icc || "89" + Math.floor(Math.random()*10000000000000000).toString().padStart(16, '0')
-          };
-        });
+  drawBars(Object.keys(byDate), Object.values(byDate));
+  drawPie(listo, total-listo);
+}
 
-        aplicarFiltros();
-        document.getElementById("loading").style.display = "none";
-        showNotification("Datos cargados correctamente", "success");
-      } catch (err) {
-        document.getElementById("loading").innerHTML = `
-          <div class="error">
-            <i class="fas fa-exclamation-triangle"></i>
-            Error cargando datos: ${err.message}
-          </div>
-        `;
-        showNotification("Error al cargar los datos", "error");
-      }
-    }
+let bars, pie;
+function drawBars(labels, data){
+  const ctx = document.getElementById('chartBars');
+  if(bars) bars.destroy();
+  bars = new Chart(ctx,{
+    type:'bar',
+    data:{labels,datasets:[{label:'Trámites por día',data,backgroundColor:'#3b82f6'}]},
+    options:{responsive:true,plugins:{legend:{display:false}}}
+  });
+}
+function drawPie(listo,pend){
+  const ctx = document.getElementById('chartPie');
+  if(pie) pie.destroy();
+  pie = new Chart(ctx,{
+    type:'pie',
+    data:{labels:['LISTO','PENDIENTE'],datasets:[{data:[listo,pend],backgroundColor:['#10b981','#ef4444']}]},
+    options:{responsive:true}
+  });
+}
 
-    // Aplicar filtros de fecha
-    function aplicarFiltros() {
-      const desde = new Date(document.getElementById("dateFrom").value);
-      const hasta = new Date(document.getElementById("dateTo").value);
-      hasta.setHours(23,59,59,999);
-      
-      datosFiltrados = datos.filter(d => d.fechaObj && d.fechaObj >= desde && d.fechaObj <= hasta);
-      
-      actualizarIndicadores();
-      generarGraficas();
-      actualizarListaPromotores();
-    }
-
-    // Actualizar indicadores principales
-    function actualizarIndicadores() {
-      const total = datosFiltrados.length;
-      const dias = [...new Set(datosFiltrados.map(d => d.fechaObj.toDateString()))].length || 1;
-      const prom = (total / dias).toFixed(1);
-      
-      // Calcular conteo por promotor
-      const conteo = {};
-      datosFiltrados.forEach(d => conteo[d.promotor] = (conteo[d.promotor]||0)+1);
-      const top = Object.entries(conteo).sort((a,b)=>b[1]-a[1])[0] || ["Sin datos",0];
-      
-      // Calcular eficiencia
-      const completados = datosFiltrados.filter(d => d.estado === 'completado').length;
-      const successRate = total > 0 ? Math.round((completados / total) * 100) : 0;
-      
-      // Calcular tiempo promedio
-      const tiempos = datosFiltrados.map(d => d.tiempo).filter(t => t);
-      const avgTime = tiempos.length > 0 ? Math.round(tiempos.reduce((a, b) => a + b, 0) / tiempos.length) : 0;
-
-      // Actualizar UI
-      document.getElementById("total").innerText = total;
-      document.getElementById("promedio").innerText = prom;
-      document.getElementById("top-count").innerText = top[1];
-      document.getElementById("top-name").innerText = top[0];
-      document.getElementById("success-rate").innerText = `${successRate}%`;
-      document.getElementById("avg-time").innerText = `${Math.floor(avgTime / 60)}h ${avgTime % 60}m`;
-      
-      // Actualizar barra de progreso del top promotor
-      const maxCount = Math.max(...Object.values(conteo));
-      const topProgress = (top[1] / maxCount) * 100;
-      document.getElementById("top-progress").style.width = `${topProgress}%`;
-    }
-
-    // Generar todas las gráficas
-    function generarGraficas() {
-      generarGraficaEficiencia();
-      generarGraficaTendencia();
-      generarGraficaPromotores();
-      generarGraficaDias();
-      generarGraficaTiempos();
-    }
-
-    // Gráfica de eficiencia (dona)
-    function generarGraficaEficiencia() {
-      const ctx = document.getElementById('chartEficiencia').getContext('2d');
-      
-      // Destruir gráfica anterior si existe
-      if (charts.eficiencia) charts.eficiencia.destroy();
-      
-      const estados = {
-        completado: datosFiltrados.filter(d => d.estado === 'completado').length,
-        pendiente: datosFiltrados.filter(d => d.estado === 'pendiente').length,
-        error: datosFiltrados.filter(d => d.estado === 'error').length
-      };
-      
-      charts.eficiencia = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Completados', 'Pendientes', 'Con Errores'],
-          datasets: [{
-            data: [estados.completado, estados.pendiente, estados.error],
-            backgroundColor: [
-              '#00b894',
-              '#fdcb6e',
-              '#e74c3c'
-            ],
-            borderWidth: 2,
-            borderColor: '#fff'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom'
-            },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  const label = context.label || '';
-                  const value = context.raw || 0;
-                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                  const percentage = Math.round((value / total) * 100);
-                  return `${label}: ${value} (${percentage}%)`;
-                }
-              }
-            }
-          }
-        }
-      });
-    }
-
-    // Gráfica de tendencia mensual
-    function generarGraficaTendencia() {
-      const ctx = document.getElementById('chartTendencia').getContext('2d');
-      
-      if (charts.tendencia) charts.tendencia.destroy();
-      
-      // Agrupar por mes
-      const agrupado = {};
-      datosFiltrados.forEach(d => {
-        const mes = d.fechaObj.toLocaleString('es-MX', { month: 'short', year: '2-digit' });
-        agrupado[mes] = (agrupado[mes] || 0) + 1;
-      });
-      
-      const etiquetas = Object.keys(agrupado);
-      const valores = Object.values(agrupado);
-      
-      charts.tendencia = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: etiquetas,
-          datasets: [{
-            label: 'Trámites por mes',
-            data: valores,
-            borderColor: '#0066cc',
-            backgroundColor: 'rgba(0, 102, 204, 0.1)',
-            tension: 0.3,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: 'Cantidad de Trámites'
-              }
-            }
-          }
-        }
-      });
-    }
-
-    // Gráfica de desempeño por promotor
-    function generarGraficaPromotores() {
-      const ctx = document.getElementById('chartPromotores').getContext('2d');
-      
-      if (charts.promotores) charts.promotores.destroy();
-      
-      // Agrupar por promotor
-      const agrupado = {};
-      datosFiltrados.forEach(d => {
-        agrupado[d.promotor] = (agrupado[d.promotor] || 0) + 1;
-      });
-      
-      // Tomar los top 10 promotores
-      const topPromotores = Object.entries(agrupado)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10);
-      
-      const etiquetas = topPromotores.map(p => p[0]);
-      const valores = topPromotores.map(p => p[1]);
-      
-      charts.promotores = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: etiquetas,
-          datasets: [{
-            label: 'Trámites',
-            data: valores,
-            backgroundColor: '#00b894'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: 'Cantidad de Trámites'
-              }
-            }
-          }
-        }
-      });
-    }
-
-    // Gráfica de actividad por día de la semana
-    function generarGraficaDias() {
-      const ctx = document.getElementById('chartDias').getContext('2d');
-      
-      if (charts.dias) charts.dias.destroy();
-      
-      // Agrupar por día de la semana
-      const dias = [0, 0, 0, 0, 0, 0, 0]; // 0: Lunes, 6: Domingo
-      datosFiltrados.forEach(d => {
-        const dia = (d.fechaObj.getDay() + 6) % 7; // Ajustar para que Lunes sea 0
-        dias[dia]++;
-      });
-      
-      charts.dias = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-          datasets: [{
-            label: 'Trámites',
-            data: dias,
-            backgroundColor: '#3399ff'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: 'Cantidad de Trámites'
-              }
-            }
-          }
-        }
-      });
-    }
-
-    // Gráfica de tiempos de procesamiento
-    function generarGraficaTiempos() {
-      const ctx = document.getElementById('chartTiempos').getContext('2d');
-      
-      if (charts.tiempos) charts.tiempos.destroy();
-      
-      // Crear rangos de tiempo
-      const rangos = {
-        '0-30 min': 0,
-        '30-60 min': 0,
-        '1-2 horas': 0,
-        '2+ horas': 0
-      };
-      
-      datosFiltrados.forEach(d => {
-        const tiempo = d.tiempo || 0;
-        if (tiempo <= 30) rangos['0-30 min']++;
-        else if (tiempo <= 60) rangos['30-60 min']++;
-        else if (tiempo <= 120) rangos['1-2 horas']++;
-        else rangos['2+ horas']++;
-      });
-      
-      charts.tiempos = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: Object.keys(rangos),
-          datasets: [{
-            label: 'Trámites',
-            data: Object.values(rangos),
-            backgroundColor: '#fdcb6e'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: 'Cantidad de Trámites'
-              }
-            }
-          }
-        }
-      });
-    }
-
-    // Actualizar lista de promotores
-    function actualizarListaPromotores() {
-      const agrupado = {};
-      datosFiltrados.forEach(d => {
-        agrupado[d.promotor] = (agrupado[d.promotor] || 0) + 1;
-      });
-      
-      const promotoresOrdenados = Object.entries(agrupado)
-        .sort((a, b) => b[1] - a[1]);
-      
-      const promotorList = document.getElementById('promotorList');
-      promotorList.innerHTML = '';
-      
-      promotoresOrdenados.forEach(([nombre, count]) => {
-        const item = document.createElement('div');
-        item.className = 'promotor-item';
-        item.innerHTML = `
-          <span class="promotor-name">${nombre}</span>
-          <span class="promotor-count">${count}</span>
-        `;
-        promotorList.appendChild(item);
-      });
-    }
-
-    // Exportar datos a Excel
-    function exportarAExcel() {
-      try {
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.json_to_sheet(datosFiltrados.map(d => ({
-          'Promotor': d.promotor,
-          'Fecha': d.fecha,
-          'Teléfono': d.telefono,
-          'ICC': d.icc,
-          'Estado': d.estado,
-          'Tiempo (min)': d.tiempo
-        })));
-        
-        XLSX.utils.book_append_sheet(wb, ws, "Reporte CAPTURAS MADA");
-        XLSX.writeFile(wb, `Reporte_CAPTURAS_MADA_${new Date().toISOString().split('T')[0]}.xlsx`);
-        showNotification("Reporte exportado correctamente", "success");
-      } catch (err) {
-        showNotification("Error al exportar el reporte", "error");
-      }
-    }
-
-    // Event Listeners
-    document.getElementById("btnFilter").addEventListener("click", aplicarFiltros);
-    document.getElementById("btnRefresh").addEventListener("click", cargarDatos);
-    document.getElementById("btnExport").addEventListener("click", exportarAExcel);
-    document.getElementById("btnPrint").addEventListener("click", () => window.print());
-
-    // Cargar datos al iniciar
-    cargarDatos();
-    
-    // Actualizar automáticamente cada 2 minutos
-    setInterval(cargarDatos, 120000);
-  </script>
+document.getElementById('refresh').addEventListener('click', render);
+fetchData();
+</script>
 </body>
 </html>
