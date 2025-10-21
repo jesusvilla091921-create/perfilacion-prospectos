@@ -2,145 +2,151 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MADA OCR – Dashboard</title>
+  <title>MADA OCR – Dashboard de Trámites</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
-    :root{--bg:#0b1220;--card:#111827;--muted:#94a3b8;--accent:#3b82f6}
-    *{box-sizing:border-box;font-family:Poppins,system-ui,Segoe UI,Roboto}
-    body{margin:0;background:var(--bg);color:#e5e7eb}
-    .wrap{max-width:1100px;margin:32px auto;padding:0 16px}
-    .card{background:var(--card);border:1px solid #1f2937;border-radius:18px;padding:18px}
-    h1{font-size:22px;margin:0 0 12px}
-    .row{display:flex;gap:16px;flex-wrap:wrap}
-    .grow{flex:1 1 260px}
-    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-    input,select,button{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #273142;background:#0f172a;color:#fff}
-    button{background:var(--accent);border-color:transparent;font-weight:600;cursor:pointer}
-    table{width:100%;border-collapse:collapse;margin-top:12px}
-    th,td{padding:8px 10px;border-bottom:1px solid #1f2937;font-size:13px}
+    body{background:#0b1220;color:#e5e7eb;font-family:Poppins,system-ui;margin:0;padding:20px}
+    .wrap{max-width:1100px;margin:auto}
+    .card{background:#111827;border:1px solid #1e293b;border-radius:20px;padding:20px;margin-bottom:20px}
+    h1{margin-top:0;font-size:22px}
+    input,select,button{padding:10px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#fff}
+    button{background:#3b82f6;border:none;cursor:pointer;font-weight:600}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{padding:8px;border-bottom:1px solid #1f2937;font-size:14px}
     th{color:#94a3b8;text-align:left}
-    .kpi{display:flex;gap:16px}
+    .kpi{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px}
     .kpi>div{flex:1 1 0;background:#0e1526;border-radius:16px;padding:14px;border:1px solid #1f2937}
     .num{font-size:22px;font-weight:700}
+    canvas{background:#0e1526;border-radius:16px;padding:10px}
   </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="card">
-    <h1>📊 Dashboard – Centro de Control</h1>
-    <div class="row">
-      <div class="grow"><label>Rango inicial</label><input type="date" id="start"></div>
-      <div class="grow"><label>Rango final</label><input type="date" id="end"></div>
-      <div class="grow"><label>Promotor</label><select id="promotor"><option value="">Todos</option></select></div>
-      <div class="grow"><label>Estado</label><select id="estado"><option value="">Todos</option><option>LISTO</option><option>PENDIENTE</option></select></div>
-      <div class="grow"><label>&nbsp;</label><button id="refresh">Actualizar</button></div>
+  <div class="wrap">
+    <div class="card">
+      <h1>📊 MADA OCR – Centro de Control</h1>
+      <div style="display:flex;flex-wrap:wrap;gap:12px">
+        <div><label>Desde</label><br><input type="date" id="desde"></div>
+        <div><label>Hasta</label><br><input type="date" id="hasta"></div>
+        <div><label>Promotor</label><br><select id="promotor"><option value="">Todos</option></select></div>
+        <div><label>Estado</label><br><select id="estado"><option value="">Todos</option><option>PENDIENTE</option><option>LISTO</option></select></div>
+        <div style="align-self:end"><button id="btnActualizar">Actualizar</button></div>
+      </div>
+
+      <div class="kpi">
+        <div><div>Total trámites</div><div id="k_total" class="num">0</div></div>
+        <div><div>Promedio diario</div><div id="k_avg" class="num">0</div></div>
+        <div><div>Eficiencia (%)</div><div id="k_eff" class="num">0</div></div>
+      </div>
     </div>
 
-    <div class="kpi" style="margin-top:14px">
-      <div><div>Total portabilidades</div><div id="k_total" class="num">0</div></div>
-      <div><div>Promedio diario</div><div id="k_avg" class="num">0</div></div>
-      <div><div>Eficiencia (%)</div><div id="k_eff" class="num">0</div></div>
+    <div class="card">
+      <canvas id="graficoBarras"></canvas>
+    </div>
+    <div class="card">
+      <canvas id="graficoTorta"></canvas>
     </div>
 
-    <div class="row" style="margin-top:14px">
-      <div class="grow card" style="background:#0e1526"><canvas id="chartBars"></canvas></div>
-      <div class="grow card" style="background:#0e1526"><canvas id="chartPie"></canvas></div>
-    </div>
-
-    <div class="card" style="margin-top:14px;background:#0e1526">
-      <table id="tbl">
-        <thead><tr><th>Fecha</th><th>Promotor</th><th>Teléfono</th><th>ICC</th><th>Estado</th></tr></thead>
+    <div class="card">
+      <h2>📋 Registros</h2>
+      <table id="tabla">
+        <thead>
+          <tr><th>Fecha</th><th>Promotor</th><th>Teléfono</th><th>ICC</th><th>Estado</th></tr>
+        </thead>
         <tbody></tbody>
       </table>
     </div>
   </div>
-</div>
 
 <script>
-const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycby8y9CUxIR3MCtAe5kY-69v2OVNFmUb_RNx36Lf3b1THHe9livhxUXK7ORPof7AqWV2/exec?action=list';
-let raw = [];
+const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwqLB2XPdq3EH0MPR4Gw_b1upGU9FEfoYfAPqm5IKNs73cPuT7ruE8w3eHNuk07580/exec?action=list';
+let registros=[];
 
-async function fetchData(){
-  try {
+async function cargarDatos(){
+  try{
     const res = await fetch(WEBAPP_URL);
     const json = await res.json();
-    raw = json.rows || [];
-    hydrateFilters(raw);
-    render();
-  } catch (e) {
-    alert("Error al cargar datos: " + e.message);
+    registros = json.rows || [];
+    poblarFiltros();
+    renderizar();
+  }catch(err){
+    alert("Error al cargar datos: "+err.message);
   }
 }
 
-function hydrateFilters(rows){
-  const sel = document.getElementById('promotor');
-  const set = new Set(rows.map(r=>r.Promotor).filter(Boolean));
-  sel.innerHTML = '<option value=\"\">Todos</option>' + [...set].sort().map(p=>`<option>${p}</option>`).join('');
+function poblarFiltros(){
+  const select = document.getElementById('promotor');
+  const lista = [...new Set(registros.map(r=>r.Promotor).filter(Boolean))].sort();
+  select.innerHTML = '<option value="">Todos</option>'+lista.map(p=>`<option>${p}</option>`).join('');
 }
 
-function applyFilters(){
-  const s = document.getElementById('start').value;
-  const e = document.getElementById('end').value;
-  const p = document.getElementById('promotor').value;
-  const est = document.getElementById('estado').value;
-  return raw.filter(r=>{
-    const d = r.Fecha.slice(0,10);
-    if(s && d < s) return false;
-    if(e && d > e) return false;
-    if(p && r.Promotor!==p) return false;
-    if(est && r.Estado!==est) return false;
+function filtrar(){
+  const desde = document.getElementById('desde').value;
+  const hasta = document.getElementById('hasta').value;
+  const promotor = document.getElementById('promotor').value;
+  const estado = document.getElementById('estado').value;
+
+  return registros.filter(r=>{
+    const fecha = r.Fecha.slice(0,10);
+    if(desde && fecha<desde) return false;
+    if(hasta && fecha>hasta) return false;
+    if(promotor && r.Promotor!==promotor) return false;
+    if(estado && r.Estado!==estado) return false;
     return true;
   });
 }
 
-function render(){
-  const rows = applyFilters();
-  const total = rows.length;
-  const byDate = {};
-  let listo = 0;
-  rows.forEach(r=>{
+function renderizar(){
+  const datos = filtrar();
+  const total = datos.length;
+  const porDia = {};
+  let listos=0;
+  datos.forEach(r=>{
     const d=r.Fecha.slice(0,10);
-    byDate[d]=(byDate[d]||0)+1;
-    if(r.Estado==='LISTO') listo++;
+    porDia[d]=(porDia[d]||0)+1;
+    if(r.Estado==='LISTO') listos++;
   });
-  const days = Object.keys(byDate).length || 1;
-  const avg = (total/days).toFixed(1);
-  const eff = total? Math.round((listo/total)*100) : 0;
-  document.getElementById('k_total').textContent = total;
-  document.getElementById('k_avg').textContent = avg;
-  document.getElementById('k_eff').textContent = eff;
 
-  const tbody = document.querySelector('#tbl tbody');
-  tbody.innerHTML = rows.map(r=>`<tr><td>${r.Fecha}</td><td>${r.Promotor}</td><td>${r.Telefono}</td><td>${r.ICC}</td><td>${r.Estado}</td></tr>`).join('');
+  const promedio = total ? (total/Object.keys(porDia).length).toFixed(1):0;
+  const eficiencia = total ? Math.round((listos/total)*100):0;
 
-  drawBars(Object.keys(byDate), Object.values(byDate));
-  drawPie(listo, total-listo);
+  document.getElementById('k_total').textContent=total;
+  document.getElementById('k_avg').textContent=promedio;
+  document.getElementById('k_eff').textContent=eficiencia;
+
+  const tbody=document.querySelector('#tabla tbody');
+  tbody.innerHTML = datos.map(r=>`<tr>
+    <td>${r.Fecha}</td><td>${r.Promotor}</td>
+    <td>${r.Telefono}</td><td>${r.ICC}</td><td>${r.Estado}</td></tr>`).join('');
+
+  dibujarBarras(Object.keys(porDia),Object.values(porDia));
+  dibujarTorta(listos,total-listos);
 }
 
-let bars, pie;
-function drawBars(labels, data){
-  const ctx = document.getElementById('chartBars');
-  if(bars) bars.destroy();
-  bars = new Chart(ctx,{
+let grafBarras,grafTorta;
+function dibujarBarras(labels,data){
+  const ctx=document.getElementById('graficoBarras');
+  if(grafBarras) grafBarras.destroy();
+  grafBarras=new Chart(ctx,{
     type:'bar',
     data:{labels,datasets:[{label:'Trámites por día',data,backgroundColor:'#3b82f6'}]},
-    options:{responsive:true,plugins:{legend:{display:false}}}
+    options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#94a3b8'}},y:{ticks:{color:'#94a3b8'}}}}
   });
 }
-function drawPie(listo,pend){
-  const ctx = document.getElementById('chartPie');
-  if(pie) pie.destroy();
-  pie = new Chart(ctx,{
+function dibujarTorta(listos,pendientes){
+  const ctx=document.getElementById('graficoTorta');
+  if(grafTorta) grafTorta.destroy();
+  grafTorta=new Chart(ctx,{
     type:'pie',
-    data:{labels:['LISTO','PENDIENTE'],datasets:[{data:[listo,pend],backgroundColor:['#10b981','#ef4444']}]},
-    options:{responsive:true}
+    data:{labels:['LISTO','PENDIENTE'],datasets:[{data:[listos,pendientes],backgroundColor:['#10b981','#ef4444']}]},
+    options:{plugins:{legend:{labels:{color:'#94a3b8'}}}}
   });
 }
 
-document.getElementById('refresh').addEventListener('click', render);
-fetchData();
+document.getElementById('btnActualizar').addEventListener('click',renderizar);
+cargarDatos();
 </script>
 </body>
 </html>
