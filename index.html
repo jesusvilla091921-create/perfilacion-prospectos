@@ -204,35 +204,6 @@
       color: var(--text-light);
     }
 
-    /* Manual Input Section */
-    .manual-input-section {
-      margin-top: 1.5rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--gray);
-    }
-
-    .manual-input-title {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--dark);
-    }
-
-    .manual-input-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    @media (min-width: 768px) {
-      .manual-input-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
     /* Buttons */
     .btn {
       padding: 1rem 1.5rem;
@@ -573,28 +544,6 @@
         <div class="form-group">
           <label class="form-label" for="promotor">Nombre del promotor:</label>
           <input type="text" id="promotor" class="form-input" placeholder="Ingresa tu nombre completo" />
-          <p style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.5rem;">
-            Puedes usar mayúsculas, minúsculas o acentos, el sistema lo normalizará automáticamente.
-          </p>
-        </div>
-        
-        <div class="manual-input-section">
-          <h3 class="manual-input-title">
-            <i>⌨️</i> Datos Manuales
-          </h3>
-          <div class="manual-input-grid">
-            <div class="form-group">
-              <label class="form-label" for="telefonoManual">Teléfono:</label>
-              <input type="text" id="telefonoManual" class="form-input" placeholder="10 dígitos" maxlength="10" />
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="iccManual">ICC:</label>
-              <input type="text" id="iccManual" class="form-input" placeholder="Número ICC" />
-            </div>
-          </div>
-          <p style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.5rem;">
-            Puedes ingresar los datos manualmente o usar OCR para extraerlos de una imagen.
-          </p>
         </div>
       </div>
 
@@ -708,8 +657,6 @@
     // Elementos DOM
     const elementos = {
       promotor: document.getElementById("promotor"),
-      telefonoManual: document.getElementById("telefonoManual"),
-      iccManual: document.getElementById("iccManual"),
       fileInput: document.getElementById("fileInput"),
       uploadArea: document.getElementById("uploadArea"),
       btnOcr: document.getElementById("btnOcr"),
@@ -761,35 +708,10 @@
         manejarArchivo(e.target.files[0]);
       });
 
-      // Campos manuales
-      elementos.telefonoManual.addEventListener('input', function() {
-        // Limpiar solo números y limitar a 10 dígitos
-        this.value = this.value.replace(/\D/g, '').substring(0, 10);
-        telefono = this.value;
-        actualizarResultados();
-      });
-
-      elementos.iccManual.addEventListener('input', function() {
-        // Limpiar solo números
-        this.value = this.value.replace(/\D/g, '');
-        icc = this.value;
-        actualizarResultados();
-      });
-
       // Botones
       elementos.btnOcr.addEventListener('click', procesarOCR);
       elementos.btnEnviar.addEventListener('click', enviarBackend);
       elementos.btnClearLog.addEventListener('click', limpiarLog);
-    }
-
-    // Normalizar texto (quitar acentos y convertir a mayúsculas)
-    function normalizarTexto(texto) {
-      if (!texto) return '';
-      return texto
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toUpperCase()
-        .trim();
     }
 
     // Manejar archivo seleccionado o arrastrado
@@ -859,14 +781,6 @@
         // Extraer datos
         extractData(text);
         
-        // Llenar campos manuales con datos extraídos
-        if (telefono) {
-          elementos.telefonoManual.value = telefono;
-        }
-        if (icc) {
-          elementos.iccManual.value = icc;
-        }
-        
         // Finalizar procesamiento
         elementos.progressFill.style.width = '100%';
         elementos.progressText.textContent = "Procesamiento completado";
@@ -930,19 +844,15 @@
 
     // Actualizar resultados en la interfaz
     function actualizarResultados() {
-      // Usar datos de campos manuales si están disponibles
-      const telefonoFinal = elementos.telefonoManual.value || telefono;
-      const iccFinal = elementos.iccManual.value || icc;
-      
-      elementos.resultTelefono.textContent = telefonoFinal || '—';
-      elementos.resultIcc.textContent = iccFinal || '—';
+      elementos.resultTelefono.textContent = telefono || '—';
+      elementos.resultIcc.textContent = icc || '—';
       elementos.resultCurp.textContent = curp || '—';
       
       // Actualizar estado según los datos extraídos
-      if (telefonoFinal && iccFinal) {
+      if (telefono && icc) {
         elementos.resultStatus.className = "result-status status-success";
         elementos.resultStatus.textContent = "Completado";
-      } else if (telefonoFinal || iccFinal) {
+      } else if (telefono || icc) {
         elementos.resultStatus.className = "result-status status-warning";
         elementos.resultStatus.textContent = "Parcial";
       } else {
@@ -953,9 +863,7 @@
 
     // Enviar datos al backend
     async function enviarBackend() {
-      const promotor = normalizarTexto(elementos.promotor.value.trim());
-      const telefonoFinal = elementos.telefonoManual.value || telefono;
-      const iccFinal = elementos.iccManual.value || icc;
+      const promotor = elementos.promotor.value.trim();
       
       // Validaciones
       if (!promotor) {
@@ -964,12 +872,12 @@
         return;
       }
       
-      if (!telefonoFinal || !iccFinal) {
-        mostrarToast("No hay datos válidos para enviar. Procesa una imagen o ingresa los datos manualmente.", "error");
+      if (!telefono || !icc) {
+        mostrarToast("No hay datos válidos para enviar. Procesa una imagen primero.", "error");
         return;
       }
       
-      const payload = { promotor, telefono: telefonoFinal, icc: iccFinal };
+      const payload = { promotor, telefono, icc };
       
       // Mostrar progreso
       elementos.progressContainer.style.display = 'block';
@@ -992,9 +900,8 @@
         mostrarToast("Datos enviados correctamente", "success");
         agregarLog("✅ Registro enviado correctamente.", "success");
         
-        // Limpiar formulario después de envío exitoso
+        // Ocultar barra de progreso después de un tiempo
         setTimeout(() => {
-          limpiarFormulario();
           elementos.progressContainer.style.display = 'none';
         }, 2000);
         
@@ -1003,21 +910,6 @@
         mostrarToast("Error al enviar los datos", "error");
         agregarLog('❌ Error al enviar: ' + err.message, "error");
       }
-    }
-
-    // Limpiar formulario
-    function limpiarFormulario() {
-      elementos.promotor.value = '';
-      elementos.telefonoManual.value = '';
-      elementos.iccManual.value = '';
-      elementos.fileInput.value = '';
-      elementos.uploadArea.querySelector('.upload-text p').textContent = 'Toca para seleccionar una imagen';
-      elementos.uploadArea.querySelector('.upload-hint').textContent = 'Formatos soportados: JPG, PNG, WebP';
-      elementos.resultsCard.style.display = 'none';
-      telefono = '';
-      icc = '';
-      curp = '';
-      imagenSeleccionada = null;
     }
 
     // Agregar entrada al log
