@@ -1,1057 +1,637 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MADA - Registro de Portabilidades</title>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
-  <style>
-    :root {
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --primary-light: #3b82f6;
-      --secondary: #0ea5e9;
-      --accent: #06b6d4;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --error: #ef4444;
-      --dark: #1e293b;
-      --darker: #0f172a;
-      --light: #f8fafc;
-      --gray: #94a3b8;
-      --text: #1e293b;
-      --text-light: #64748b;
-      --radius: 12px;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      color: var(--text);
-      line-height: 1.5;
-      min-height: 100vh;
-      padding: 0;
-    }
-
-    .app-container {
-      max-width: 100%;
-      margin: 0 auto;
-      padding: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Header */
-    .header {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      color: white;
-      padding: 1.5rem 1rem;
-      text-align: center;
-      box-shadow: var(--shadow-lg);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
-      opacity: 0.3;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .logo-icon {
-      font-size: 2rem;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .company-name {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 5px;
-    }
-
-    .app-title {
-      font-size: 1.1rem;
-      font-weight: 500;
-      opacity: 0.9;
-      margin-bottom: 15px;
-    }
-
-    .app-subtitle {
-      font-size: 0.9rem;
-      opacity: 0.8;
-      max-width: 300px;
-      margin: 0 auto;
-    }
-
-    /* Main Content */
-    .main-content {
-      flex: 1;
-      padding: 1.5rem 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    /* Card Styles */
-    .card {
-      background: white;
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      box-shadow: var(--shadow);
-    }
-
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--dark);
-    }
-
-    .card-title i {
-      color: var(--primary);
-    }
-
-    /* Form Styles */
-    .form-group {
-      margin-bottom: 1.2rem;
-    }
-
-    .form-label {
-      display: block;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-      color: var(--text);
-    }
-
-    .form-input {
-      width: 100%;
-      padding: 0.9rem;
-      border-radius: var(--radius);
-      border: 1px solid var(--gray);
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      background: var(--light);
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
-
-    /* Upload Area */
-    .upload-area {
-      border: 2px dashed var(--gray);
-      border-radius: var(--radius);
-      padding: 2rem 1rem;
-      text-align: center;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      margin-bottom: 1rem;
-      background: var(--light);
-    }
-
-    .upload-area:hover, .upload-area.dragover {
-      border-color: var(--primary);
-      background-color: rgba(37, 99, 235, 0.05);
-    }
-
-    .upload-icon {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      color: var(--primary);
-    }
-
-    .upload-text {
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-
-    .upload-hint {
-      font-size: 0.85rem;
-      color: var(--text-light);
-    }
-
-    /* Manual Input Section */
-    .manual-input-section {
-      margin-top: 1.5rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--gray);
-    }
-
-    .manual-input-title {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--dark);
-    }
-
-    .manual-input-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    @media (min-width: 768px) {
-      .manual-input-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    /* Buttons */
-    .btn {
-      padding: 1rem 1.5rem;
-      border-radius: var(--radius);
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      font-size: 1rem;
-      width: 100%;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-      color: white;
-      box-shadow: var(--shadow);
-    }
-
-    .btn-primary:hover {
-      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .btn-secondary {
-      background: white;
-      color: var(--primary);
-      border: 1px solid var(--primary);
-    }
-
-    .btn-secondary:hover {
-      background: var(--primary);
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: var(--shadow);
-    }
-
-    .btn:disabled {
-      background-color: var(--gray);
-      color: var(--text-light);
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .button-group {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-
-    /* Progress */
-    .progress-container {
-      margin-top: 1.5rem;
-      display: none;
-    }
-
-    .progress-bar {
-      height: 8px;
-      background-color: #e2e8f0;
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 0.5rem;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
-      width: 0%;
-      transition: width 0.3s ease;
-      border-radius: 4px;
-    }
-
-    .progress-text {
-      font-size: 0.85rem;
-      color: var(--text-light);
-      text-align: center;
-    }
-
-    /* Results */
-    .results-container {
-      margin-top: 1.5rem;
-      display: none;
-    }
-
-    .results-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    .result-card {
-      border: 1px solid #e2e8f0;
-      border-radius: var(--radius);
-      padding: 1.2rem;
-      background: white;
-      box-shadow: var(--shadow);
-    }
-
-    .result-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-
-    .result-title {
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: var(--text);
-    }
-
-    .result-status {
-      padding: 0.3rem 0.7rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-
-    .status-success {
-      background-color: rgba(16, 185, 129, 0.1);
-      color: var(--success);
-    }
-
-    .status-warning {
-      background-color: rgba(245, 158, 11, 0.1);
-      color: var(--warning);
-    }
-
-    .status-error {
-      background-color: rgba(239, 68, 68, 0.1);
-      color: var(--error);
-    }
-
-    .result-content {
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
-    }
-
-    .result-field {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid #f1f5f9;
-    }
-
-    .result-label {
-      font-weight: 500;
-      font-size: 0.9rem;
-      color: var(--text-light);
-    }
-
-    .result-value {
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: var(--text);
-      text-align: right;
-    }
-
-    /* Log Styles */
-    .log-container {
-      margin-top: 1.5rem;
-    }
-
-    .log-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-
-    .log-title {
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .log {
-      background: #f8fafc;
-      border-radius: var(--radius);
-      padding: 1rem;
-      height: 200px;
-      overflow-y: auto;
-      font-family: 'Courier New', monospace;
-      font-size: 0.85rem;
-      line-height: 1.5;
-      border: 1px solid #e2e8f0;
-    }
-
-    .log-entry {
-      margin-bottom: 0.5rem;
-      padding: 0.5rem;
-      border-radius: 6px;
-    }
-
-    .log-entry.success {
-      background-color: rgba(16, 185, 129, 0.1);
-      color: var(--success);
-      border-left: 3px solid var(--success);
-    }
-
-    .log-entry.error {
-      background-color: rgba(239, 68, 68, 0.1);
-      color: var(--error);
-      border-left: 3px solid var(--error);
-    }
-
-    .log-entry.warning {
-      background-color: rgba(245, 158, 11, 0.1);
-      color: var(--warning);
-      border-left: 3px solid var(--warning);
-    }
-
-    .log-entry.info {
-      background-color: rgba(37, 99, 235, 0.1);
-      color: var(--primary);
-      border-left: 3px solid var(--primary);
-    }
-
-    .log-actions {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 0.5rem;
-    }
-
-    .btn-small {
-      padding: 0.5rem 1rem;
-      font-size: 0.85rem;
-      width: auto;
-    }
-
-    /* Footer */
-    .footer {
-      text-align: center;
-      padding: 1.5rem;
-      color: var(--text-light);
-      font-size: 0.85rem;
-      background: var(--darker);
-      color: white;
-    }
-
-    /* Toast Notification */
-    .toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 1rem 1.5rem;
-      border-radius: var(--radius);
-      background-color: white;
-      box-shadow: var(--shadow-lg);
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      z-index: 1000;
-      transform: translateX(150%);
-      transition: transform 0.3s ease;
-      max-width: 350px;
-    }
-
-    .toast.show {
-      transform: translateX(0);
-    }
-
-    .toast-success {
-      border-left: 4px solid var(--success);
-    }
-
-    .toast-error {
-      border-left: 4px solid var(--error);
-    }
-
-    .toast-warning {
-      border-left: 4px solid var(--warning);
-    }
-
-    .toast-info {
-      border-left: 4px solid var(--primary);
-    }
-
-    .toast-icon {
-      font-size: 1.2rem;
-    }
-
-    .toast-message {
-      font-weight: 500;
-      font-size: 0.9rem;
-    }
-
-    /* Responsive */
-    @media (min-width: 768px) {
-      .app-container {
-        max-width: 500px;
-        margin: 1rem auto;
-        min-height: calc(100vh - 2rem);
-        border-radius: var(--radius);
-        overflow: hidden;
-        box-shadow: var(--shadow-lg);
-      }
-      
-      .button-group {
-        flex-direction: row;
-      }
-      
-      .button-group .btn {
-        width: 50%;
-      }
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MADA - Registro de Portabilidades</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5; /* Indigo */
+            --primary-dark: #4338ca;
+            --primary-light: #6366f1;
+            --secondary: #0ea5e9; /* Sky */
+            --accent: #10b981; /* Emerald */
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --dark: #0f172a; /* Slate 900 */
+            --darker: #000000;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --text: #e2e8f0;
+            --text-light: #94a3b8;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .app-container {
+            max-width: 500px;
+            margin: 1rem auto;
+            min-height: calc(100vh - 2rem);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            background: var(--dark);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .logo-icon {
+            font-size: 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .company-name { font-size: 1.5rem; font-weight: 700; margin-bottom: 5px; }
+        .app-title { font-size: 1.1rem; font-weight: 500; opacity: 0.9; margin-bottom: 15px; }
+        .app-subtitle { font-size: 0.9rem; opacity: 0.8; }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: 1.5rem; }
+
+        /* Card Styles */
+        .card {
+            background: var(--darker);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text);
+        }
+
+        .card-title i { color: var(--primary-light); }
+
+        /* Form Styles */
+        .form-group { margin-bottom: 1.2rem; }
+        .form-label { display: block; font-weight: 500; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-light); }
+        .form-input {
+            width: 100%;
+            padding: 0.9rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+        }
+        .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: var(--radius);
+            padding: 2rem 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .upload-area:hover, .upload-area.dragover { border-color: var(--primary-light); background-color: rgba(79, 70, 229, 0.2); }
+
+        .upload-icon { font-size: 2.5rem; margin-bottom: 1rem; color: var(--secondary); }
+        .upload-text { margin-bottom: 0.5rem; font-weight: 500; color: var(--text); }
+        .upload-hint { font-size: 0.85rem; color: var(--text-light); }
+
+        /* Manual Input Section */
+        .manual-input-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .manual-input-title { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; color: var(--text); }
+        .manual-input-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        @media (min-width: 768px) { .manual-input-grid { grid-template-columns: 1fr 1fr; } }
+
+        /* Buttons */
+        .btn { padding: 1rem 1.5rem; border-radius: var(--radius); border: none; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1rem; width: 100%; }
+
+        .btn-primary { background: linear-gradient(135deg, var(--accent) 0%, var(--success) 100%); color: var(--darker); box-shadow: var(--shadow); }
+        .btn-primary:hover { background: linear-gradient(135deg, var(--accent) 0%, #047857 100%); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .btn-secondary { background: var(--primary); color: white; }
+        .btn-secondary:hover { background: var(--primary-dark); color: white; transform: translateY(-2px); box-shadow: var(--shadow); }
+        .btn:disabled { background-color: var(--gray); color: var(--text-light); cursor: not-allowed; transform: none; box-shadow: none; }
+        .button-group { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+        @media (min-width: 768px) { .button-group { flex-direction: row; } .button-group .btn { width: 50%; } }
+
+        /* Progress */
+        .progress-container { margin-top: 1.5rem; display: none; }
+        .progress-bar { height: 8px; background-color: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; margin-bottom: 0.5rem; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%); width: 0%; transition: width 0.3s ease; border-radius: 4px; }
+        .progress-text { font-size: 0.85rem; color: var(--text-light); text-align: center; }
+
+        /* Results */
+        .results-container { margin-top: 1.5rem; display: none; }
+        .result-card { border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius); padding: 1.2rem; background: rgba(255, 255, 255, 0.05); box-shadow: var(--shadow); }
+        .result-title { font-weight: 600; font-size: 0.9rem; color: var(--text); }
+        .result-status { padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .status-success { background-color: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .status-warning { background-color: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .status-error { background-color: rgba(239, 68, 68, 0.2); color: var(--error); }
+        .result-label { font-weight: 500; font-size: 0.9rem; color: var(--text-light); }
+        .result-value { font-weight: 600; font-size: 0.9rem; color: var(--text); text-align: right; }
+        .result-field { display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 0.8rem; }
+
+        /* Log Styles */
+        .log { background: rgba(255, 255, 255, 0.05); border-radius: var(--radius); padding: 1rem; height: 200px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.5; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .log-entry { margin-bottom: 0.5rem; padding: 0.5rem; border-radius: 6px; }
+        .log-entry.success { background-color: rgba(16, 185, 129, 0.1); color: var(--success); border-left: 3px solid var(--success); }
+        .log-entry.error { background-color: rgba(239, 68, 68, 0.1); color: var(--error); border-left: 3px solid var(--error); }
+        .log-entry.warning { background-color: rgba(245, 158, 11, 0.1); color: var(--warning); border-left: 3px solid var(--warning); }
+        .log-entry.info { background-color: rgba(79, 70, 229, 0.1); color: var(--primary-light); border-left: 3px solid var(--primary-light); }
+        .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .log-title { font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+
+        /* Footer */
+        .footer { text-align: center; padding: 1.5rem; color: var(--text-light); font-size: 0.85rem; background: var(--darker); }
+
+        /* Toast Notification */
+        .toast { position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; border-radius: var(--radius); background-color: white; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 0.75rem; z-index: 1000; transform: translateX(150%); transition: transform 0.3s ease; max-width: 350px; color: var(--darker); }
+        .toast.show { transform: translateX(0); }
+        .toast-success { border-left: 4px solid var(--success); }
+        .toast-error { border-left: 4px solid var(--error); }
+        .toast-warning { border-left: 4px solid var(--warning); }
+    </style>
 </head>
 <body>
-  <div class="app-container">
-    <!-- Header -->
-    <header class="header">
-      <div class="logo">
-        <div class="logo-icon">📱</div>
-      </div>
-      <div class="company-name">SERVICIOS INTEGRALES MADA</div>
-      <div class="app-title">REGISTRA TUS PORTABILIDADES</div>
-      <div class="app-subtitle">Para una nómina exitosa y sin complicaciones</div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Form Card -->
-      <div class="card">
-        <h2 class="card-title">
-          <i>👤</i> Información del Promotor
-        </h2>
-        
-        <div class="form-group">
-          <label class="form-label" for="promotor">Nombre del promotor:</label>
-          <input type="text" id="promotor" class="form-input" placeholder="Ingresa tu nombre completo" />
-          <p style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.5rem;">
-            Puedes usar mayúsculas, minúsculas o acentos, el sistema lo normalizará automáticamente.
-          </p>
-        </div>
-        
-        <div class="manual-input-section">
-          <h3 class="manual-input-title">
-            <i>⌨️</i> Datos Manuales
-          </h3>
-          <div class="manual-input-grid">
-            <div class="form-group">
-              <label class="form-label" for="telefonoManual">Teléfono:</label>
-              <input type="text" id="telefonoManual" class="form-input" placeholder="10 dígitos" maxlength="10" />
+    <div class="app-container">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">📱</div>
             </div>
-            <div class="form-group">
-              <label class="form-label" for="iccManual">ICC:</label>
-              <input type="text" id="iccManual" class="form-input" placeholder="Número ICC" />
+            <div class="company-name">SERVICIOS INTEGRALES MADA</div>
+            <div class="app-title">REGISTRA TUS PORTABILIDADES</div>
+            <div class="app-subtitle">Captura rápida vía OCR para nómina sin complicaciones</div>
+        </header>
+
+        <main class="main-content">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-user"></i> Información del Promotor</h2>
+                
+                <div class="form-group">
+                    <label class="form-label" for="promotor">Nombre del promotor:</label>
+                    <input type="text" id="promotor" class="form-input" placeholder="Ingresa tu nombre completo" />
+                    <p style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.5rem;">
+                        El sistema normalizará tu nombre a mayúsculas y sin acentos automáticamente.
+                    </p>
+                </div>
+                
+                <div class="manual-input-section">
+                    <h3 class="manual-input-title"><i class="fas fa-keyboard"></i> Datos Manuales</h3>
+                    <div class="manual-input-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="telefonoManual">Teléfono (10 dígitos):</label>
+                            <input type="text" id="telefonoManual" class="form-input" placeholder="Ej. 5512345678" maxlength="10" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="iccManual">ICC (18-20 dígitos):</label>
+                            <input type="text" id="iccManual" class="form-input" placeholder="Ej. 8952... (solo números)" />
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-          <p style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.5rem;">
-            Puedes ingresar los datos manualmente o usar OCR para extraerlos de una imagen.
-          </p>
-        </div>
-      </div>
 
-      <!-- Upload Card -->
-      <div class="card">
-        <h2 class="card-title">
-          <i>📁</i> Carga de Captura
-        </h2>
-        
-        <div class="upload-area" id="uploadArea">
-          <div class="upload-icon">📸</div>
-          <div class="upload-text">
-            <p>Toca para seleccionar una imagen</p>
-          </div>
-          <p class="upload-hint">Formatos soportados: JPG, PNG, WebP</p>
-          <input type="file" id="fileInput" accept="image/*" style="display: none;" />
-        </div>
-      </div>
-
-      <!-- Actions Card -->
-      <div class="card">
-        <h2 class="card-title">
-          <i>⚙️</i> Procesamiento
-        </h2>
-        
-        <div class="button-group">
-          <button class="btn btn-primary" id="btnOcr">
-            <i>🔍</i> Procesar OCR
-          </button>
-          <button class="btn btn-secondary" id="btnEnviar">
-            <i>📤</i> Enviar Datos
-          </button>
-        </div>
-        
-        <div class="progress-container" id="progressContainer">
-          <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-          </div>
-          <div class="progress-text" id="progressText">Procesando imagen...</div>
-        </div>
-      </div>
-
-      <!-- Results Card -->
-      <div class="card" id="resultsCard">
-        <h2 class="card-title">
-          <i>📊</i> Resultados
-        </h2>
-        
-        <div class="results-container" id="resultsContainer">
-          <div class="results-grid">
-            <div class="result-card">
-              <div class="result-header">
-                <div class="result-title">Datos Extraídos</div>
-                <div class="result-status status-success" id="resultStatus">Completado</div>
-              </div>
-              <div class="result-content">
-                <div class="result-field">
-                  <span class="result-label">Teléfono:</span>
-                  <span class="result-value" id="resultTelefono">—</span>
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-file-upload"></i> Carga de Captura</h2>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon"><i class="fas fa-camera"></i></div>
+                    <div class="upload-text">
+                        <p>Arrastra o toca para seleccionar una imagen</p>
+                    </div>
+                    <p class="upload-hint">Formatos: JPG, PNG. Intenta una imagen nítida para mejor OCR.</p>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;" />
                 </div>
-                <div class="result-field">
-                  <span class="result-label">ICCID:</span>
-                  <span class="result-value" id="resultIcc">—</span>
-                </div>
-                <div class="result-field">
-                  <span class="result-label">CURP:</span>
-                  <span class="result-value" id="resultCurp">—</span>
-                </div>
-              </div>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Log Card -->
-      <div class="card">
-        <div class="log-header">
-          <h2 class="log-title">
-            <i>📝</i> Registro de Actividad
-          </h2>
-          <button class="btn btn-secondary btn-small" id="btnClearLog">
-            <i>🗑️</i> Limpiar
-          </button>
-        </div>
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-cogs"></i> Procesamiento</h2>
+                
+                <div class="button-group">
+                    <button class="btn btn-secondary" id="btnOcr">
+                        <i class="fas fa-search-plus"></i> Procesar OCR
+                    </button>
+                    <button class="btn btn-primary" id="btnEnviar">
+                        <i class="fas fa-share-square"></i> Enviar Datos
+                    </button>
+                </div>
+                
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">Esperando imagen...</div>
+                </div>
+            </div>
+
+            <div class="card" id="resultsCard">
+                <h2 class="card-title"><i class="fas fa-chart-bar"></i> Resultados de Extracción</h2>
+                
+                <div class="results-container" id="resultsContainer">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <div class="result-title">Datos Extraídos / Manuales</div>
+                            <div class="result-status status-error" id="resultStatus">Sin datos</div>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-field">
+                                <span class="result-label">Teléfono:</span>
+                                <span class="result-value" id="resultTelefono">—</span>
+                            </div>
+                            <div class="result-field">
+                                <span class="result-label">ICCID:</span>
+                                <span class="result-value" id="resultIcc">—</span>
+                            </div>
+                            <div class="result-field">
+                                <span class="result-label">CURP:</span>
+                                <span class="result-value" id="resultCurp">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="log-header">
+                    <h2 class="log-title"><i class="fas fa-file-alt"></i> Registro de Actividad</h2>
+                    <button class="btn btn-secondary btn-small" id="btnClearLog">
+                        <i class="fas fa-trash-alt"></i> Limpiar
+                    </button>
+                </div>
+                <div class="log-container">
+                    <div class="log" id="log"></div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>SERVICIOS INTEGRALES MADA &copy; 2023 | Desarrollado con ❤️</p>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast">
+        <div class="toast-icon" id="toastIcon"></div>
+        <div class="toast-message" id="toastMessage"></div>
+    </div>
+
+    <script>
+        // 🚀 URL DEL BACKEND (ACTUALIZADA POR TU AGENTE)
+        const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwB1U1sU2jPcfAYfYn6-pBvj0X7k1C9-MgoBLDpGALj06a82taOsgNTxqqq56NR5RaH/exec';
         
-        <div class="log-container">
-          <div class="log" id="log"></div>
-        </div>
-      </div>
-    </main>
+        let telefonoOCR = '', iccOCR = '', curpOCR = '';
+        let imagenSeleccionada = null;
 
-    <footer class="footer">
-      <p>SERVICIOS INTEGRALES MADA &copy; 2023 - Sistema de Registro de Portabilidades</p>
-    </footer>
-  </div>
+        const elementos = {
+            promotor: document.getElementById("promotor"),
+            telefonoManual: document.getElementById("telefonoManual"),
+            iccManual: document.getElementById("iccManual"),
+            fileInput: document.getElementById("fileInput"),
+            uploadArea: document.getElementById("uploadArea"),
+            btnOcr: document.getElementById("btnOcr"),
+            btnEnviar: document.getElementById("btnEnviar"),
+            progressContainer: document.getElementById("progressContainer"),
+            progressFill: document.getElementById("progressFill"),
+            progressText: document.getElementById("progressText"),
+            resultsCard: document.getElementById("resultsCard"),
+            resultTelefono: document.getElementById("resultTelefono"),
+            resultIcc: document.getElementById("resultIcc"),
+            resultCurp: document.getElementById("resultCurp"),
+            resultStatus: document.getElementById("resultStatus"),
+            log: document.getElementById("log"),
+            btnClearLog: document.getElementById("btnClearLog"),
+            toast: document.getElementById("toast"),
+            toastIcon: document.getElementById("toastIcon"),
+            toastMessage: document.getElementById("toastMessage")
+        };
 
-  <!-- Toast Notification -->
-  <div class="toast" id="toast">
-    <div class="toast-icon" id="toastIcon">✅</div>
-    <div class="toast-message" id="toastMessage">Operación completada con éxito</div>
-  </div>
-
-  <script>
-    // URL del backend
-    const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzEwcWgHmLImxi7VOmVioVoXUZQGZHgFUeos1YRAYFKCGsDH5CIya5eiJRayqIundZO/exec';
-    
-    // Variables globales
-    let telefono = '', icc = '', curp = '';
-    let imagenSeleccionada = null;
-
-    // Elementos DOM
-    const elementos = {
-      promotor: document.getElementById("promotor"),
-      telefonoManual: document.getElementById("telefonoManual"),
-      iccManual: document.getElementById("iccManual"),
-      fileInput: document.getElementById("fileInput"),
-      uploadArea: document.getElementById("uploadArea"),
-      btnOcr: document.getElementById("btnOcr"),
-      btnEnviar: document.getElementById("btnEnviar"),
-      progressContainer: document.getElementById("progressContainer"),
-      progressFill: document.getElementById("progressFill"),
-      progressText: document.getElementById("progressText"),
-      resultsCard: document.getElementById("resultsCard"),
-      resultsContainer: document.getElementById("resultsContainer"),
-      resultTelefono: document.getElementById("resultTelefono"),
-      resultIcc: document.getElementById("resultIcc"),
-      resultCurp: document.getElementById("resultCurp"),
-      resultStatus: document.getElementById("resultStatus"),
-      log: document.getElementById("log"),
-      btnClearLog: document.getElementById("btnClearLog"),
-      toast: document.getElementById("toast"),
-      toastIcon: document.getElementById("toastIcon"),
-      toastMessage: document.getElementById("toastMessage")
-    };
-
-    // Inicialización
-    document.addEventListener('DOMContentLoaded', function() {
-      configurarEventListeners();
-      agregarLog("✅ Sistema MADA inicializado. Listo para procesar portabilidades.", "info");
-      
-      // Ocultar resultados inicialmente
-      elementos.resultsCard.style.display = 'none';
-    });
-
-    // Configurar event listeners
-    function configurarEventListeners() {
-      // Área de carga
-      elementos.uploadArea.addEventListener('click', () => elementos.fileInput.click());
-      elementos.uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        elementos.uploadArea.classList.add('dragover');
-      });
-      elementos.uploadArea.addEventListener('dragleave', () => {
-        elementos.uploadArea.classList.remove('dragover');
-      });
-      elementos.uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        elementos.uploadArea.classList.remove('dragover');
-        manejarArchivo(e.dataTransfer.files[0]);
-      });
-
-      // Input de archivo
-      elementos.fileInput.addEventListener('change', (e) => {
-        manejarArchivo(e.target.files[0]);
-      });
-
-      // Campos manuales
-      elementos.telefonoManual.addEventListener('input', function() {
-        // Limpiar solo números y limitar a 10 dígitos
-        this.value = this.value.replace(/\D/g, '').substring(0, 10);
-        telefono = this.value;
-        actualizarResultados();
-      });
-
-      elementos.iccManual.addEventListener('input', function() {
-        // Limpiar solo números
-        this.value = this.value.replace(/\D/g, '');
-        icc = this.value;
-        actualizarResultados();
-      });
-
-      // Botones
-      elementos.btnOcr.addEventListener('click', procesarOCR);
-      elementos.btnEnviar.addEventListener('click', enviarBackend);
-      elementos.btnClearLog.addEventListener('click', limpiarLog);
-    }
-
-    // Normalizar texto (quitar acentos y convertir a mayúsculas)
-    function normalizarTexto(texto) {
-      if (!texto) return '';
-      return texto
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toUpperCase()
-        .trim();
-    }
-
-    // Manejar archivo seleccionado o arrastrado
-    function manejarArchivo(file) {
-      if (!file) return;
-      
-      if (!file.type.startsWith('image/')) {
-        mostrarToast("El archivo seleccionado no es una imagen válida", "error");
-        agregarLog("❌ El archivo seleccionado no es una imagen válida.", "error");
-        return;
-      }
-      
-      imagenSeleccionada = file;
-      elementos.uploadArea.querySelector('.upload-text p').textContent = `Imagen: ${file.name}`;
-      elementos.uploadArea.querySelector('.upload-hint').textContent = "Toca para cambiar de imagen";
-      
-      mostrarToast(`Imagen "${file.name}" cargada correctamente`, "success");
-      agregarLog(`✅ Imagen "${file.name}" cargada correctamente.`, "success");
-    }
-
-    // Procesar OCR
-    async function procesarOCR() {
-      // Validaciones
-      if (!imagenSeleccionada) {
-        mostrarToast("No hay imagen para procesar", "error");
-        return;
-      }
-      
-      // Configurar interfaz para procesamiento
-      elementos.btnOcr.disabled = true;
-      elementos.progressContainer.style.display = 'block';
-      elementos.progressFill.style.width = '0%';
-      elementos.progressText.textContent = "Preprocesando imagen...";
-      
-      // Limpiar resultados anteriores
-      telefono = '';
-      icc = '';
-      curp = '';
-      actualizarResultados();
-      
-      mostrarToast("Iniciando procesamiento OCR...", "info");
-      agregarLog("🔍 Iniciando procesamiento OCR...", "info");
-      
-      try {
-        // Preprocesar imagen
-        elementos.progressFill.style.width = '30%';
-        elementos.progressText.textContent = "Preprocesando imagen...";
-        
-        const canvas = await preprocessImage(imagenSeleccionada);
-        const dataUrl = canvas.toDataURL('image/png');
-        
-        // Realizar OCR
-        elementos.progressFill.style.width = '60%';
-        elementos.progressText.textContent = "Realizando OCR...";
-        
-        const result = await Tesseract.recognize(dataUrl, 'spa+eng', {
-          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+        document.addEventListener('DOMContentLoaded', function() {
+            configurarEventListeners();
+            elementos.resultsCard.style.display = 'none';
+            actualizarResultados(); // Muestra el estado inicial "Sin datos"
+            agregarLog("✅ Sistema MADA inicializado. Listo para procesar portabilidades.", "info");
         });
 
-        // Procesar resultado
-        elementos.progressFill.style.width = '90%';
-        elementos.progressText.textContent = "Extrayendo datos...";
-        
-        const text = result.data.text.replace(/\s+/g, ' ');
-        console.log('Texto reconocido:', text);
-        
-        // Extraer datos
-        extractData(text);
-        
-        // Llenar campos manuales con datos extraídos
-        if (telefono) {
-          elementos.telefonoManual.value = telefono;
+        function configurarEventListeners() {
+            // Carga de archivos
+            elementos.uploadArea.addEventListener('click', () => elementos.fileInput.click());
+            elementos.uploadArea.addEventListener('drop', (e) => { e.preventDefault(); manejarArchivo(e.dataTransfer.files[0]); });
+            ['dragover', 'dragleave', 'drop'].forEach(eventName => {
+                elementos.uploadArea.addEventListener(eventName, e => e.preventDefault());
+            });
+            elementos.uploadArea.addEventListener('dragover', () => elementos.uploadArea.classList.add('dragover'));
+            elementos.uploadArea.addEventListener('dragleave', () => elementos.uploadArea.classList.remove('dragover'));
+            elementos.fileInput.addEventListener('change', (e) => manejarArchivo(e.target.files[0]));
+
+            // Input manual: Limpieza y actualización
+            elementos.telefonoManual.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').substring(0, 10);
+                actualizarResultados();
+            });
+            elementos.iccManual.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '');
+                actualizarResultados();
+            });
+
+            // Botones
+            elementos.btnOcr.addEventListener('click', procesarOCR);
+            elementos.btnEnviar.addEventListener('click', enviarBackend);
+            elementos.btnClearLog.addEventListener('click', limpiarLog);
         }
-        if (icc) {
-          elementos.iccManual.value = icc;
+
+        // Normalizar texto (quitar acentos y convertir a mayúsculas)
+        function normalizarTexto(texto) {
+            if (!texto) return '';
+            return texto
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toUpperCase()
+                .trim();
         }
-        
-        // Finalizar procesamiento
-        elementos.progressFill.style.width = '100%';
-        elementos.progressText.textContent = "Procesamiento completado";
-        
-        // Mostrar resultados
-        actualizarResultados();
-        elementos.resultsCard.style.display = 'block';
-        elementos.resultsContainer.style.display = 'block';
-        
-        mostrarToast("Procesamiento OCR completado", "success");
-        agregarLog("✅ OCR completado exitosamente.", "success");
-        agregarLog(`📄 Texto reconocido: ${text}`, "info");
-        agregarLog(`📱 Teléfono: ${telefono || '—'}`, "info");
-        agregarLog(`💳 ICCID: ${icc || '—'}`, "info");
-        agregarLog(`🧾 CURP: ${curp || '—'}`, "info");
-        
-      } catch (error) {
-        console.error(error);
-        elementos.resultStatus.className = "result-status status-error";
-        elementos.resultStatus.textContent = "Error";
-        
-        mostrarToast("Error durante el procesamiento OCR", "error");
-        agregarLog(`❌ Error durante el procesamiento: ${error.message}`, "error");
-      } finally {
-        elementos.btnOcr.disabled = false;
-        
-        // Ocultar barra de progreso después de un tiempo
-        setTimeout(() => {
-          elementos.progressContainer.style.display = 'none';
-        }, 2000);
-      }
-    }
 
-    // 🧽 Mejora de imagen: binarización + realce de contraste
-    async function preprocessImage(file) {
-      const img = await createImageBitmap(file);
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imgData.data;
+        function manejarArchivo(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                mostrarToast("El archivo seleccionado no es una imagen válida", "error");
+                agregarLog("❌ El archivo seleccionado no es una imagen válida.", "error");
+                return;
+            }
+            
+            imagenSeleccionada = file;
+            elementos.uploadArea.querySelector('.upload-text p').textContent = `Imagen: ${file.name}`;
+            elementos.uploadArea.querySelector('.upload-hint').textContent = "Toca para cambiar de imagen | Listo para OCR";
+            elementos.resultsCard.style.display = 'none';
+            
+            mostrarToast(`Imagen "${file.name}" cargada`, "success");
+            agregarLog(`✅ Imagen "${file.name}" cargada.`, "success");
+        }
 
-      // Filtro adaptativo tipo Otsu simple
-      for (let i = 0; i < data.length; i += 4) {
-        const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-        const val = avg > 160 ? 255 : 0;
-        data[i] = data[i + 1] = data[i + 2] = val;
-      }
-      ctx.putImageData(imgData, 0, 0);
-      return canvas;
-    }
+        async function procesarOCR() {
+            if (!imagenSeleccionada) {
+                mostrarToast("No hay imagen para procesar", "error");
+                return;
+            }
+            
+            // Bloquear interfaz
+            elementos.btnOcr.disabled = true;
+            elementos.btnEnviar.disabled = true;
+            elementos.progressContainer.style.display = 'block';
+            telefonoOCR = ''; iccOCR = ''; curpOCR = '';
+            actualizarResultados();
+            
+            agregarLog("🔍 Iniciando procesamiento OCR...", "info");
+            
+            try {
+                // 1. Preprocesar imagen
+                elementos.progressFill.style.width = '20%';
+                elementos.progressText.textContent = "Preprocesando imagen (contraste y binarización)...";
+                const canvas = await preprocessImage(imagenSeleccionada);
+                const dataUrl = canvas.toDataURL('image/png');
+                
+                // 2. Realizar OCR
+                elementos.progressFill.style.width = '50%';
+                elementos.progressText.textContent = "Ejecutando Tesseract (puede tardar unos segundos)...";
+                
+                const result = await Tesseract.recognize(dataUrl, 'spa+eng', {
+                    // Limitar caracteres para mejorar precisión en números y códigos
+                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-',
+                    logger: m => {
+                        if (m.status === 'recognizing text') {
+                            elementos.progressFill.style.width = `${50 + m.progress * 30}%`;
+                        }
+                    }
+                });
 
-    // 🧠 Detección robusta de patrones
-    function extractData(text) {
-      telefono = (text.match(/\b\d{10}\b/) || [''])[0];
-      icc = (text.match(/89\d{17,18}/) || [''])[0];
-      curp = (text.match(/[A-Z]{4}\d{6}[A-Z0-9]{8}/i) || [''])[0];
-    }
+                // 3. Procesar resultado
+                elementos.progressFill.style.width = '80%';
+                elementos.progressText.textContent = "Extrayendo y validando datos...";
+                
+                const text = result.data.text.replace(/\s+/g, ' ');
+                
+                extractData(text); // Actualiza telefonoOCR, iccOCR, curpOCR
+                
+                // Si el OCR extrae datos, actualizar los campos manuales (para edición)
+                if (telefonoOCR) elementos.telefonoManual.value = telefonoOCR;
+                if (iccOCR) elementos.iccManual.value = iccOCR;
+                
+                // 4. Finalizar
+                elementos.progressFill.style.width = '100%';
+                elementos.progressText.textContent = "Procesamiento completado";
+                
+                actualizarResultados();
+                elementos.resultsCard.style.display = 'block';
+                
+                mostrarToast("OCR completado", "success");
+                agregarLog(`✅ OCR finalizado. Datos extraídos.`, "success");
+                agregarLog(`📄 Texto reconocido: ${text.substring(0, 80)}...`, "info");
+                
+            } catch (error) {
+                console.error("Error en OCR:", error);
+                mostrarToast("Error grave en OCR", "error");
+                agregarLog(`❌ Error en el motor OCR: ${error.message}`, "error");
+            } finally {
+                // Desbloquear interfaz
+                elementos.btnOcr.disabled = false;
+                elementos.btnEnviar.disabled = false;
+                setTimeout(() => elementos.progressContainer.style.display = 'none', 1500);
+            }
+        }
 
-    // Actualizar resultados en la interfaz
-    function actualizarResultados() {
-      // Usar datos de campos manuales si están disponibles
-      const telefonoFinal = elementos.telefonoManual.value || telefono;
-      const iccFinal = elementos.iccManual.value || icc;
-      
-      elementos.resultTelefono.textContent = telefonoFinal || '—';
-      elementos.resultIcc.textContent = iccFinal || '—';
-      elementos.resultCurp.textContent = curp || '—';
-      
-      // Actualizar estado según los datos extraídos
-      if (telefonoFinal && iccFinal) {
-        elementos.resultStatus.className = "result-status status-success";
-        elementos.resultStatus.textContent = "Completado";
-      } else if (telefonoFinal || iccFinal) {
-        elementos.resultStatus.className = "result-status status-warning";
-        elementos.resultStatus.textContent = "Parcial";
-      } else {
-        elementos.resultStatus.className = "result-status status-error";
-        elementos.resultStatus.textContent = "Sin datos";
-      }
-    }
+        // Función de preprocesamiento (mantengo tu lógica simple pero efectiva)
+        async function preprocessImage(file) {
+            const img = await createImageBitmap(file);
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imgData.data;
 
-    // Enviar datos al backend
-    async function enviarBackend() {
-      const promotor = normalizarTexto(elementos.promotor.value.trim());
-      const telefonoFinal = elementos.telefonoManual.value || telefono;
-      const iccFinal = elementos.iccManual.value || icc;
-      
-      // Validaciones
-      if (!promotor) {
-        mostrarToast("Por favor, ingresa el nombre del promotor", "error");
-        elementos.promotor.focus();
-        return;
-      }
-      
-      if (!telefonoFinal || !iccFinal) {
-        mostrarToast("No hay datos válidos para enviar. Procesa una imagen o ingresa los datos manualmente.", "error");
-        return;
-      }
-      
-      const payload = { promotor, telefono: telefonoFinal, icc: iccFinal };
-      
-      // Mostrar progreso
-      elementos.progressContainer.style.display = 'block';
-      elementos.progressFill.style.width = '50%';
-      elementos.progressText.textContent = "Enviando datos al backend...";
-      
-      agregarLog("🚀 Enviando datos al backend...", "info");
-      
-      try {
-        await fetch(WEBAPP_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json; charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
-        
-        elementos.progressFill.style.width = '100%';
-        elementos.progressText.textContent = "Envío completado";
-        
-        mostrarToast("Datos enviados correctamente", "success");
-        agregarLog("✅ Registro enviado correctamente.", "success");
-        
-        // Limpiar formulario después de envío exitoso
-        setTimeout(() => {
-          limpiarFormulario();
-          elementos.progressContainer.style.display = 'none';
-        }, 2000);
-        
-      } catch (err) {
-        elementos.progressContainer.style.display = 'none';
-        mostrarToast("Error al enviar los datos", "error");
-        agregarLog('❌ Error al enviar: ' + err.message, "error");
-      }
-    }
+            // Binarización simple adaptativa
+            for (let i = 0; i < data.length; i += 4) {
+                const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                const val = avg > 160 ? 255 : 0;
+                data[i] = data[i + 1] = data[i + 2] = val;
+            }
+            ctx.putImageData(imgData, 0, 0);
+            return canvas;
+        }
 
-    // Limpiar formulario
-    function limpiarFormulario() {
-      elementos.promotor.value = '';
-      elementos.telefonoManual.value = '';
-      elementos.iccManual.value = '';
-      elementos.fileInput.value = '';
-      elementos.uploadArea.querySelector('.upload-text p').textContent = 'Toca para seleccionar una imagen';
-      elementos.uploadArea.querySelector('.upload-hint').textContent = 'Formatos soportados: JPG, PNG, WebP';
-      elementos.resultsCard.style.display = 'none';
-      telefono = '';
-      icc = '';
-      curp = '';
-      imagenSeleccionada = null;
-    }
+        // Detección robusta de patrones
+        function extractData(text) {
+            // 1. Teléfono: 10 dígitos aislados
+            const matchTelefono = text.match(/\b\d{10}\b/g);
+            telefonoOCR = matchTelefono ? matchTelefono[0] : '';
 
-    // Agregar entrada al log
-    function agregarLog(mensaje, tipo = "info") {
-      const timestamp = new Date().toLocaleTimeString();
-      const logEntry = document.createElement('div');
-      logEntry.className = `log-entry ${tipo}`;
-      logEntry.textContent = `[${timestamp}] ${mensaje}`;
-      
-      elementos.log.appendChild(logEntry);
-      elementos.log.scrollTop = elementos.log.scrollHeight;
-    }
+            // 2. ICC: 18-20 dígitos que inician con '89' (patrón SIM/ICCID)
+            const matchIcc = text.match(/89\d{16,18}/g);
+            iccOCR = matchIcc ? matchIcc[0] : '';
 
-    // Limpiar log
-    function limpiarLog() {
-      elementos.log.innerHTML = '';
-      agregarLog("Registro de actividad limpiado.", "info");
-    }
+            // 3. CURP: Patrón alfanumérico estricto (4 letras + 6 dígitos + 8 alfanuméricos)
+            const matchCurp = text.match(/[A-Z]{4}[0-9]{6}[A-Z0-9]{8}/i);
+            curpOCR = matchCurp ? normalizarTexto(matchCurp[0]) : '';
+        }
 
-    // Mostrar notificación toast
-    function mostrarToast(mensaje, tipo = "success") {
-      elementos.toast.className = `toast toast-${tipo}`;
-      elementos.toastMessage.textContent = mensaje;
-      elementos.toastIcon.textContent = 
-        tipo === "success" ? "✅" : 
-        tipo === "error" ? "❌" : 
-        tipo === "warning" ? "⚠️" : "ℹ️";
-      
-      elementos.toast.classList.add("show");
-      
-      setTimeout(() => {
-        elementos.toast.classList.remove("show");
-      }, 3000);
-    }
-  </script>
+        // Actualizar resultados en la interfaz
+        function actualizarResultados() {
+            const telefonoFinal = elementos.telefonoManual.value;
+            const iccFinal = elementos.iccManual.value;
+            
+            elementos.resultTelefono.textContent = telefonoFinal || '—';
+            elementos.resultIcc.textContent = iccFinal || '—';
+            elementos.resultCurp.textContent = curpOCR || '—';
+            
+            // Determinar estado de validación
+            const esTelefonoValido = telefonoFinal.length === 10;
+            const esIccValido = iccFinal.length >= 18 && iccFinal.length <= 20;
+
+            if (esTelefonoValido && esIccValido) {
+                elementos.resultStatus.className = "result-status status-success";
+                elementos.resultStatus.textContent = "LISTO PARA ENVÍO";
+            } else if (esTelefonoValido || esIccValido) {
+                elementos.resultStatus.className = "result-status status-warning";
+                elementos.resultStatus.textContent = "DATOS PARCIALES";
+            } else {
+                elementos.resultStatus.className = "result-status status-error";
+                elementos.resultStatus.textContent = "SIN DATOS";
+            }
+        }
+
+        // Enviar datos al backend (Apps Script)
+        async function enviarBackend() {
+            const promotor = elementos.promotor.value.trim();
+            const telefonoFinal = elementos.telefonoManual.value;
+            const iccFinal = elementos.iccManual.value;
+            
+            // Validaciones
+            if (!promotor) { mostrarToast("Ingresa el nombre del promotor", "error"); elementos.promotor.focus(); return; }
+            if (telefonoFinal.length !== 10) { mostrarToast("El teléfono debe tener 10 dígitos", "error"); return; }
+            if (iccFinal.length < 18 || iccFinal.length > 20) { mostrarToast("El ICC debe tener entre 18 y 20 dígitos", "error"); return; }
+            
+            const payload = { 
+                action: "guardarRegistro", 
+                promotor, 
+                telefono: telefonoFinal, 
+                icc: iccFinal 
+            };
+            
+            elementos.progressContainer.style.display = 'block';
+            elementos.progressFill.style.width = '30%';
+            elementos.progressText.textContent = "Conectando con el servidor...";
+            agregarLog("🚀 Enviando datos de registro...", "info");
+            
+            try {
+                const response = await fetch(WEBAPP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Usamos text/plain para evitar problemas de CORS en algunos navegadores con Apps Script
+                    body: JSON.stringify(payload)
+                });
+                
+                // Apps Script devuelve un JSON. Lo parseamos.
+                const text = await response.text();
+                const result = JSON.parse(text); 
+
+                elementos.progressFill.style.width = '100%';
+                
+                if (result.status === 'success') {
+                    mostrarToast(result.message, "success");
+                    agregarLog(result.message, "success");
+                    limpiarFormulario();
+                } else if (result.status === 'warning') {
+                    mostrarToast(result.message, "warning");
+                    agregarLog(result.message, "warning");
+                } else {
+                    throw new Error(result.message || "Error desconocido del servidor.");
+                }
+            } catch (err) {
+                console.error("Error de envío:", err);
+                mostrarToast("Error al enviar los datos", "error");
+                agregarLog(`❌ Error al enviar: ${err.message}. Verifica la URL del Apps Script.`, "error");
+            } finally {
+                setTimeout(() => elementos.progressContainer.style.display = 'none', 1500);
+            }
+        }
+
+        // Limpiar formulario y variables
+        function limpiarFormulario() {
+            elementos.promotor.value = '';
+            elementos.telefonoManual.value = '';
+            elementos.iccManual.value = '';
+            elementos.fileInput.value = '';
+            elementos.uploadArea.querySelector('.upload-text p').textContent = 'Arrastra o toca para seleccionar una imagen';
+            elementos.uploadArea.querySelector('.upload-hint').textContent = 'Formatos: JPG, PNG. Intenta una imagen nítida para mejor OCR.';
+            elementos.resultsCard.style.display = 'none';
+            telefonoOCR = ''; iccOCR = ''; curpOCR = '';
+            imagenSeleccionada = null;
+            actualizarResultados();
+        }
+
+        // Agregar entrada al log
+        function agregarLog(mensaje, tipo = "info") {
+            const timestamp = new Date().toLocaleTimeString('es-MX');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${tipo}`;
+            logEntry.textContent = `[${timestamp}] ${mensaje}`;
+            elementos.log.appendChild(logEntry);
+            elementos.log.scrollTop = elementos.log.scrollHeight;
+        }
+
+        // Limpiar log
+        function limpiarLog() {
+            elementos.log.innerHTML = '';
+            agregarLog("Registro de actividad limpiado.", "info");
+        }
+
+        // Mostrar notificación toast
+        function mostrarToast(mensaje, tipo = "success") {
+            elementos.toast.className = `toast toast-${tipo}`;
+            elementos.toastMessage.textContent = mensaje;
+            elementos.toastIcon.innerHTML = 
+                tipo === "success" ? `<i class="fas fa-check-circle"></i>` : 
+                tipo === "error" ? `<i class="fas fa-times-circle"></i>` : 
+                tipo === "warning" ? `<i class="fas fa-exclamation-triangle"></i>` : `<i class="fas fa-info-circle"></i>`;
+            
+            elementos.toast.classList.add("show");
+            
+            setTimeout(() => { elementos.toast.classList.remove("show"); }, 3000);
+        }
+    </script>
 </body>
 </html>
