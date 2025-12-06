@@ -370,7 +370,12 @@
       font-weight: 600;
     }
 
-    .status-completed {
+    .status-pendiente {
+      background-color: rgba(245, 158, 11, 0.2);
+      color: var(--warning);
+    }
+
+    .status-listo {
       background-color: rgba(16, 185, 129, 0.2);
       color: var(--success);
     }
@@ -549,7 +554,7 @@
         </div>
         <div class="stat-card-value" id="totalPortabilidades">0</div>
         <div class="stat-card-change positive">
-          <i>↗</i> <span>+12% vs período anterior</span>
+          <i>↗</i> <span>Cargando...</span>
         </div>
       </div>
       
@@ -562,7 +567,7 @@
         </div>
         <div class="stat-card-value" id="promedioDiario">0</div>
         <div class="stat-card-change positive">
-          <i>↗</i> <span>+5% vs período anterior</span>
+          <i>↗</i> <span>Cargando...</span>
         </div>
       </div>
       
@@ -575,20 +580,20 @@
         </div>
         <div class="stat-card-value" id="promotoresActivos">0</div>
         <div class="stat-card-change positive">
-          <i>↗</i> <span>+2 vs período anterior</span>
+          <i>↗</i> <span>Cargando...</span>
         </div>
       </div>
       
       <div class="stat-card">
         <div class="stat-card-header">
-          <div class="stat-card-title">Eficiencia</div>
+          <div class="stat-card-title">Pendientes</div>
           <div class="stat-card-icon">
-            <i>⚡</i>
+            <i>⏳</i>
           </div>
         </div>
-        <div class="stat-card-value" id="eficiencia">0%</div>
+        <div class="stat-card-value" id="totalPendientes">0</div>
         <div class="stat-card-change negative">
-          <i>↘</i> <span>-3% vs período anterior</span>
+          <i>↘</i> <span>Cargando...</span>
         </div>
       </div>
     </div>
@@ -616,6 +621,7 @@
           <label class="filter-label" for="filtroEstado">Estado:</label>
           <select id="filtroEstado" class="filter-input">
             <option value="">Todos los estados</option>
+            <option value="PENDIENTE">PENDIENTE</option>
             <option value="LISTO">LISTO</option>
           </select>
         </div>
@@ -650,9 +656,11 @@
               <th>Teléfono</th>
               <th>ICC</th>
               <th>Estado</th>
+              <th>Tiempo (días)</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="tablaBody">
+            <!-- Los datos se cargarán aquí -->
           </tbody>
         </table>
       </div>
@@ -682,16 +690,16 @@
       
       <div class="chart-card">
         <h3 class="chart-title">
-          <i>📈</i> Tendencias Mensuales
+          <i>📈</i> Distribución por Estado
         </h3>
         <div class="chart-wrapper">
-          <canvas id="graficaTendencias"></canvas>
+          <canvas id="graficaEstados"></canvas>
         </div>
       </div>
       
       <div class="chart-card">
         <h3 class="chart-title">
-          <i>🥇</i> Ranking de Promotores
+          <i>🥇</i> Top 10 Promotores
         </h3>
         <div class="chart-wrapper">
           <canvas id="graficaRanking"></canvas>
@@ -701,7 +709,7 @@
   </div>
 
   <footer>
-    <p>Servicios Integrales MADA &copy; 2023 - Dashboard del Supervisor</p>
+    <p>Servicios Integrales MADA &copy; 2023 - Dashboard del Supervisor | Última actualización: <span id="lastUpdate">--:--:--</span></p>
   </footer>
 
   <div class="toast" id="toast">
@@ -710,11 +718,23 @@
   </div>
 
   <script>
-    // Configuración
-    const SHEET_ID = "1KJZNzGfbPNBBfjH_SIiuXDBVL6Kj_fO_tz5wt-5_PwM";
-    const HOJA = "TRAMITES";
-    const API_URL = `https://opensheet.elk.sh/${SHEET_ID}/${HOJA}`;
-
+    // 🚀 URL DEL BACKEND - Debes actualizar esta URL con la que obtengas al implementar el Apps Script
+    // La URL se obtiene al implementar el proyecto de Apps Script como aplicación web
+    let WEBAPP_URL = '';
+    
+    // Intentar obtener la URL del sistema desde localStorage o usar una por defecto
+    function obtenerURLBackend() {
+      // Primero, intentar desde localStorage (si el formulario la guardó)
+      const urlGuardada = localStorage.getItem('mada_system_url');
+      if (urlGuardada) {
+        return urlGuardada;
+      }
+      
+      // Si no, usar la URL por defecto (la que se creó originalmente)
+      // NOTA: Debes reemplazar esta URL con la que obtengas al implementar el Apps Script
+      return 'https://script.google.com/macros/s/AKfycbw-78IRPNmKGaCfaqazQvBRSXN5SVhOn-hdlyUvpLfa3aPG3MhZ_NXgNkg2MkLI8T73/exec';
+    }
+    
     // Variables globales
     let datosOriginales = [];
     let datosFiltrados = [];
@@ -723,7 +743,7 @@
 
     // Elementos DOM
     const elementos = {
-      tabla: document.querySelector("#tabla tbody"),
+      tablaBody: document.getElementById("tablaBody"),
       filtroPromotor: document.getElementById("filtroPromotor"),
       filtroEstado: document.getElementById("filtroEstado"),
       fechaInicio: document.getElementById("fechaInicio"),
@@ -739,27 +759,36 @@
       totalPortabilidades: document.getElementById("totalPortabilidades"),
       promedioDiario: document.getElementById("promedioDiario"),
       promotoresActivos: document.getElementById("promotoresActivos"),
-      eficiencia: document.getElementById("eficiencia"),
+      totalPendientes: document.getElementById("totalPendientes"),
       toast: document.getElementById("toast"),
       toastIcon: document.getElementById("toastIcon"),
-      toastMessage: document.getElementById("toastMessage")
+      toastMessage: document.getElementById("toastMessage"),
+      lastUpdate: document.getElementById("lastUpdate")
     };
 
     // Inicialización
     document.addEventListener('DOMContentLoaded', function() {
+      // Obtener la URL del backend
+      WEBAPP_URL = obtenerURLBackend();
+      console.log('Usando URL del backend:', WEBAPP_URL);
+      
       // Establecer fechas por defecto (últimos 30 días)
       const hoy = new Date();
       const hace30Dias = new Date();
       hace30Dias.setDate(hoy.getDate() - 30);
       
-      elementos.fechaInicio.value = formatearFecha(hace30Dias);
-      elementos.fechaFin.value = formatearFecha(hoy);
+      elementos.fechaInicio.value = formatearFechaInput(hace30Dias);
+      elementos.fechaFin.value = formatearFechaInput(hoy);
       
       // Cargar datos
       cargarDatos();
       
       // Configurar event listeners
       configurarEventListeners();
+      
+      // Actualizar hora de última actualización
+      actualizarHora();
+      setInterval(actualizarHora, 60000); // Actualizar cada minuto
     });
 
     // Configurar event listeners
@@ -772,13 +801,9 @@
       // Tabs
       elementos.tabs.forEach(tab => {
         tab.addEventListener("click", function() {
-          // Remover clase activa de todas las pestañas
           elementos.tabs.forEach(t => t.classList.remove('active'));
-          
-          // Agregar clase activa a la pestaña clickeada
           this.classList.add('active');
           
-          // Mostrar el contenido correspondiente
           const tabId = this.getAttribute('data-tab');
           if (tabId === 'tabla') {
             elementos.tablaContainer.style.display = 'block';
@@ -786,7 +811,6 @@
           } else {
             elementos.tablaContainer.style.display = 'none';
             elementos.graficasContainer.style.display = 'grid';
-            // Inicializar gráficas si no existen
             if (Object.keys(graficas).length === 0) {
               inicializarGraficas();
             }
@@ -796,37 +820,50 @@
       });
     }
 
-    // Cargar todos los datos
+    // Cargar todos los datos del backend
     async function cargarDatos() {
       mostrarLoader();
       
       try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
+        // Usar la API del backend con timestamp para evitar caché
+        const url = `${WEBAPP_URL}?timestamp=${new Date().getTime()}`;
+        const res = await fetch(url);
         
-        // Procesar datos reales de la hoja
-        datosOriginales = data.map((fila, index) => {
-          // Normalizar datos para evitar problemas con mayúsculas y acentos
+        if (!res.ok) {
+          throw new Error(`Error HTTP: ${res.status}`);
+        }
+        
+        const result = await res.json();
+        
+        if (!result.success) {
+          throw new Error(result.message || "Error en la respuesta del servidor");
+        }
+        
+        // Procesar datos del backend
+        datosOriginales = result.data.map((fila, index) => {
+          // Normalizar datos
           let promotor = fila.Promotor || '';
-          promotor = normalizarTexto(promotor);
           
-          // Procesar fecha - manejar diferentes formatos
-          let fechaOriginal = fila.Fecha || '';
-          let fechaProcesada = procesarFecha(fechaOriginal);
+          // Procesar fecha
+          let fecha = fila.Fecha || '';
+          let fechaCompleta = fila.FechaCompleta || fecha;
           
           // Obtener teléfono e ICC
           let telefono = fila.Telefono || '';
           let icc = fila.ICC || '';
+          let estado = fila.Estado || 'PENDIENTE';
+          let tiempo = fila.Tiempo || 0;
           
           return {
             id: index + 1,
-            fecha: fechaProcesada, // Fecha procesada para mostrar (YYYY-MM-DD)
-            // Se añade T00:00:00 para asegurar que la fecha se interprete como UTC al inicio del día.
-            fechaFiltro: new Date(fechaProcesada + 'T00:00:00'), // Fecha para filtrar
+            fecha: fecha,
+            fechaCompleta: fechaCompleta,
+            fechaFiltro: fecha ? new Date(fecha + 'T00:00:00') : new Date(),
             promotor: promotor,
             telefono: telefono,
             icc: icc,
-            estado: "LISTO" // Todos los estados son "LISTO"
+            estado: estado,
+            tiempo: tiempo
           };
         });
         
@@ -839,64 +876,24 @@
         llenarTabla();
         
         ocultarLoader();
-        mostrarToast("Datos cargados correctamente", "success");
+        mostrarToast(`Datos cargados: ${datosOriginales.length} registros`, "success");
+        
       } catch (error) {
         console.error("Error al cargar los datos:", error);
         ocultarLoader();
-        mostrarToast("Error al cargar los datos", "error");
-      }
-    }
-
-    // Normalizar texto para eliminar problemas con mayúsculas y acentos
-    function normalizarTexto(texto) {
-      if (!texto) return '';
-      return texto
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .replace(/\b\w/g, l => l.toUpperCase()); // Capitalizar primera letra de cada palabra
-    }
-
-    /**
-     * @description Procesa una cadena de fecha para devolverla en formato YYYY-MM-DD
-     * para asegurar la correcta creación del objeto Date sin problemas de zona horaria.
-     */
-    function procesarFecha(fechaStr) {
-      if (!fechaStr) return new Date().toISOString().split('T')[0];
-      
-      let fecha = new Date(fechaStr);
-      
-      // Si new Date() no puede parsear correctamente, intentar formatos comunes
-      if (isNaN(fecha.getTime())) {
-        // Intenta formato DD/MM/YYYY o DD-MM-YYYY (común en español)
-        const partes = fechaStr.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})(.*)$/);
-        if (partes && partes.length >= 4) {
-          // Date(año, mes(0-11), día)
-          fecha = new Date(partes[3], partes[2] - 1, partes[1]); 
-        } else {
-          // Intenta formato YYYY-MM-DD HH:MM:SS (típico de bases de datos/Google Sheets)
-          const partesGSheet = fechaStr.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(.*)$/);
-          if (partesGSheet && partesGSheet.length >= 4) {
-            // Date(año, mes(0-11), día)
-            fecha = new Date(partesGSheet[1], partesGSheet[2] - 1, partesGSheet[3]); 
-          }
-        }
         
-        // Si aún no es válida, usar fecha actual
-        if (isNaN(fecha.getTime())) {
-          fecha = new Date();
-        }
+        mostrarToast("Error al cargar los datos. Verifica la conexión.", "error");
       }
-      
-      // Devolver siempre en formato YYYY-MM-DD
-      return fecha.toISOString().split('T')[0];
     }
 
     // Llenar select de promotores sin duplicados
     function llenarPromotores() {
-      promotores = [...new Set(datosOriginales.map(r => r.promotor).filter(Boolean))];
+      promotores = [...new Set(datosOriginales
+        .map(r => r.promotor)
+        .filter(p => p && p.trim() !== ''))];
+      
       elementos.filtroPromotor.innerHTML = "<option value=''>Todos los promotores</option>";
-      promotores.forEach(p => {
+      promotores.sort().forEach(p => {
         const opt = document.createElement("option");
         opt.value = p;
         opt.textContent = p;
@@ -913,23 +910,30 @@
       
       let filtrados = datosOriginales;
 
+      // Filtrar por fecha de inicio
       if (inicioStr) {
-        // Usar la propiedad fechaFiltro (que es un objeto Date en UTC)
         const inicioDate = new Date(inicioStr + 'T00:00:00');
-        filtrados = filtrados.filter(r => r.fechaFiltro >= inicioDate);
+        filtrados = filtrados.filter(r => {
+          if (!r.fechaFiltro) return true;
+          return r.fechaFiltro >= inicioDate;
+        });
       }
       
+      // Filtrar por fecha de fin
       if (finStr) {
-        // Sumar un día a la fecha de fin para incluir el día completo
-        const finDate = new Date(finStr + 'T00:00:00');
-        finDate.setDate(finDate.getDate() + 1); 
-        filtrados = filtrados.filter(r => r.fechaFiltro < finDate);
+        const finDate = new Date(finStr + 'T23:59:59');
+        filtrados = filtrados.filter(r => {
+          if (!r.fechaFiltro) return true;
+          return r.fechaFiltro <= finDate;
+        });
       }
       
+      // Filtrar por promotor
       if (promSel) {
-        filtrados = filtrados.filter(r => normalizarTexto(r.promotor) === normalizarTexto(promSel));
+        filtrados = filtrados.filter(r => r.promotor === promSel);
       }
       
+      // Filtrar por estado
       if (estadoSel) {
         filtrados = filtrados.filter(r => r.estado === estadoSel);
       }
@@ -941,40 +945,37 @@
       llenarTabla();
       actualizarTodasLasGraficas();
       
-      mostrarToast(`Filtros aplicados: ${datosFiltrados.length} registros encontrados`, "success");
+      mostrarToast(`Filtros aplicados: ${datosFiltrados.length} registros`, "success");
     }
 
     // Limpiar filtros
     function limpiarFiltros() {
-      // Restablecer fechas a los últimos 30 días
       const hoy = new Date();
       const hace30Dias = new Date();
       hace30Dias.setDate(hoy.getDate() - 30);
       
-      elementos.fechaInicio.value = formatearFecha(hace30Dias);
-      elementos.fechaFin.value = formatearFecha(hoy);
+      elementos.fechaInicio.value = formatearFechaInput(hace30Dias);
+      elementos.fechaFin.value = formatearFechaInput(hoy);
       elementos.filtroPromotor.value = '';
       elementos.filtroEstado.value = '';
       
-      // Restablecer datos filtrados a todos los datos
       datosFiltrados = [...datosOriginales];
       
-      // Actualizar la interfaz
       actualizarEstadisticas();
       llenarTabla();
       actualizarTodasLasGraficas();
       
-      mostrarToast("Filtros limpiados correctamente", "success");
+      mostrarToast("Filtros limpiados", "success");
     }
 
-    // Llenar tabla
+    // Llenar tabla con datos
     function llenarTabla() {
-      elementos.tabla.innerHTML = "";
+      elementos.tablaBody.innerHTML = "";
       
       if (datosFiltrados.length === 0) {
-        elementos.tabla.innerHTML = `
+        elementos.tablaBody.innerHTML = `
           <tr>
-            <td colspan="6" style="text-align: center; padding: 2rem;">
+            <td colspan="7" style="text-align: center; padding: 2rem;">
               No se encontraron registros con los filtros aplicados.
             </td>
           </tr>
@@ -982,18 +983,23 @@
         return;
       }
       
-      datosFiltrados.forEach(fila => {
+      datosFiltrados.forEach((fila, index) => {
         const tr = document.createElement("tr");
         
+        // Determinar clase CSS para el estado
+        const estadoClase = fila.estado === 'PENDIENTE' ? 'status-pendiente' : 'status-listo';
+        const estadoTexto = fila.estado === 'PENDIENTE' ? 'PENDIENTE' : 'LISTO';
+        
         tr.innerHTML = `
-          <td>${fila.id}</td>
-          <td>${formatearFechaParaTabla(fila.fecha)}</td>
-          <td>${fila.promotor}</td>
-          <td>${fila.telefono}</td>
-          <td>${fila.icc}</td>
-          <td><span class="status-badge status-completed">LISTO</span></td>
+          <td>${index + 1}</td>
+          <td>${formatearFechaParaTabla(fila.fechaCompleta)}</td>
+          <td>${fila.promotor || 'Sin nombre'}</td>
+          <td>${fila.telefono || ''}</td>
+          <td>${fila.icc || ''}</td>
+          <td><span class="status-badge ${estadoClase}">${estadoTexto}</span></td>
+          <td>${fila.tiempo || 0}</td>
         `;
-        elementos.tabla.appendChild(tr);
+        elementos.tablaBody.appendChild(tr);
       });
     }
 
@@ -1005,43 +1011,26 @@
       // Promedio diario
       if (datosFiltrados.length > 0) {
         const fechasUnicas = [...new Set(datosFiltrados.map(r => r.fecha))];
-        const promedio = (datosFiltrados.length / fechasUnicas.length).toFixed(1);
+        const promedio = (datosFiltrados.length / Math.max(fechasUnicas.length, 1)).toFixed(1);
         elementos.promedioDiario.textContent = promedio;
       } else {
         elementos.promedioDiario.textContent = '0';
       }
       
       // Promotores activos
-      const promotoresUnicos = [...new Set(datosFiltrados.map(r => r.promotor))];
+      const promotoresUnicos = [...new Set(datosFiltrados.map(r => r.promotor).filter(Boolean))];
       elementos.promotoresActivos.textContent = promotoresUnicos.length;
       
-      // Eficiencia (calculada basada en datos reales)
-      const eficienciaCalculada = calcularEficiencia();
-      elementos.eficiencia.textContent = `${eficienciaCalculada}%`;
-    }
-
-    // Calcular eficiencia basada en datos reales
-    function calcularEficiencia() {
-      if (datosFiltrados.length === 0) return 0;
+      // Total pendientes
+      const pendientes = datosFiltrados.filter(r => r.estado === 'PENDIENTE').length;
+      elementos.totalPendientes.textContent = pendientes;
       
-      // Calcular eficiencia basada en la distribución de portabilidades por promotor
-      const conteoPorPromotor = {};
-      datosFiltrados.forEach(r => {
-        const prom = r.promotor;
-        conteoPorPromotor[prom] = (conteoPorPromotor[prom] || 0) + 1;
+      // Actualizar textos de cambio
+      document.querySelectorAll('.stat-card-change span').forEach(span => {
+        if (datosFiltrados.length > 0) {
+          span.textContent = `${datosFiltrados.length} registros`;
+        }
       });
-      
-      const valores = Object.values(conteoPorPromotor);
-      if (valores.length <= 1) return 100; // Si solo hay un promotor o ninguno, es 100% (o 0%)
-      
-      const max = Math.max(...valores);
-      const min = Math.min(...valores);
-      
-      // Calcular un índice de eficiencia basado en la distribución
-      if (max === min) return 100; // Todos igualmente productivos
-      
-      const eficiencia = 70 + (30 * (1 - (max - min) / max));
-      return Math.min(100, Math.max(70, Math.round(eficiencia)));
     }
 
     // Inicializar gráficas
@@ -1065,12 +1054,17 @@
           maintainAspectRatio: false,
           plugins: {
             legend: { display: false },
-            title: { display: true, text: 'Productividad por Promotor' }
+            title: { display: true, text: 'Productividad por Promotor', color: '#fff' }
           },
           scales: {
             y: {
               beginAtZero: true,
-              ticks: { stepSize: 1 }
+              ticks: { stepSize: 1, color: '#fff' },
+              grid: { color: 'rgba(255,255,255,0.1)' }
+            },
+            x: {
+              ticks: { color: '#fff' },
+              grid: { color: 'rgba(255,255,255,0.1)' }
             }
           }
         }
@@ -1096,45 +1090,48 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { display: false }
+            legend: { display: false },
+            title: { display: true, text: 'Portabilidades por Día', color: '#fff' }
           },
           scales: {
             y: {
-              beginAtZero: true
+              beginAtZero: true,
+              ticks: { color: '#fff' },
+              grid: { color: 'rgba(255,255,255,0.1)' }
+            },
+            x: {
+              ticks: { color: '#fff' },
+              grid: { color: 'rgba(255,255,255,0.1)' }
             }
           }
         }
       });
       
-      // Gráfica de tendencias mensuales
-      const ctxTendencias = document.getElementById('graficaTendencias').getContext('2d');
-      graficas.tendencias = new Chart(ctxTendencias, {
-        type: 'bar',
+      // Gráfica de distribución por estado
+      const ctxEstados = document.getElementById('graficaEstados').getContext('2d');
+      graficas.estados = new Chart(ctxEstados, {
+        type: 'doughnut',
         data: {
-          labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-          datasets: [
-            {
-              label: '2023',
-              data: [12, 19, 15, 17, 14, 16, 18, 20, 22, 19, 21, 23],
-              backgroundColor: 'rgba(37, 99, 235, 0.7)',
-              borderColor: '#2563eb',
-              borderWidth: 1
-            },
-            {
-              label: '2022',
-              data: [10, 12, 14, 13, 11, 15, 16, 14, 17, 15, 16, 18],
-              backgroundColor: 'rgba(14, 165, 233, 0.7)',
-              borderColor: '#0ea5e9',
-              borderWidth: 1
-            }
-          ]
+          labels: ['PENDIENTE', 'LISTO'],
+          datasets: [{
+            data: [0, 0],
+            backgroundColor: ['#f59e0b', '#10b981'],
+            borderColor: ['#d97706', '#047857'],
+            borderWidth: 1
+          }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
             legend: {
-              position: 'top'
+              position: 'top',
+              labels: { color: '#fff' }
+            },
+            title: {
+              display: true,
+              text: 'Distribución por Estado',
+              color: '#fff'
             }
           }
         }
@@ -1160,13 +1157,26 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { display: false }
+            legend: { display: false },
+            title: {
+              display: true,
+              text: 'Top 10 Promotores',
+              color: '#fff'
+            }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: { color: '#fff' },
+              grid: { color: 'rgba(255,255,255,0.1)' }
+            },
+            y: {
+              ticks: { color: '#fff' },
+              grid: { color: 'rgba(255,255,255,0.1)' }
+            }
           }
         }
       });
-      
-      // Actualizar todas las gráficas con datos iniciales
-      actualizarTodasLasGraficas();
     }
 
     // Actualizar todas las gráficas
@@ -1174,6 +1184,7 @@
       if (Object.keys(graficas).length === 0) return;
       actualizarGraficaProductividad();
       actualizarGraficaTemporal();
+      actualizarGraficaEstados();
       actualizarGraficaRanking();
     }
 
@@ -1183,7 +1194,7 @@
       
       const conteo = {};
       datosFiltrados.forEach(r => {
-        const prom = r.promotor;
+        const prom = r.promotor || 'Sin nombre';
         conteo[prom] = (conteo[prom] || 0) + 1;
       });
       
@@ -1203,16 +1214,35 @@
       const conteoPorFecha = {};
       datosFiltrados.forEach(r => {
         const fecha = r.fecha;
-        conteoPorFecha[fecha] = (conteoPorFecha[fecha] || 0) + 1;
+        if (fecha) {
+          conteoPorFecha[fecha] = (conteoPorFecha[fecha] || 0) + 1;
+        }
       });
       
       // Ordenar por fecha
       const fechasOrdenadas = Object.keys(conteoPorFecha).sort();
       const valoresOrdenados = fechasOrdenadas.map(fecha => conteoPorFecha[fecha]);
       
-      graficas.temporal.data.labels = fechasOrdenadas.map(f => formatearFechaParaTabla(f));
+      // Formatear fechas para mostrar
+      const fechasFormateadas = fechasOrdenadas.map(f => {
+        const date = new Date(f + 'T00:00:00');
+        return date.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
+      });
+      
+      graficas.temporal.data.labels = fechasFormateadas;
       graficas.temporal.data.datasets[0].data = valoresOrdenados;
       graficas.temporal.update();
+    }
+
+    // Actualizar gráfica de estados
+    function actualizarGraficaEstados() {
+      if (!graficas.estados) return;
+      
+      const pendientes = datosFiltrados.filter(r => r.estado === 'PENDIENTE').length;
+      const listos = datosFiltrados.filter(r => r.estado === 'LISTO').length;
+      
+      graficas.estados.data.datasets[0].data = [pendientes, listos];
+      graficas.estados.update();
     }
 
     // Actualizar gráfica de ranking
@@ -1221,7 +1251,7 @@
       
       const conteo = {};
       datosFiltrados.forEach(r => {
-        const prom = r.promotor;
+        const prom = r.promotor || 'Sin nombre';
         conteo[prom] = (conteo[prom] || 0) + 1;
       });
       
@@ -1251,11 +1281,12 @@
         // Preparar datos para exportación
         const datosExportar = datosFiltrados.map(fila => ({
           ID: fila.id,
-          Fecha: formatearFechaParaTabla(fila.fecha),
+          Fecha: formatearFechaParaTabla(fila.fechaCompleta),
           Promotor: fila.promotor,
           Teléfono: fila.telefono,
           ICC: fila.icc,
-          Estado: fila.estado
+          Estado: fila.estado,
+          'Tiempo (días)': fila.tiempo
         }));
         
         // Crear libro de trabajo
@@ -1267,19 +1298,55 @@
         
         // Generar nombre de archivo con fecha
         const fechaHoy = new Date().toISOString().split('T')[0];
-        const nombreArchivo = `Portabilidades_${fechaHoy}.xlsx`;
+        const nombreArchivo = `Portabilidades_MADA_${fechaHoy}.xlsx`;
         
         // Descargar archivo
         XLSX.writeFile(wb, nombreArchivo);
         
-        mostrarToast(`Datos exportados correctamente: ${nombreArchivo}`, "success");
+        mostrarToast(`Exportado: ${nombreArchivo}`, "success");
       } catch (error) {
         console.error("Error al exportar datos:", error);
-        mostrarToast("Error al exportar los datos", "error");
+        mostrarToast("Error al exportar", "error");
       }
     }
 
-    // Mostrar notificación toast
+    // Utilidades
+    function formatearFechaInput(fecha) {
+      return fecha.toISOString().split('T')[0];
+    }
+
+    function formatearFechaParaTabla(fechaStr) {
+      if (!fechaStr) return '';
+      
+      try {
+        // Intentar parsear la fecha
+        const fecha = new Date(fechaStr);
+        if (isNaN(fecha.getTime())) {
+          // Si no se puede parsear, devolver el string original
+          return fechaStr;
+        }
+        
+        // Formatear como DD/MM/YYYY HH:mm
+        const dia = fecha.getDate().toString().padStart(2, '0');
+        const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+        const año = fecha.getFullYear();
+        const horas = fecha.getHours().toString().padStart(2, '0');
+        const minutos = fecha.getMinutes().toString().padStart(2, '0');
+        
+        return `${dia}/${mes}/${año} ${horas}:${minutos}`;
+      } catch (e) {
+        return fechaStr;
+      }
+    }
+
+    function mostrarLoader() {
+      elementos.tablaLoader.style.display = 'flex';
+    }
+
+    function ocultarLoader() {
+      elementos.tablaLoader.style.display = 'none';
+    }
+
     function mostrarToast(mensaje, tipo = "success") {
       elementos.toast.className = `toast toast-${tipo}`;
       elementos.toastMessage.textContent = mensaje;
@@ -1292,36 +1359,14 @@
       }, 3000);
     }
 
-    // Utilidades
-    function formatearFecha(fecha) {
-      return fecha.toISOString().split('T')[0];
-    }
-
-    /**
-     * @description Formatea una cadena de fecha YYYY-MM-DD a DD/MM/YYYY para la tabla.
-     * Añade T00:00:00 para evitar desvíos por zona horaria.
-     */
-    function formatearFechaParaTabla(fechaStr) {
-      if (!fechaStr) return '';
-      
-      try {
-        // Asumimos que fechaStr viene en formato YYYY-MM-DD (del procesarFecha)
-        // Añadimos 'T00:00:00' para que se interprete como medianoche UTC, 
-        // previniendo que la hora local lo mueva al día anterior.
-        const fecha = new Date(fechaStr + 'T00:00:00'); 
-        const opciones = { day: '2-digit', month: '2-digit', year: 'numeric' };
-        return fecha.toLocaleDateString('es-ES', opciones);
-      } catch (e) {
-        return fechaStr;
-      }
-    }
-
-    function mostrarLoader() {
-      elementos.tablaLoader.style.display = 'flex';
-    }
-
-    function ocultarLoader() {
-      elementos.tablaLoader.style.display = 'none';
+    function actualizarHora() {
+      const ahora = new Date();
+      const horaFormateada = ahora.toLocaleTimeString('es-MX', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      elementos.lastUpdate.textContent = horaFormateada;
     }
   </script>
 </body>
