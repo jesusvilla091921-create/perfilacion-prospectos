@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MADA - Registro de Portabilidades</title>
+    <title>MADA - Registro Múltiple (40 Trámites)</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -43,7 +43,7 @@
         }
 
         .app-container {
-            max-width: 500px;
+            max-width: 1400px;
             margin: 1rem auto;
             min-height: calc(100vh - 2rem);
             border-radius: var(--radius);
@@ -57,7 +57,7 @@
         .header {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
-            padding: 1.5rem 1rem;
+            padding: 1.5rem;
             text-align: center;
             box-shadow: var(--shadow-lg);
         }
@@ -66,18 +66,27 @@
             font-size: 2rem;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            margin-bottom: 1rem;
         }
 
-        .company-name { font-size: 1.5rem; font-weight: 700; margin-bottom: 5px; }
-        .app-title { font-size: 1.1rem; font-weight: 500; opacity: 0.9; margin-bottom: 15px; }
-        .app-subtitle { font-size: 0.9rem; opacity: 0.8; }
+        .company-name { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .app-title { font-size: 1.3rem; font-weight: 500; opacity: 0.9; margin-bottom: 0.5rem; }
+        .app-subtitle { font-size: 1rem; opacity: 0.8; }
+        .app-info { font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem; }
 
-        .main-content { flex: 1; padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: 1.5rem; }
+        .main-content { 
+            flex: 1; 
+            padding: 1.5rem; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 1.5rem; 
+            overflow-y: auto;
+        }
 
         .card {
             background: var(--darker);
@@ -88,19 +97,29 @@
         }
 
         .card-title {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 600;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
             color: var(--text);
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--primary);
         }
 
         .card-title i { color: var(--primary-light); }
 
+        /* Controles principales */
+        .controls-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
         .form-group { margin-bottom: 1.2rem; }
-        .form-label { display: block; font-weight: 500; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-light); }
+        .form-label { display: block; font-weight: 500; margin-bottom: 0.5rem; font-size: 0.95rem; color: var(--text-light); }
         .form-input {
             width: 100%;
             padding: 0.9rem;
@@ -113,132 +132,432 @@
         }
         .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
 
+        /* Upload Area mejorada */
         .upload-area {
             border: 2px dashed var(--primary);
             border-radius: var(--radius);
-            padding: 2rem 1rem;
+            padding: 2rem;
             text-align: center;
             transition: all 0.3s ease;
             cursor: pointer;
-            margin-bottom: 1rem;
             background: rgba(79, 70, 229, 0.1);
+            margin-bottom: 1rem;
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
-        .upload-area:hover, .upload-area.dragover { border-color: var(--primary-light); background-color: rgba(79, 70, 229, 0.2); }
+        .upload-area:hover, .upload-area.dragover { 
+            border-color: var(--primary-light); 
+            background-color: rgba(79, 70, 229, 0.2); 
+            transform: translateY(-2px);
+        }
 
-        .upload-icon { font-size: 2.5rem; margin-bottom: 1rem; color: var(--secondary); }
-        .upload-text { margin-bottom: 0.5rem; font-weight: 500; color: var(--text); }
-        .upload-hint { font-size: 0.85rem; color: var(--text-light); }
+        .upload-icon { font-size: 3rem; margin-bottom: 1rem; color: var(--secondary); }
+        .upload-text { margin-bottom: 0.5rem; font-weight: 500; color: var(--text); font-size: 1.1rem; }
+        .upload-hint { font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem; }
+        .upload-count { 
+            background: var(--primary); 
+            color: white; 
+            padding: 0.5rem 1rem; 
+            border-radius: 20px; 
+            font-weight: 600;
+            margin-top: 1rem;
+        }
 
-        .manual-input-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); }
-        .manual-input-title { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; color: var(--text); }
-        .manual-input-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
-        @media (min-width: 768px) { .manual-input-grid { grid-template-columns: 1fr 1fr; } }
+        /* Tabla de registros */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+            margin-top: 1rem;
+        }
 
-        .btn { padding: 1rem 1.5rem; border-radius: var(--radius); border: none; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1rem; width: 100%; }
+        .registros-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px;
+        }
 
-        .btn-primary { background: linear-gradient(135deg, var(--accent) 0%, var(--success) 100%); color: var(--darker); box-shadow: var(--shadow); }
-        .btn-primary:hover { background: linear-gradient(135deg, var(--accent) 0%, #047857 100%); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-        .btn-secondary { background: var(--primary); color: white; }
-        .btn-secondary:hover { background: var(--primary-dark); color: white; transform: translateY(-2px); box-shadow: var(--shadow); }
-        .btn:disabled { background-color: var(--gray); color: var(--text-light); cursor: not-allowed; transform: none; box-shadow: none; }
-        .button-group { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
-        @media (min-width: 768px) { .button-group { flex-direction: row; } .button-group .btn { width: 50%; } }
+        .registros-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
 
-        .progress-container { margin-top: 1.5rem; display: none; }
-        .progress-bar { height: 8px; background-color: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; margin-bottom: 0.5rem; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%); width: 0%; transition: width 0.3s ease; border-radius: 4px; }
-        .progress-text { font-size: 0.85rem; color: var(--text-light); text-align: center; }
+        .registros-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text);
+        }
 
-        .results-container { margin-top: 1.5rem; display: none; }
-        .result-card { border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius); padding: 1.2rem; background: rgba(255, 255, 255, 0.05); box-shadow: var(--shadow); }
-        .result-title { font-weight: 600; font-size: 0.9rem; color: var(--text); }
-        .result-status { padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-        .status-success { background-color: rgba(16, 185, 129, 0.2); color: var(--success); }
-        .status-warning { background-color: rgba(245, 158, 11, 0.2); color: var(--warning); }
-        .status-error { background-color: rgba(239, 68, 68, 0.2); color: var(--error); }
-        .result-label { font-weight: 500; font-size: 0.9rem; color: var(--text-light); }
-        .result-value { font-weight: 600; font-size: 0.9rem; color: var(--text); text-align: right; }
-        .result-field { display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 0.8rem; }
+        .registros-table tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+        }
 
-        .log { background: rgba(255, 255, 255, 0.05); border-radius: var(--radius); padding: 1rem; height: 200px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.5; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .log-entry { margin-bottom: 0.5rem; padding: 0.5rem; border-radius: 6px; }
-        .log-entry.success { background-color: rgba(16, 185, 129, 0.1); color: var(--success); border-left: 3px solid var(--success); }
-        .log-entry.error { background-color: rgba(239, 68, 68, 0.1); color: var(--error); border-left: 3px solid var(--error); }
-        .log-entry.warning { background-color: rgba(245, 158, 11, 0.1); color: var(--warning); border-left: 3px solid var(--warning); }
-        .log-entry.info { background-color: rgba(79, 70, 229, 0.1); color: var(--primary-light); border-left: 3px solid var(--primary-light); }
-        .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .log-title { font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+        .registros-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
 
-        .footer { text-align: center; padding: 1.5rem; color: var(--text-light); font-size: 0.85rem; background: var(--darker); }
+        .registros-table input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-size: 0.9rem;
+        }
 
-        .toast { position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; border-radius: var(--radius); background-color: white; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 0.75rem; z-index: 1000; transform: translateX(150%); transition: transform 0.3s ease; max-width: 350px; color: var(--darker); }
+        .registros-table input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+
+        /* Contador de registros */
+        .registros-counter {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius);
+            margin-top: 1rem;
+        }
+
+        .counter-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .counter-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .counter-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+
+        /* Botones */
+        .btn { 
+            padding: 0.9rem 1.5rem; 
+            border-radius: var(--radius); 
+            border: none; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 0.5rem; 
+            font-size: 1rem; 
+        }
+
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--accent) 0%, var(--success) 100%); 
+            color: var(--darker); 
+            box-shadow: var(--shadow); 
+        }
+        .btn-primary:hover { 
+            background: linear-gradient(135deg, var(--accent) 0%, #047857 100%); 
+            transform: translateY(-2px); 
+            box-shadow: var(--shadow-lg); 
+        }
+        
+        .btn-secondary { 
+            background: var(--primary); 
+            color: white; 
+        }
+        .btn-secondary:hover { 
+            background: var(--primary-dark); 
+            color: white; 
+            transform: translateY(-2px); 
+            box-shadow: var(--shadow); 
+        }
+        
+        .btn-warning { 
+            background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%); 
+            color: white; 
+        }
+        .btn-warning:hover { 
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%); 
+            transform: translateY(-2px); 
+        }
+        
+        .btn-danger { 
+            background: linear-gradient(135deg, var(--error) 0%, #dc2626 100%); 
+            color: white; 
+        }
+        .btn-danger:hover { 
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); 
+            transform: translateY(-2px); 
+        }
+
+        .btn:disabled { 
+            background-color: var(--gray); 
+            color: var(--text-light); 
+            cursor: not-allowed; 
+            transform: none; 
+            box-shadow: none; 
+            opacity: 0.6;
+        }
+
+        .button-group { 
+            display: flex; 
+            gap: 1rem; 
+            margin-top: 1.5rem; 
+            flex-wrap: wrap;
+        }
+        
+        .button-group .btn { flex: 1; min-width: 200px; }
+
+        /* Progress */
+        .progress-container { 
+            margin-top: 1.5rem; 
+            display: none; 
+        }
+        .progress-bar { 
+            height: 10px; 
+            background-color: rgba(255, 255, 255, 0.1); 
+            border-radius: 5px; 
+            overflow: hidden; 
+            margin-bottom: 0.5rem; 
+        }
+        .progress-fill { 
+            height: 100%; 
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%); 
+            width: 0%; 
+            transition: width 0.3s ease; 
+            border-radius: 5px; 
+        }
+        .progress-text { 
+            font-size: 0.9rem; 
+            color: var(--text-light); 
+            text-align: center; 
+        }
+
+        /* Results Summary */
+        .results-summary {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .summary-card {
+            background: var(--darker);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-success { color: var(--success); }
+        .summary-warning { color: var(--warning); }
+        .summary-error { color: var(--error); }
+
+        .summary-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Log */
+        .log { 
+            background: rgba(255, 255, 255, 0.05); 
+            border-radius: var(--radius); 
+            padding: 1rem; 
+            height: 300px; 
+            overflow-y: auto; 
+            font-family: 'Courier New', monospace; 
+            font-size: 0.85rem; 
+            line-height: 1.5; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+        .log-entry { 
+            margin-bottom: 0.5rem; 
+            padding: 0.5rem; 
+            border-radius: 6px; 
+            border-left: 3px solid transparent;
+        }
+        .log-entry.success { 
+            background-color: rgba(16, 185, 129, 0.1); 
+            color: var(--success); 
+            border-left-color: var(--success); 
+        }
+        .log-entry.error { 
+            background-color: rgba(239, 68, 68, 0.1); 
+            color: var(--error); 
+            border-left-color: var(--error); 
+        }
+        .log-entry.warning { 
+            background-color: rgba(245, 158, 11, 0.1); 
+            color: var(--warning); 
+            border-left-color: var(--warning); 
+        }
+        .log-entry.info { 
+            background-color: rgba(79, 70, 229, 0.1); 
+            color: var(--primary-light); 
+            border-left-color: var(--primary-light); 
+        }
+        .log-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 1rem; 
+        }
+        .log-title { 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+        }
+
+        /* Footer */
+        .footer { 
+            text-align: center; 
+            padding: 1.5rem; 
+            color: var(--text-light); 
+            font-size: 0.9rem; 
+            background: var(--darker); 
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Toast Notification */
+        .toast { 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            padding: 1rem 1.5rem; 
+            border-radius: var(--radius); 
+            background-color: white; 
+            box-shadow: var(--shadow-lg); 
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            z-index: 1000; 
+            transform: translateX(150%); 
+            transition: transform 0.3s ease; 
+            max-width: 400px; 
+            color: var(--darker); 
+        }
         .toast.show { transform: translateX(0); }
         .toast-success { border-left: 4px solid var(--success); }
         .toast-error { border-left: 4px solid var(--error); }
         .toast-warning { border-left: 4px solid var(--warning); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-container {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .controls-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group .btn {
+                min-width: 100%;
+            }
+            
+            .registros-table {
+                font-size: 0.8rem;
+            }
+            
+            .registros-table th,
+            .registros-table td {
+                padding: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
         <header class="header">
-            <div class="logo">
-                <div class="logo-icon">📱</div>
-            </div>
+            <div class="logo-icon">📱</div>
             <div class="company-name">SERVICIOS INTEGRALES MADA</div>
-            <div class="app-title">REGISTRA TUS PORTABILIDADES</div>
-            <div class="app-subtitle">Captura rápida vía OCR para nómina sin complicaciones</div>
+            <div class="app-title">REGISTRO MASIVO DE PORTABILIDADES</div>
+            <div class="app-subtitle">OCR especializado en teléfono e ICC | Hasta 40 trámites simultáneos</div>
+            <div class="app-info">Sistema auto-configurable | Promotor se ingresa manualmente</div>
         </header>
 
         <main class="main-content">
             <div class="card">
-                <h2 class="card-title"><i class="fas fa-user"></i> Información del Promotor</h2>
+                <h2 class="card-title"><i class="fas fa-sliders-h"></i> Configuración del Lote</h2>
                 
-                <div class="form-group">
-                    <label class="form-label" for="promotor">Nombre del promotor:</label>
-                    <input type="text" id="promotor" class="form-input" placeholder="Ingresa tu nombre completo" />
-                    <p style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.5rem;">
-                        El sistema normalizará tu nombre a mayúsculas y sin acentos automáticamente.
-                    </p>
-                </div>
-                
-                <div class="manual-input-section">
-                    <h3 class="manual-input-title"><i class="fas fa-keyboard"></i> Datos Manuales</h3>
-                    <div class="manual-input-grid">
-                        <div class="form-group">
-                            <label class="form-label" for="telefonoManual">Teléfono (10 dígitos):</label>
-                            <input type="text" id="telefonoManual" class="form-input" placeholder="Ej. 5512345678" maxlength="10" />
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="iccManual">ICC (18-20 dígitos):</label>
-                            <input type="text" id="iccManual" class="form-input" placeholder="Ej. 8952... (solo números)" maxlength="20" />
-                        </div>
+                <div class="controls-container">
+                    <div class="form-group">
+                        <label class="form-label" for="promotorGlobal">Promotor Global (opcional):</label>
+                        <input type="text" id="promotorGlobal" class="form-input" placeholder="Nombre del promotor para todos los registros" />
+                        <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 0.5rem;">
+                            <strong>NOTA:</strong> El OCR solo extrae teléfono e ICC. El promotor debe ingresarse manualmente en cada fila.
+                        </p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="loteNombre">Nombre del Lote:</label>
+                        <input type="text" id="loteNombre" class="form-input" placeholder="Ej: Portabilidades Noviembre" />
                     </div>
                 </div>
             </div>
 
             <div class="card">
-                <h2 class="card-title"><i class="fas fa-file-upload"></i> Carga de Captura</h2>
+                <h2 class="card-title"><i class="fas fa-file-upload"></i> Carga Masiva de Capturas</h2>
                 
                 <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon"><i class="fas fa-camera"></i></div>
+                    <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
                     <div class="upload-text">
-                        <p id="uploadText">Arrastra o toca para seleccionar una imagen</p>
+                        <p id="uploadText">Arrastra y suelta hasta 40 capturas o haz clic para seleccionar</p>
                     </div>
-                    <p class="upload-hint" id="uploadHint">Formatos: JPG, PNG. Intenta una imagen nítida para mejor OCR.</p>
-                    <input type="file" id="fileInput" accept="image/*" style="display: none;" />
+                    <p class="upload-hint">
+                        <strong>OCR ESPECIALIZADO:</strong> Solo extraerá teléfono (10 dígitos) e ICC (18-20 dígitos)<br>
+                        Formatos: JPG, PNG. Capturas nítidas para mejor precisión.
+                    </p>
+                    <div class="upload-count" id="uploadCount">0 capturas seleccionadas</div>
+                    <input type="file" id="fileInput" accept="image/*" multiple style="display: none;" />
                 </div>
-            </div>
-
-            <div class="card">
-                <h2 class="card-title"><i class="fas fa-cogs"></i> Procesamiento</h2>
                 
                 <div class="button-group">
-                    <button class="btn btn-secondary" id="btnOcr">
-                        <i class="fas fa-search-plus"></i> Procesar OCR
+                    <button class="btn btn-secondary" id="btnProcesarOCR">
+                        <i class="fas fa-search-plus"></i> Procesar TODAS las capturas (OCR)
                     </button>
-                    <button class="btn btn-primary" id="btnEnviar">
-                        <i class="fas fa-share-square"></i> Enviar Datos
+                    <button class="btn btn-warning" id="btnLimpiarImagenes">
+                        <i class="fas fa-trash-alt"></i> Limpiar capturas
                     </button>
                 </div>
                 
@@ -246,41 +565,107 @@
                     <div class="progress-bar">
                         <div class="progress-fill" id="progressFill"></div>
                     </div>
-                    <div class="progress-text" id="progressText">Esperando imagen...</div>
+                    <div class="progress-text" id="progressText">Preparando procesamiento...</div>
                 </div>
             </div>
 
-            <div class="card" id="resultsCard">
-                <h2 class="card-title"><i class="fas fa-chart-bar"></i> Resultados de Extracción</h2>
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-table"></i> Registros (Máximo: 40)</h2>
                 
-                <div class="results-container" id="resultsContainer">
-                    <div class="result-card">
-                        <div class="result-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <div class="result-title">Datos Extraídos / Manuales</div>
-                            <div class="result-status status-error" id="resultStatus">Sin datos</div>
+                <div class="registros-counter">
+                    <div class="counter-item">
+                        <div class="counter-value" id="counterTotal">0</div>
+                        <div class="counter-label">Total Registros</div>
+                    </div>
+                    <div class="counter-item">
+                        <div class="counter-value" id="counterValidados">0</div>
+                        <div class="counter-label">Completos</div>
+                    </div>
+                    <div class="counter-item">
+                        <div class="counter-value" id="counterPendientes">40</div>
+                        <div class="counter-label">Faltan Promotor</div>
+                    </div>
+                    <div class="counter-item">
+                        <div class="counter-value" id="counterVacios">40</div>
+                        <div class="counter-label">Disponibles</div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="registros-table" id="tablaRegistros">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th style="width: 200px;">PROMOTOR * (Manual)</th>
+                                <th style="width: 150px;">TELÉFONO (10 dígitos)</th>
+                                <th style="width: 220px;">ICC (18-20 dígitos)</th>
+                                <th style="width: 120px;">Estado</th>
+                                <th style="width: 100px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpoTabla">
+                            <!-- Las 40 filas se generan con JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="button-group" style="margin-top: 1.5rem;">
+                    <button class="btn btn-warning" id="btnLimpiarTabla">
+                        <i class="fas fa-broom"></i> Limpiar toda la tabla
+                    </button>
+                    <button class="btn btn-danger" id="btnEliminarInvalidos">
+                        <i class="fas fa-filter"></i> Eliminar inválidos
+                    </button>
+                    <button class="btn btn-secondary" id="btnValidarTodos">
+                        <i class="fas fa-check-double"></i> Validar todos
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-paper-plane"></i> Envío Masivo</h2>
+                
+                <div class="results-summary" id="resultsSummary">
+                    <h3 style="margin-bottom: 1.5rem; color: var(--text);">Resumen del Envío</h3>
+                    
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <div class="summary-value summary-success" id="summaryExitosos">0</div>
+                            <div class="summary-label">Éxitos</div>
                         </div>
-                        <div class="result-content">
-                            <div class="result-field">
-                                <span class="result-label">Teléfono:</span>
-                                <span class="result-value" id="resultTelefono">—</span>
-                            </div>
-                            <div class="result-field">
-                                <span class="result-label">ICCID:</span>
-                                <span class="result-value" id="resultIcc">—</span>
-                            </div>
-                            <div class="result-field">
-                                <span class="result-label">Promotor:</span>
-                                <span class="result-value" id="resultPromotor">—</span>
-                            </div>
+                        <div class="summary-card">
+                            <div class="summary-value summary-warning" id="summaryDuplicados">0</div>
+                            <div class="summary-label">Duplicados</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value summary-error" id="summaryErrores">0</div>
+                            <div class="summary-label">Errores</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value" id="summaryTotal">0</div>
+                            <div class="summary-label">Total Procesados</div>
                         </div>
                     </div>
+                    
+                    <div id="detallesEnvio" style="font-size: 0.9rem; color: var(--text-light);">
+                        <!-- Detalles del envío -->
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-primary" id="btnEnviarLote">
+                        <i class="fas fa-share-square"></i> ENVIAR LOTE COMPLETO
+                    </button>
+                    <button class="btn btn-secondary" id="btnPrevisualizar">
+                        <i class="fas fa-eye"></i> Previsualizar envío
+                    </button>
                 </div>
             </div>
 
             <div class="card">
                 <div class="log-header">
                     <h2 class="log-title"><i class="fas fa-file-alt"></i> Registro de Actividad</h2>
-                    <button class="btn btn-secondary btn-small" id="btnClearLog">
+                    <button class="btn btn-secondary" id="btnClearLog">
                         <i class="fas fa-trash-alt"></i> Limpiar
                     </button>
                 </div>
@@ -291,7 +676,8 @@
         </main>
 
         <footer class="footer">
-            <p>SERVICIOS INTEGRALES MADA &copy; 2023 | Desarrollado por Jesus Chavez ❤️</p>
+            <p>SERVICIOS INTEGRALES MADA &copy; 2023 | Sistema Auto-configurable | Desarrollado por Jesus Chavez ❤️</p>
+            <p style="font-size: 0.8rem; margin-top: 0.5rem;" id="systemStatus">Estado del sistema: No configurado</p>
         </footer>
     </div>
 
@@ -301,205 +687,541 @@
     </div>
 
     <script>
-        // 🚀 URL DEL BACKEND - REEMPLAZA CON TU NUEVA URL DESPUÉS DE IMPLEMENTAR
-        const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzMARwKF77zw5Bgxpax5Ykr6UGEmpMfKLTPVVaMZnPemwSi8PqX9mWsIctPszAN2tuo/exec';
+        // 🚀 CONFIGURACIÓN DINÁMICA - EL SISTEMA SE CREA AUTOMÁTICAMENTE
+        // La URL del backend se obtendrá después de crear el sistema
+        let WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxrQWkYEck8D0scq1Me5C-2z3WnAPSg882Qtrr-RECtoHA8-uwfF3UC7CxEfxNrz8mI/exec';
+        const MAX_REGISTROS = 40;
         
-        let telefonoOCR = '', iccOCR = '', promotorOCR = '';
-        let imagenSeleccionada = null;
+        // Variables globales
+        let imagenesSeleccionadas = [];
+        let registrosData = Array(MAX_REGISTROS).fill().map(() => ({
+            promotor: '',
+            telefono: '',
+            icc: '',
+            validado: false,
+            completo: false
+        }));
+        
+        let loteActual = '';
+        let sistemaCreado = false;
 
+        // Elementos DOM
         const elementos = {
-            promotor: document.getElementById("promotor"),
-            telefonoManual: document.getElementById("telefonoManual"),
-            iccManual: document.getElementById("iccManual"),
-            fileInput: document.getElementById("fileInput"),
+            // Configuración
+            promotorGlobal: document.getElementById("promotorGlobal"),
+            loteNombre: document.getElementById("loteNombre"),
+            
+            // Upload
             uploadArea: document.getElementById("uploadArea"),
             uploadText: document.getElementById("uploadText"),
-            uploadHint: document.getElementById("uploadHint"),
-            btnOcr: document.getElementById("btnOcr"),
-            btnEnviar: document.getElementById("btnEnviar"),
+            uploadCount: document.getElementById("uploadCount"),
+            fileInput: document.getElementById("fileInput"),
+            
+            // Procesamiento
+            btnProcesarOCR: document.getElementById("btnProcesarOCR"),
+            btnLimpiarImagenes: document.getElementById("btnLimpiarImagenes"),
             progressContainer: document.getElementById("progressContainer"),
             progressFill: document.getElementById("progressFill"),
             progressText: document.getElementById("progressText"),
-            resultsCard: document.getElementById("resultsCard"),
-            resultTelefono: document.getElementById("resultTelefono"),
-            resultIcc: document.getElementById("resultIcc"),
-            resultPromotor: document.getElementById("resultPromotor"),
-            resultStatus: document.getElementById("resultStatus"),
+            
+            // Tabla
+            cuerpoTabla: document.getElementById("cuerpoTabla"),
+            counterTotal: document.getElementById("counterTotal"),
+            counterValidados: document.getElementById("counterValidados"),
+            counterPendientes: document.getElementById("counterPendientes"),
+            counterVacios: document.getElementById("counterVacios"),
+            btnLimpiarTabla: document.getElementById("btnLimpiarTabla"),
+            btnEliminarInvalidos: document.getElementById("btnEliminarInvalidos"),
+            btnValidarTodos: document.getElementById("btnValidarTodos"),
+            
+            // Envío
+            btnEnviarLote: document.getElementById("btnEnviarLote"),
+            btnPrevisualizar: document.getElementById("btnPrevisualizar"),
+            resultsSummary: document.getElementById("resultsSummary"),
+            summaryExitosos: document.getElementById("summaryExitosos"),
+            summaryDuplicados: document.getElementById("summaryDuplicados"),
+            summaryErrores: document.getElementById("summaryErrores"),
+            summaryTotal: document.getElementById("summaryTotal"),
+            detallesEnvio: document.getElementById("detallesEnvio"),
+            
+            // Log
             log: document.getElementById("log"),
             btnClearLog: document.getElementById("btnClearLog"),
+            
+            // Toast
             toast: document.getElementById("toast"),
             toastIcon: document.getElementById("toastIcon"),
-            toastMessage: document.getElementById("toastMessage")
+            toastMessage: document.getElementById("toastMessage"),
+            
+            // Sistema
+            systemStatus: document.getElementById("systemStatus")
         };
 
-        document.addEventListener('DOMContentLoaded', function() {
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', async function() {
+            await inicializarSistema();
+            inicializarTabla();
             configurarEventListeners();
-            elementos.resultsCard.style.display = 'block';
-            actualizarResultados();
-            agregarLog("✅ Sistema MADA inicializado. Listo para procesar portabilidades.", "info");
+            actualizarContadores();
+            elementos.resultsSummary.style.display = 'none';
+            
+            agregarLog("✅ Sistema MADA inicializado. Listo para procesar hasta 40 trámites.", "info");
+            agregarLog("📋 Tabla de 40 registros creada. El OCR solo extraerá teléfono e ICC.", "info");
+            agregarLog("👤 El promotor debe ingresarse MANUALMENTE en cada fila.", "info");
         });
 
+        // Inicializar sistema (crear o verificar backend)
+        async function inicializarSistema() {
+            mostrarToast("Inicializando sistema MADA...", "info");
+            agregarLog("🔧 Inicializando sistema...", "info");
+            
+            try {
+                // Usamos un backend temporal para crear el sistema
+                const backendTemp = 'https://script.google.com/macros/s/AKfycbw-78IRPNmKGaCfaqazQvBRSXN5SVhOn-hdlyUvpLfa3aPG3MhZ_NXgNkg2MkLI8T73/exec';
+                
+                // Intentar crear nuevo sistema
+                const response = await fetch(`${backendTemp}?accion=crearSistema`, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                if (!response.ok) throw new Error("Error en respuesta del servidor");
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Guardar la nueva URL del sistema creado
+                    WEBAPP_URL = `https://script.google.com/macros/s/${result.sheetId}/exec`;
+                    sistemaCreado = true;
+                    
+                    elementos.systemStatus.textContent = `Estado del sistema: Configurado | Hoja: ${result.sheetName}`;
+                    elementos.systemStatus.style.color = '#10b981';
+                    
+                    mostrarToast(`✅ Sistema creado: ${result.sheetName}`, "success");
+                    agregarLog(`✅ Sistema MADA creado exitosamente. ID: ${result.sheetId}`, "success");
+                    agregarLog(`📊 Hoja de cálculo: ${result.sheetUrl}`, "info");
+                    
+                    // Generar nombre de lote automático
+                    const fecha = new Date();
+                    const lote = `LOTE-${fecha.getFullYear()}${(fecha.getMonth()+1).toString().padStart(2,'0')}${fecha.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000)}`;
+                    elementos.loteNombre.value = lote;
+                    loteActual = lote;
+                    
+                } else {
+                    throw new Error(result.message || "Error al crear sistema");
+                }
+                
+            } catch (error) {
+                console.error("Error al inicializar sistema:", error);
+                mostrarToast("Error al inicializar sistema", "error");
+                agregarLog(`❌ Error: ${error.message}`, "error");
+                
+                // Usar backend por defecto como fallback
+                WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbw-78IRPNmKGaCfaqazQvBRSXN5SVhOn-hdlyUvpLfa3aPG3MhZ_NXgNkg2MkLI8T73/exec';
+                elementos.systemStatus.textContent = "Estado del sistema: Modo compatibilidad";
+                elementos.systemStatus.style.color = '#f59e0b';
+                
+                agregarLog("⚠️ Usando sistema en modo compatibilidad", "warning");
+            }
+        }
+
+        // Inicializar tabla con 40 filas
+        function inicializarTabla() {
+            elementos.cuerpoTabla.innerHTML = '';
+            
+            for (let i = 0; i < MAX_REGISTROS; i++) {
+                const tr = document.createElement('tr');
+                tr.id = `fila-${i}`;
+                tr.innerHTML = `
+                    <td style="text-align: center; font-weight: 600; color: var(--text-light);">${i + 1}</td>
+                    <td>
+                        <input type="text" 
+                               class="promotor-input" 
+                               data-index="${i}" 
+                               placeholder="INGRESA NOMBRE DEL PROMOTOR" 
+                               value="${registrosData[i].promotor}"
+                               oninput="actualizarRegistro(${i}, 'promotor', this.value)"
+                               style="width: 100%; background: rgba(79, 70, 229, 0.1); border: 1px solid rgba(79, 70, 229, 0.3);">
+                        <div style="font-size: 0.7rem; color: var(--text-light); margin-top: 2px;">
+                            Campo MANUAL (requerido)
+                        </div>
+                    </td>
+                    <td>
+                        <input type="text" 
+                               class="telefono-input" 
+                               data-index="${i}" 
+                               placeholder="10 dígitos" 
+                               maxlength="10"
+                               value="${registrosData[i].telefono}"
+                               oninput="actualizarRegistro(${i}, 'telefono', this.value); this.value = this.value.replace(/\\D/g, '').slice(0, 10);"
+                               style="width: 100%;">
+                        <div style="font-size: 0.7rem; color: var(--text-light); margin-top: 2px;">
+                            Lo extrae el OCR
+                        </div>
+                    </td>
+                    <td>
+                        <input type="text" 
+                               class="icc-input" 
+                               data-index="${i}" 
+                               placeholder="18-20 dígitos" 
+                               maxlength="20"
+                               value="${registrosData[i].icc}"
+                               oninput="actualizarRegistro(${i}, 'icc', this.value); this.value = this.value.replace(/\\D/g, '').slice(0, 20);"
+                               style="width: 100%;">
+                        <div style="font-size: 0.7rem; color: var(--text-light); margin-top: 2px;">
+                            Lo extrae el OCR
+                        </div>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="estado-badge" id="estado-${i}" style="
+                            display: inline-block;
+                            padding: 0.25rem 0.75rem;
+                            border-radius: 20px;
+                            font-size: 0.8rem;
+                            font-weight: 600;
+                            background-color: rgba(239, 68, 68, 0.2);
+                            color: #ef4444;
+                        ">INCOMPLETO</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <button type="button" 
+                                class="btn-limpiar-fila" 
+                                data-index="${i}"
+                                onclick="limpiarFila(${i})"
+                                style="
+                                    background: rgba(239, 68, 68, 0.2);
+                                    border: none;
+                                    color: #ef4444;
+                                    padding: 0.5rem 0.75rem;
+                                    border-radius: 6px;
+                                    cursor: pointer;
+                                    font-size: 0.8rem;
+                                ">
+                            <i class="fas fa-times"></i> Limpiar
+                        </button>
+                    </td>
+                `;
+                elementos.cuerpoTabla.appendChild(tr);
+                
+                // Validar fila inicial
+                validarFila(i);
+            }
+        }
+
+        // Configurar event listeners
         function configurarEventListeners() {
             // Carga de archivos
             elementos.uploadArea.addEventListener('click', () => elementos.fileInput.click());
             elementos.uploadArea.addEventListener('drop', (e) => { 
                 e.preventDefault(); 
                 elementos.uploadArea.classList.remove('dragover');
-                manejarArchivo(e.dataTransfer.files[0]); 
+                manejarArchivos(e.dataTransfer.files); 
             });
             ['dragover', 'dragleave', 'drop'].forEach(eventName => {
                 elementos.uploadArea.addEventListener(eventName, e => e.preventDefault());
             });
             elementos.uploadArea.addEventListener('dragover', () => elementos.uploadArea.classList.add('dragover'));
             elementos.uploadArea.addEventListener('dragleave', () => elementos.uploadArea.classList.remove('dragover'));
-            elementos.fileInput.addEventListener('change', (e) => manejarArchivo(e.target.files[0]));
-
-            // Input manual: Limpieza y actualización
-            elementos.promotor.addEventListener('input', actualizarResultados);
-            elementos.telefonoManual.addEventListener('input', function() {
-                this.value = this.value.replace(/\D/g, '').substring(0, 10);
-                actualizarResultados();
+            elementos.fileInput.addEventListener('change', (e) => manejarArchivos(e.target.files));
+            
+            // Promotor global
+            elementos.promotorGlobal.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    aplicarPromotorGlobal(this.value.trim());
+                }
             });
-            elementos.iccManual.addEventListener('input', function() {
-                this.value = this.value.replace(/\D/g, '').substring(0, 20);
-                actualizarResultados();
-            });
-
-            // Botones
-            elementos.btnOcr.addEventListener('click', procesarOCR);
-            elementos.btnEnviar.addEventListener('click', enviarBackend);
+            
+            // Botones de procesamiento
+            elementos.btnProcesarOCR.addEventListener('click', procesarOCRMultiple);
+            elementos.btnLimpiarImagenes.addEventListener('click', limpiarImagenes);
+            
+            // Botones de tabla
+            elementos.btnLimpiarTabla.addEventListener('click', limpiarTablaCompleta);
+            elementos.btnEliminarInvalidos.addEventListener('click', eliminarInvalidos);
+            elementos.btnValidarTodos.addEventListener('click', validarTodasLasFilas);
+            
+            // Botones de envío
+            elementos.btnEnviarLote.addEventListener('click', enviarLoteCompleto);
+            elementos.btnPrevisualizar.addEventListener('click', previsualizarEnvio);
             elementos.btnClearLog.addEventListener('click', limpiarLog);
         }
 
-        // Normalizar texto (quitar acentos y convertir a mayúsculas)
-        function normalizarTexto(texto) {
-            if (!texto) return '';
-            return texto
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .toUpperCase()
-                .trim();
+        // Manejar múltiples archivos
+        function manejarArchivos(files) {
+            if (!files || files.length === 0) return;
+            
+            // Limitar a 40 imágenes
+            const archivosArray = Array.from(files).slice(0, MAX_REGISTROS);
+            imagenesSeleccionadas = [...imagenesSeleccionadas, ...archivosArray].slice(0, MAX_REGISTROS);
+            
+            elementos.uploadText.textContent = `${imagenesSeleccionadas.length} capturas listas para OCR`;
+            elementos.uploadCount.textContent = `${imagenesSeleccionadas.length} capturas seleccionadas`;
+            
+            mostrarToast(`${archivosArray.length} capturas cargadas`, "success");
+            agregarLog(`✅ ${archivosArray.length} capturas cargadas para OCR`, "success");
+            agregarLog(`📱 OCR especializado: Solo extraerá teléfono (10 dígitos) e ICC (18-20 dígitos)`, "info");
+            
+            // Habilitar botón de procesamiento
+            elementos.btnProcesarOCR.disabled = false;
         }
 
-        function manejarArchivo(file) {
-            if (!file || !file.type.startsWith('image/')) {
-                mostrarToast("El archivo seleccionado no es una imagen válida", "error");
-                agregarLog("❌ El archivo seleccionado no es una imagen válida.", "error");
-                return;
-            }
-            
-            imagenSeleccionada = file;
-            elementos.uploadText.textContent = `Imagen: ${file.name}`;
-            elementos.uploadHint.textContent = "Toca para cambiar de imagen | Listo para OCR";
-            
-            mostrarToast(`Imagen "${file.name}" cargada`, "success");
-            agregarLog(`✅ Imagen "${file.name}" cargada.`, "success");
+        // Actualizar registro individual
+        function actualizarRegistro(index, campo, valor) {
+            registrosData[index][campo] = valor.trim();
+            validarFila(index);
+            actualizarContadores();
         }
 
-        async function procesarOCR() {
-            if (!imagenSeleccionada) {
-                mostrarToast("No hay imagen para procesar", "error");
-                return;
+        // Validar una fila específica
+        function validarFila(index) {
+            const registro = registrosData[index];
+            const promotor = registro.promotor || elementos.promotorGlobal.value.trim();
+            const telefono = registro.telefono;
+            const icc = registro.icc;
+            
+            // Validar teléfono (10 dígitos exactos)
+            const telefonoValido = telefono.length === 10 && /^\d{10}$/.test(telefono);
+            
+            // Validar ICC (18-20 dígitos)
+            const iccValido = icc.length >= 18 && icc.length <= 20 && /^\d+$/.test(icc);
+            
+            // Validar promotor (mínimo 3 caracteres)
+            const promotorValido = promotor.length >= 3;
+            
+            registro.validado = telefonoValido && iccValido && promotorValido;
+            registro.completo = promotorValido && telefono.length > 0 && icc.length > 0;
+            
+            // Actualizar badge de estado
+            const estadoBadge = document.getElementById(`estado-${index}`);
+            if (registro.validado) {
+                estadoBadge.textContent = "COMPLETO ✓";
+                estadoBadge.style.backgroundColor = "rgba(16, 185, 129, 0.2)";
+                estadoBadge.style.color = "#10b981";
+            } else if (registro.completo) {
+                estadoBadge.textContent = "FALTAN DATOS";
+                estadoBadge.style.backgroundColor = "rgba(245, 158, 11, 0.2)";
+                estadoBadge.style.color = "#f59e0b";
+            } else if (telefono.length > 0 || icc.length > 0) {
+                estadoBadge.textContent = "FALTA PROMOTOR";
+                estadoBadge.style.backgroundColor = "rgba(239, 68, 68, 0.2)";
+                estadoBadge.style.color = "#ef4444";
+            } else {
+                estadoBadge.textContent = "VACÍO";
+                estadoBadge.style.backgroundColor = "rgba(239, 68, 68, 0.2)";
+                estadoBadge.style.color = "#ef4444";
             }
+        }
+
+        // Actualizar contadores
+        function actualizarContadores() {
+            const total = registrosData.filter(r => r.completo).length;
+            const validados = registrosData.filter(r => r.validado).length;
+            const pendientes = registrosData.filter(r => (r.telefono.length > 0 || r.icc.length > 0) && !r.promotor).length;
+            const vacios = MAX_REGISTROS - total;
             
-            // Bloquear interfaz
-            elementos.btnOcr.disabled = true;
-            elementos.btnEnviar.disabled = true;
-            elementos.progressContainer.style.display = 'block';
-            telefonoOCR = ''; 
-            iccOCR = ''; 
-            promotorOCR = '';
-            actualizarResultados();
+            elementos.counterTotal.textContent = total;
+            elementos.counterValidados.textContent = validados;
+            elementos.counterPendientes.textContent = pendientes;
+            elementos.counterVacios.textContent = vacios;
             
-            agregarLog("🔍 Iniciando procesamiento OCR...", "info");
+            // Habilitar/deshabilitar botón de envío
+            elementos.btnEnviarLote.disabled = validados === 0;
             
-            try {
-                // 1. Preprocesar imagen
-                elementos.progressFill.style.width = '20%';
-                elementos.progressText.textContent = "Preprocesando imagen...";
-                
-                // Convertir imagen a canvas para procesamiento
-                const img = await crearImagen(imagenSeleccionada);
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                // Redimensionar si es muy grande
-                const maxWidth = 1200;
-                const scale = maxWidth / img.width;
-                canvas.width = img.width * scale;
-                canvas.height = img.height * scale;
-                
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
-                // Aplicar filtros para mejorar OCR
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const data = imageData.data;
-                
-                // Mejorar contraste
-                for (let i = 0; i < data.length; i += 4) {
-                    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                    // Umbral adaptable
-                    const threshold = 128;
-                    const val = avg > threshold ? 255 : 0;
-                    data[i] = data[i + 1] = data[i + 2] = val;
+            // Actualizar color del botón de envío
+            if (validados > 0) {
+                elementos.btnEnviarLote.style.opacity = "1";
+                elementos.btnEnviarLote.innerHTML = `<i class="fas fa-share-square"></i> ENVIAR LOTE (${validados} válidos)`;
+            } else {
+                elementos.btnEnviarLote.style.opacity = "0.6";
+                elementos.btnEnviarLote.innerHTML = `<i class="fas fa-share-square"></i> ENVIAR LOTE COMPLETO`;
+            }
+        }
+
+        // Limpiar una fila específica
+        function limpiarFila(index) {
+            registrosData[index] = { promotor: '', telefono: '', icc: '', validado: false, completo: false };
+            
+            const inputs = document.querySelectorAll(`#fila-${index} input`);
+            inputs.forEach(input => input.value = '');
+            
+            validarFila(index);
+            actualizarContadores();
+            
+            agregarLog(`🧹 Fila ${index + 1} limpiada`, "info");
+        }
+
+        // Aplicar promotor global a todas las filas
+        function aplicarPromotorGlobal(promotor) {
+            let aplicados = 0;
+            for (let i = 0; i < MAX_REGISTROS; i++) {
+                if (!registrosData[i].promotor) {
+                    registrosData[i].promotor = promotor;
+                    document.querySelector(`#fila-${i} .promotor-input`).value = promotor;
+                    validarFila(i);
+                    aplicados++;
                 }
-                
-                ctx.putImageData(imageData, 0, 0);
-                
-                // 2. Realizar OCR
-                elementos.progressFill.style.width = '50%';
-                elementos.progressText.textContent = "Ejecutando reconocimiento OCR...";
-                
-                const result = await Tesseract.recognize(
-                    canvas.toDataURL('image/png'),
-                    'spa+eng',
-                    {
-                        logger: m => {
-                            if (m.status === 'recognizing text') {
-                                elementos.progressFill.style.width = `${50 + m.progress * 30}%`;
-                                elementos.progressText.textContent = `Reconociendo texto... ${Math.round(m.progress * 100)}%`;
-                            }
-                        }
-                    }
-                );
-
-                // 3. Procesar resultado
-                elementos.progressFill.style.width = '80%';
-                elementos.progressText.textContent = "Extrayendo y validando datos...";
-                
-                const text = result.data.text;
-                extractData(text);
-                
-                // Si el OCR extrae datos, actualizar los campos manuales
-                if (telefonoOCR) elementos.telefonoManual.value = telefonoOCR;
-                if (iccOCR) elementos.iccManual.value = iccOCR;
-                if (promotorOCR) elementos.promotor.value = promotorOCR;
-                
-                // 4. Finalizar
-                elementos.progressFill.style.width = '100%';
-                elementos.progressText.textContent = "Procesamiento completado";
-                
-                actualizarResultados();
-                
-                mostrarToast("OCR completado exitosamente", "success");
-                agregarLog(`✅ OCR finalizado. Texto extraído: ${text.substring(0, 100)}...`, "success");
-                
-            } catch (error) {
-                console.error("Error en OCR:", error);
-                mostrarToast("Error en procesamiento OCR", "error");
-                agregarLog(`❌ Error en OCR: ${error.message}`, "error");
-            } finally {
-                // Desbloquear interfaz
-                elementos.btnOcr.disabled = false;
-                elementos.btnEnviar.disabled = false;
-                setTimeout(() => {
-                    elementos.progressContainer.style.display = 'none';
-                    elementos.progressFill.style.width = '0%';
-                }, 1500);
             }
+            actualizarContadores();
+            agregarLog(`👤 Promotor global aplicado a ${aplicados} filas: ${promotor}`, "info");
+            mostrarToast(`Promotor global aplicado a ${aplicados} filas`, "success");
         }
 
-        // Función auxiliar para crear imagen
+        // Procesar OCR para múltiples imágenes (SOLO TELÉFONO E ICC)
+        async function procesarOCRMultiple() {
+            if (imagenesSeleccionadas.length === 0) {
+                mostrarToast("No hay capturas para procesar", "error");
+                return;
+            }
+            
+            elementos.btnProcesarOCR.disabled = true;
+            elementos.btnLimpiarImagenes.disabled = true;
+            elementos.progressContainer.style.display = 'block';
+            
+            const totalImagenes = Math.min(imagenesSeleccionadas.length, MAX_REGISTROS);
+            let procesadas = 0;
+            let extraccionesExitosas = 0;
+            
+            agregarLog(`🔍 Iniciando OCR especializado de ${totalImagenes} capturas...`, "info");
+            agregarLog(`🎯 Objetivo: Extraer solo teléfono (10 dígitos) e ICC (18-20 dígitos)`, "info");
+            
+            // Encontrar filas vacías o con datos incompletos
+            const filasDisponibles = [];
+            for (let i = 0; i < MAX_REGISTROS; i++) {
+                if (!registrosData[i].telefono || !registrosData[i].icc) {
+                    filasDisponibles.push(i);
+                }
+            }
+            
+            // Si no hay filas vacías, usar las primeras
+            const indicesFila = filasDisponibles.length > 0 ? filasDisponibles : Array.from({length: MAX_REGISTROS}, (_, i) => i);
+            
+            for (let i = 0; i < totalImagenes; i++) {
+                if (i >= indicesFila.length) break;
+                
+                const imagen = imagenesSeleccionadas[i];
+                const filaIndex = indicesFila[i];
+                
+                // Actualizar progreso
+                const progreso = Math.round((i / totalImagenes) * 100);
+                elementos.progressFill.style.width = `${progreso}%`;
+                elementos.progressText.textContent = `Procesando captura ${i + 1} de ${totalImagenes}...`;
+                
+                try {
+                    const resultado = await procesarUnaImagen(imagen);
+                    
+                    // Actualizar la fila con los datos extraídos (SOLO TELÉFONO E ICC)
+                    let telefonoExtraido = resultado.telefono || '';
+                    let iccExtraido = resultado.icc || '';
+                    
+                    if (telefonoExtraido) {
+                        registrosData[filaIndex].telefono = telefonoExtraido;
+                        document.querySelector(`#fila-${filaIndex} .telefono-input`).value = telefonoExtraido;
+                        extraccionesExitosas++;
+                    }
+                    
+                    if (iccExtraido) {
+                        registrosData[filaIndex].icc = iccExtraido;
+                        document.querySelector(`#fila-${filaIndex} .icc-input`).value = iccExtraido;
+                        extraccionesExitosas++;
+                    }
+                    
+                    validarFila(filaIndex);
+                    procesadas++;
+                    
+                    agregarLog(`✅ Captura ${i + 1} → Fila ${filaIndex + 1}: Tel: ${telefonoExtraido || 'No'}, ICC: ${iccExtraido || 'No'}`, "success");
+                    
+                } catch (error) {
+                    agregarLog(`❌ Error procesando captura ${i + 1}: ${error.message}`, "error");
+                }
+            }
+            
+            // Finalizar
+            elementos.progressFill.style.width = '100%';
+            elementos.progressText.textContent = `OCR completado: ${procesadas} capturas, ${extraccionesExitosas} datos extraídos`;
+            
+            setTimeout(() => {
+                elementos.progressContainer.style.display = 'none';
+                elementos.progressFill.style.width = '0%';
+                elementos.btnProcesarOCR.disabled = false;
+                elementos.btnLimpiarImagenes.disabled = false;
+            }, 1500);
+            
+            actualizarContadores();
+            
+            if (extraccionesExitosas > 0) {
+                mostrarToast(`${procesadas} capturas procesadas, ${extraccionesExitosas} datos extraídos`, "success");
+                agregarLog(`📊 Resumen: ${procesadas} capturas procesadas, ${extraccionesExitosas} datos extraídos`, "success");
+                agregarLog(`👤 Recuerda: Ingresa el NOMBRE DEL PROMOTOR manualmente en cada fila`, "info");
+            } else {
+                mostrarToast("OCR completado pero no se extrajeron datos", "warning");
+                agregarLog(`⚠️ OCR completado pero no se extrajeron datos válidos`, "warning");
+            }
+            
+            // Limpiar imágenes procesadas
+            imagenesSeleccionadas = [];
+            elementos.uploadText.textContent = "Arrastra y suelta hasta 40 capturas o haz clic para seleccionar";
+            elementos.uploadCount.textContent = "0 capturas seleccionadas";
+        }
+
+        // Procesar una sola imagen con OCR (SOLO TELÉFONO E ICC)
+        async function procesarUnaImagen(file) {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    // Crear imagen desde archivo
+                    const img = await crearImagen(file);
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Redimensionar para mejor OCR
+                    const maxWidth = 1200;
+                    const scale = maxWidth / img.width;
+                    canvas.width = img.width * scale;
+                    canvas.height = img.height * scale;
+                    
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // Aplicar preprocesamiento para mejorar OCR
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    
+                    // Mejorar contraste para números
+                    for (let i = 0; i < data.length; i += 4) {
+                        const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                        const threshold = 160;
+                        const val = avg > threshold ? 255 : 0;
+                        data[i] = data[i + 1] = data[i + 2] = val;
+                    }
+                    
+                    ctx.putImageData(imageData, 0, 0);
+                    
+                    // Configurar Tesseract para números
+                    const result = await Tesseract.recognize(
+                        canvas.toDataURL('image/png'),
+                        'eng', // Solo inglés para mejor detección de números
+                        {
+                            logger: m => {
+                                if (m.status === 'recognizing text') {
+                                    // Puedes mostrar progreso individual aquí si lo deseas
+                                }
+                            },
+                            // Configurar para mejor detección de números
+                            tessedit_char_whitelist: '0123456789',
+                            preserve_interword_spaces: '1'
+                        }
+                    );
+                    
+                    const texto = result.data.text;
+                    const datos = extraerDatosEspecializado(texto);
+                    
+                    resolve(datos);
+                    
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
+        // Crear imagen desde archivo
         function crearImagen(file) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
@@ -516,163 +1238,276 @@
             });
         }
 
-        // Detección mejorada de patrones
-        function extractData(text) {
-            const cleanText = text.replace(/\s+/g, ' ').toUpperCase();
+        // Extraer datos del texto OCR (SOLO TELÉFONO E ICC)
+        function extraerDatosEspecializado(texto) {
+            const resultado = { telefono: '', icc: '' };
+            const textoLimpio = texto.replace(/\s+/g, '');
             
-            // 1. Teléfono: Buscar 10 dígitos consecutivos
-            const phoneRegex = /(\d{3}[-.]?\d{3}[-.]?\d{4}|\d{10})/g;
-            const phoneMatches = cleanText.match(phoneRegex);
-            if (phoneMatches) {
-                telefonoOCR = phoneMatches[0].replace(/\D/g, '').substring(0, 10);
+            // Buscar teléfono (10 dígitos consecutivos)
+            const matchTelefono = textoLimpio.match(/\d{10}/g);
+            if (matchTelefono) {
+                // Tomar el primer grupo de 10 dígitos que encuentre
+                resultado.telefono = matchTelefono[0];
             }
             
-            // 2. ICC: Buscar secuencia que empiece con 89 (típico de SIM)
-            const iccRegex = /89\d{16,18}/g;
-            const iccMatches = cleanText.match(iccRegex);
-            if (iccMatches) {
-                iccOCR = iccMatches[0].replace(/\D/g, '').substring(0, 20);
+            // Buscar ICC (18-20 dígitos, típicamente empieza con 89 para SIMs)
+            // Primero buscar secuencias largas de dígitos
+            const secuenciasNumeros = textoLimpio.match(/\d{15,}/g);
+            if (secuenciasNumeros) {
+                secuenciasNumeros.forEach(secuencia => {
+                    // Si la secuencia tiene entre 18-20 dígitos y empieza con 89, es probablemente un ICC
+                    if (secuencia.length >= 18 && secuencia.length <= 20 && secuencia.startsWith('89')) {
+                        resultado.icc = secuencia.substring(0, 20); // Tomar máximo 20
+                    }
+                });
             }
             
-            // 3. Buscar nombres (palabras en mayúsculas de 3+ letras)
-            const nameRegex = /\b([A-ZÁÉÍÓÚÑ]{3,}(?:\s+[A-ZÁÉÍÓÚÑ]{3,}){1,3})\b/g;
-            const nameMatches = cleanText.match(nameRegex);
-            if (nameMatches) {
-                // Tomar el primer nombre que parezca un nombre completo
-                promotorOCR = nameMatches[0];
+            // Si no encontró ICC con el patrón 89, buscar cualquier secuencia de 18-20 dígitos
+            if (!resultado.icc) {
+                const matchICC = textoLimpio.match(/\d{18,20}/g);
+                if (matchICC) {
+                    resultado.icc = matchICC[0];
+                }
             }
+            
+            return resultado;
         }
 
-        // Actualizar resultados en la interfaz
-        function actualizarResultados() {
-            const promotorFinal = elementos.promotor.value || promotorOCR;
-            const telefonoFinal = elementos.telefonoManual.value || telefonoOCR;
-            const iccFinal = elementos.iccManual.value || iccOCR;
+        // Limpiar todas las imágenes
+        function limpiarImagenes() {
+            if (imagenesSeleccionadas.length === 0) {
+                mostrarToast("No hay capturas para limpiar", "warning");
+                return;
+            }
             
-            elementos.resultPromotor.textContent = promotorFinal || '—';
-            elementos.resultTelefono.textContent = telefonoFinal || '—';
-            elementos.resultIcc.textContent = iccFinal || '—';
+            imagenesSeleccionadas = [];
+            elementos.uploadText.textContent = "Arrastra y suelta hasta 40 capturas o haz clic para seleccionar";
+            elementos.uploadCount.textContent = "0 capturas seleccionadas";
+            elementos.btnProcesarOCR.disabled = true;
             
-            // Determinar estado de validación
-            const esPromotorValido = promotorFinal && promotorFinal.length >= 3;
-            const esTelefonoValido = telefonoFinal.length === 10;
-            const esIccValido = iccFinal.length >= 18 && iccFinal.length <= 20;
+            mostrarToast("Capturas limpiadas", "success");
+            agregarLog("🧹 Todas las capturas eliminadas", "info");
+        }
 
-            if (esPromotorValido && esTelefonoValido && esIccValido) {
-                elementos.resultStatus.className = "result-status status-success";
-                elementos.resultStatus.textContent = "LISTO PARA ENVÍO";
-                elementos.btnEnviar.disabled = false;
-            } else if (esTelefonoValido || esIccValido) {
-                elementos.resultStatus.className = "result-status status-warning";
-                elementos.resultStatus.textContent = "DATOS PARCIALES";
-                elementos.btnEnviar.disabled = true;
+        // Limpiar tabla completa
+        function limpiarTablaCompleta() {
+            if (!confirm("¿Estás seguro de limpiar TODOS los registros? Esta acción no se puede deshacer.")) {
+                return;
+            }
+            
+            for (let i = 0; i < MAX_REGISTROS; i++) {
+                registrosData[i] = { promotor: '', telefono: '', icc: '', validado: false, completo: false };
+                const inputs = document.querySelectorAll(`#fila-${i} input`);
+                inputs.forEach(input => input.value = '');
+                validarFila(i);
+            }
+            
+            actualizarContadores();
+            mostrarToast("Tabla limpiada completamente", "success");
+            agregarLog("🧹 Tabla completa limpiada", "info");
+        }
+
+        // Eliminar registros inválidos
+        function eliminarInvalidos() {
+            let eliminados = 0;
+            
+            for (let i = 0; i < MAX_REGISTROS; i++) {
+                if (registrosData[i].completo && !registrosData[i].validado) {
+                    registrosData[i] = { promotor: '', telefono: '', icc: '', validado: false, completo: false };
+                    const inputs = document.querySelectorAll(`#fila-${i} input`);
+                    inputs.forEach(input => input.value = '');
+                    validarFila(i);
+                    eliminados++;
+                }
+            }
+            
+            if (eliminados > 0) {
+                actualizarContadores();
+                mostrarToast(`${eliminados} registros inválidos eliminados`, "success");
+                agregarLog(`🧹 ${eliminados} registros inválidos eliminados`, "info");
             } else {
-                elementos.resultStatus.className = "result-status status-error";
-                elementos.resultStatus.textContent = "SIN DATOS VÁLIDOS";
-                elementos.btnEnviar.disabled = true;
+                mostrarToast("No hay registros inválidos para eliminar", "info");
             }
         }
 
-        // Enviar datos al backend
-        async function enviarBackend() {
-            const promotor = elementos.promotor.value.trim();
-            const telefonoFinal = elementos.telefonoManual.value;
-            const iccFinal = elementos.iccManual.value;
+        // Validar todas las filas
+        function validarTodasLasFilas() {
+            for (let i = 0; i < MAX_REGISTROS; i++) {
+                validarFila(i);
+            }
+            actualizarContadores();
+            mostrarToast("Todas las filas validadas", "success");
+            agregarLog("✅ Todas las filas validadas", "info");
+        }
+
+        // Previsualizar envío
+        function previsualizarEnvio() {
+            const registrosValidos = registrosData.filter(r => r.validado);
             
-            // Validaciones finales
-            if (!promotor || promotor.length < 3) { 
-                mostrarToast("Ingresa un nombre válido (mínimo 3 caracteres)", "error"); 
-                elementos.promotor.focus(); 
-                return; 
+            if (registrosValidos.length === 0) {
+                mostrarToast("No hay registros válidos para previsualizar", "warning");
+                return;
             }
             
-            if (telefonoFinal.length !== 10) { 
-                mostrarToast("El teléfono debe tener exactamente 10 dígitos", "error"); 
-                elementos.telefonoManual.focus();
-                return; 
+            let previsualizacion = `📋 PREVISUALIZACIÓN DEL ENVÍO\n`;
+            previsualizacion += `================================\n`;
+            previsualizacion += `Total de registros: ${registrosValidos.length}\n`;
+            previsualizacion += `Lote: ${elementos.loteNombre.value || 'Sin nombre'}\n\n`;
+            
+            registrosValidos.forEach((registro, index) => {
+                previsualizacion += `${index + 1}. ${registro.promotor} | Tel: ${registro.telefono} | ICC: ${registro.icc}\n`;
+            });
+            
+            alert(previsualizacion);
+            agregarLog("👁️ Previsualización del envío generada", "info");
+        }
+
+        // Enviar lote completo
+        async function enviarLoteCompleto() {
+            const registrosValidos = registrosData.filter(r => r.validado);
+            
+            if (registrosValidos.length === 0) {
+                mostrarToast("No hay registros válidos para enviar", "error");
+                return;
             }
             
-            if (iccFinal.length < 18 || iccFinal.length > 20) { 
-                mostrarToast("El ICC debe tener entre 18 y 20 dígitos", "error"); 
-                elementos.iccManual.focus();
-                return; 
+            // Confirmación final
+            if (!confirm(`¿Estás seguro de enviar ${registrosValidos.length} registros?\n\n📱 Teléfonos: ${registrosValidos.length}\n📋 ICCs: ${registrosValidos.length}\n👤 Promotores: ${new Set(registrosValidos.map(r => r.promotor)).size} diferentes`)) {
+                return;
             }
             
-            const payload = { 
-                action: "guardarRegistro", 
-                promotor, 
-                telefono: telefonoFinal, 
-                icc: iccFinal 
+            elementos.btnEnviarLote.disabled = true;
+            elementos.btnPrevisualizar.disabled = true;
+            elementos.progressContainer.style.display = 'block';
+            elementos.progressFill.style.width = '10%';
+            elementos.progressText.textContent = "Preparando envío...";
+            
+            // Preparar datos para enviar
+            const datosEnvio = {
+                action: "guardarMultiplesRegistros",
+                registros: registrosValidos.map(r => ({
+                    promotor: r.promotor,
+                    telefono: r.telefono,
+                    icc: r.icc
+                }))
             };
             
-            elementos.progressContainer.style.display = 'block';
-            elementos.progressFill.style.width = '30%';
-            elementos.progressText.textContent = "Conectando con el servidor...";
-            elementos.btnEnviar.disabled = true;
+            // Agregar nombre de lote si existe
+            if (elementos.loteNombre.value.trim()) {
+                datosEnvio.nombreLote = elementos.loteNombre.value.trim();
+            }
             
-            agregarLog("🚀 Enviando registro a la base de datos...", "info");
+            agregarLog(`🚀 Iniciando envío de ${registrosValidos.length} registros...`, "info");
+            agregarLog(`📊 Detalles: ${registrosValidos.length} teléfonos, ${registrosValidos.length} ICCs`, "info");
             
             try {
+                elementos.progressFill.style.width = '30%';
+                elementos.progressText.textContent = "Conectando con el servidor...";
+                
                 const response = await fetch(WEBAPP_URL, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(datosEnvio)
                 });
                 
                 elementos.progressFill.style.width = '70%';
                 elementos.progressText.textContent = "Procesando respuesta...";
                 
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
                 const result = await response.json();
                 
                 elementos.progressFill.style.width = '100%';
-                elementos.progressText.textContent = "Completado";
+                elementos.progressText.textContent = "Envío completado";
                 
                 if (result.success) {
-                    mostrarToast(result.message, "success");
-                    agregarLog(`✅ ${result.message}`, "success");
+                    // Mostrar resumen
+                    mostrarResumenEnvio(result);
                     
-                    // Mostrar detalles del registro
-                    if (result.data) {
-                        agregarLog(`📋 Detalles: ${result.data.promotor} - Tel: ${result.data.telefono} - ICC: ${result.data.icc}`, "info");
+                    // Mostrar mensaje de éxito
+                    mostrarToast(`✅ ${result.exitosos} registros guardados exitosamente`, "success");
+                    
+                    // Agregar al log
+                    agregarLog(`✅ Envío completado: ${result.exitosos} éxitos, ${result.duplicados} duplicados, ${result.errores} errores`, "success");
+                    agregarLog(`📊 Lote: ${result.lote}`, "info");
+                    agregarLog(`📁 Hoja de cálculo: ${result.sheetUrl}`, "info");
+                    
+                    // Mostrar detalles de errores si los hay
+                    if (result.errores > 0 || result.duplicados > 0) {
+                        agregarLog("📋 Detalles del procesamiento:", "info");
+                        result.detalles.forEach(detalle => {
+                            if (detalle.status === "error") {
+                                agregarLog(`❌ Registro ${detalle.indice + 1}: ${detalle.message}`, "error");
+                            } else if (detalle.status === "warning") {
+                                agregarLog(`⚠️ Registro ${detalle.indice + 1}: ${detalle.message}`, "warning");
+                            }
+                        });
                     }
                     
-                    // Limpiar formulario después de 2 segundos
-                    setTimeout(limpiarFormulario, 2000);
+                    // Preguntar si se desea limpiar la tabla
+                    setTimeout(() => {
+                        if (result.exitosos > 0 && confirm(`¿Deseas limpiar la tabla para nuevos registros?\n\nSe guardaron ${result.exitosos} registros exitosamente en el lote "${result.lote}".`)) {
+                            limpiarTablaCompleta();
+                        }
+                    }, 1000);
+                    
                 } else {
-                    mostrarToast(result.message, result.status === "warning" ? "warning" : "error");
-                    agregarLog(`⚠️ ${result.message}`, result.status === "warning" ? "warning" : "error");
+                    throw new Error(result.message || "Error en el servidor");
                 }
-            } catch (err) {
-                console.error("Error de envío:", err);
-                mostrarToast("Error de conexión con el servidor", "error");
-                agregarLog(`❌ Error de conexión: ${err.message}`, "error");
+                
+            } catch (error) {
+                console.error("Error en el envío:", error);
+                mostrarToast("Error al enviar los registros", "error");
+                agregarLog(`❌ Error en el envío: ${error.message}`, "error");
             } finally {
                 setTimeout(() => {
                     elementos.progressContainer.style.display = 'none';
                     elementos.progressFill.style.width = '0%';
-                    elementos.btnEnviar.disabled = false;
+                    elementos.btnEnviarLote.disabled = false;
+                    elementos.btnPrevisualizar.disabled = false;
                 }, 2000);
             }
         }
 
-        // Limpiar formulario
-        function limpiarFormulario() {
-            elementos.promotor.value = '';
-            elementos.telefonoManual.value = '';
-            elementos.iccManual.value = '';
-            elementos.fileInput.value = '';
-            elementos.uploadText.textContent = 'Arrastra o toca para seleccionar una imagen';
-            elementos.uploadHint.textContent = 'Formatos: JPG, PNG. Intenta una imagen nítida para mejor OCR.';
-            telefonoOCR = ''; 
-            iccOCR = ''; 
-            promotorOCR = '';
-            imagenSeleccionada = null;
-            actualizarResultados();
+        // Mostrar resumen del envío
+        function mostrarResumenEnvio(resultado) {
+            elementos.resultsSummary.style.display = 'block';
             
-            agregarLog("🧹 Formulario limpiado. Listo para nuevo registro.", "info");
+            elementos.summaryExitosos.textContent = resultado.exitosos;
+            elementos.summaryDuplicados.textContent = resultado.duplicados;
+            elementos.summaryErrores.textContent = resultado.errores;
+            elementos.summaryTotal.textContent = resultado.total;
+            
+            let detallesHTML = `
+                <div style="margin-top: 1rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                    <strong>📋 Detalles del envío:</strong><br>
+                    • <strong>Lote:</strong> ${resultado.lote}<br>
+                    • <strong>Fecha:</strong> ${resultado.fecha}<br>
+                    • <strong>Total procesados:</strong> ${resultado.total} registros<br>
+                    • <strong>URL de la hoja:</strong> <a href="${resultado.sheetUrl}" target="_blank" style="color: #3b82f6;">Ver hoja de cálculo</a><br><br>
+            `;
+            
+            if (resultado.exitosos > 0) {
+                detallesHTML += `<span style="color: #10b981;">✅ ${resultado.exitosos} registros guardados exitosamente</span><br>`;
+            }
+            if (resultado.duplicados > 0) {
+                detallesHTML += `<span style="color: #f59e0b;">⚠️ ${resultado.duplicados} registros duplicados (no guardados)</span><br>`;
+            }
+            if (resultado.errores > 0) {
+                detallesHTML += `<span style="color: #ef4444;">❌ ${resultado.errores} registros con errores</span>`;
+            }
+            
+            detallesHTML += `</div>`;
+            
+            elementos.detallesEnvio.innerHTML = detallesHTML;
+            
+            // Desplazarse al resumen
+            elementos.resultsSummary.scrollIntoView({ behavior: 'smooth' });
         }
 
         // Agregar entrada al log
@@ -703,7 +1538,8 @@
             const iconMap = {
                 "success": '<i class="fas fa-check-circle"></i>',
                 "error": '<i class="fas fa-times-circle"></i>',
-                "warning": '<i class="fas fa-exclamation-triangle"></i>'
+                "warning": '<i class="fas fa-exclamation-triangle"></i>',
+                "info": '<i class="fas fa-info-circle"></i>'
             };
             
             elementos.toastIcon.innerHTML = iconMap[tipo] || '<i class="fas fa-info-circle"></i>';
