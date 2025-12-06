@@ -1,1373 +1,904 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Supervisor | Servicios Integrales MADA</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <style>
-    :root {
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --primary-light: #3b82f6;
-      --secondary: #0ea5e9;
-      --accent: #06b6d4;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --error: #ef4444;
-      --dark: #1e293b;
-      --darker: #0f172a;
-      --light: #f8fafc;
-      --gray: #94a3b8;
-      --text: #1e293b;
-      --text-light: #64748b;
-      --radius: 12px;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      color: white;
-      line-height: 1.5;
-      min-height: 100vh;
-    }
-
-    /* Header */
-    .header {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      padding: 1.5rem 2rem;
-      box-shadow: var(--shadow-lg);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
-      opacity: 0.3;
-    }
-
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      max-width: 1400px;
-      margin: 0 auto;
-      position: relative;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .logo-icon {
-      font-size: 2.5rem;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .header-title h1 {
-      font-size: 1.8rem;
-      margin-bottom: 0.25rem;
-    }
-
-    .header-title p {
-      opacity: 0.9;
-      font-size: 0.95rem;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 1rem;
-    }
-
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border-radius: var(--radius);
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.9rem;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-      color: white;
-      box-shadow: var(--shadow);
-    }
-
-    .btn-primary:hover {
-      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: translateY(-2px);
-    }
-
-    /* Main Layout */
-    .main-container {
-      max-width: 1400px;
-      margin: 2rem auto;
-      padding: 0 1.5rem;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-    }
-
-    /* Stats Cards */
-    .stats-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .stat-card {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      box-shadow: var(--shadow);
-      display: flex;
-      flex-direction: column;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .stat-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 1rem;
-    }
-
-    .stat-card-title {
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.9);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .stat-card-icon {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      background: rgba(255, 255, 255, 0.1);
-      flex-shrink: 0;
-    }
-
-    .stat-card-value {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, #fff, #e2e8f0);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .stat-card-change {
-      font-size: 0.85rem;
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-
-    .stat-card-change.positive {
-      color: var(--success);
-    }
-
-    .stat-card-change.negative {
-      color: var(--error);
-    }
-
-    /* Filters */
-    .filters-container {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .filters-title {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .filters-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .filter-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .filter-label {
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.9);
-    }
-
-    .filter-input {
-      padding: 0.75rem;
-      border-radius: var(--radius);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      font-size: 0.9rem;
-      transition: all 0.3s ease;
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-    }
-
-    .filter-input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
-    }
-
-    .filter-input option {
-      background: var(--darker);
-      color: white;
-    }
-
-    .filters-actions {
-      display: flex;
-      gap: 1rem;
-      justify-content: flex-end;
-    }
-
-    /* Content Tabs */
-    .content-tabs {
-      display: flex;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border-radius: var(--radius) var(--radius) 0 0;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .tab {
-      padding: 1rem 1.5rem;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      border-bottom: 3px solid transparent;
-      color: rgba(255, 255, 255, 0.7);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .tab.active {
-      color: white;
-      border-bottom-color: var(--primary);
-      background: rgba(37, 99, 235, 0.1);
-    }
-
-    .tab:hover:not(.active) {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-    }
-
-    /* Table */
-    .table-container {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border-radius: 0 0 var(--radius) var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .table-wrapper {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-    }
-
-    th {
-      background: rgba(37, 99, 235, 0.3);
-      color: white;
-      text-align: left;
-      padding: 1rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-size: 0.8rem;
-    }
-
-    td {
-      padding: 1rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.9);
-    }
-
-    tr:hover {
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .status-badge {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-
-    .status-pendiente {
-      background-color: rgba(245, 158, 11, 0.2);
-      color: var(--warning);
-    }
-
-    .status-listo {
-      background-color: rgba(16, 185, 129, 0.2);
-      color: var(--success);
-    }
-
-    /* Charts */
-    .charts-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .chart-card {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .chart-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .chart-title {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .chart-wrapper {
-      position: relative;
-      height: 300px;
-    }
-
-    /* Loader */
-    .loader {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 2rem;
-    }
-
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(255, 255, 255, 0.2);
-      border-left-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* Footer */
-    footer {
-      text-align: center;
-      padding: 1.5rem;
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 0.9rem;
-      margin-top: 2rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .header-content {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-      }
-
-      .main-container {
-        padding: 0 1rem;
-      }
-
-      .charts-container {
-        grid-template-columns: 1fr;
-      }
-
-      .filters-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .filters-actions {
-        justify-content: stretch;
-      }
-
-      .filters-actions .btn {
-        flex: 1;
-      }
-      
-      .tab {
-        padding: 0.75rem 1rem;
-        font-size: 0.9rem;
-      }
-    }
-
-    /* Toast Notification */
-    .toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 1rem 1.5rem;
-      border-radius: var(--radius);
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      box-shadow: var(--shadow-lg);
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      z-index: 1000;
-      transform: translateX(150%);
-      transition: transform 0.3s ease;
-      color: var(--text);
-    }
-
-    .toast.show {
-      transform: translateX(0);
-    }
-
-    .toast-success {
-      border-left: 4px solid var(--success);
-    }
-
-    .toast-error {
-      border-left: 4px solid var(--error);
-    }
-
-    .toast-icon {
-      font-size: 1.2rem;
-    }
-
-    .toast-message {
-      font-weight: 500;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Supervisor | Servicios Integrales MADA</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        /* CSS Optimizado y Mejor Organizado */
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-700: #374151;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-card.success { border-left-color: var(--success-color); }
+        .stat-card.warning { border-left-color: var(--warning-color); }
+        .stat-card.danger { border-left-color: var(--danger-color); }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .filters-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+
+        select, input {
+            padding: 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--gray-300);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid var(--gray-200);
+            padding-bottom: 0.5rem;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background-color: var(--gray-100);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            min-height: 400px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        thead {
+            background-color: var(--gray-100);
+            position: sticky;
+            top: 0;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-700);
+            border-bottom: 2px solid var(--gray-200);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        tr:hover {
+            background-color: var(--gray-100);
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--gray-200);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-success {
+            background-color: var(--success-color);
+        }
+
+        .toast-error {
+            background-color: var(--danger-color);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray-700);
+            margin-top: 3rem;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 0 1rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+        }
+    </style>
 </head>
 <body>
-  <header class="header">
-    <div class="header-content">
-      <div class="logo">
-        <div class="logo-icon">📊</div>
-        <div class="header-title">
-          <h1>Dashboard del Supervisor</h1>
-          <p>Servicios Integrales MADA - Monitoreo en tiempo real</p>
+    <header class="header">
+        <div class="header-content">
+            <h1>Dashboard Supervisor</h1>
+            <div class="header-info">
+                <div>Servicios Integrales MADA</div>
+                <div id="fechaActual" class="text-sm"></div>
+            </div>
         </div>
-      </div>
-      <div class="header-actions">
-        <button class="btn btn-secondary" id="btnActualizar">
-          <i>🔄</i> Actualizar
-        </button>
-        <button class="btn btn-primary" id="btnExportar">
-          <i>📥</i> Exportar
-        </button>
-      </div>
-    </div>
-  </header>
+    </header>
 
-  <div class="main-container">
-    <div class="stats-container">
-      <div class="stat-card">
-        <div class="stat-card-header">
-          <div class="stat-card-title">Total Portabilidades</div>
-          <div class="stat-card-icon">
-            <i>📈</i>
-          </div>
+    <main class="main-container">
+        <div class="stats-grid" id="statsContainer">
+            <!-- Las estadísticas se llenarán dinámicamente -->
         </div>
-        <div class="stat-card-value" id="totalPortabilidades">0</div>
-        <div class="stat-card-change positive">
-          <i>↗</i> <span>Cargando...</span>
-        </div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-card-header">
-          <div class="stat-card-title">Promedio Diario</div>
-          <div class="stat-card-icon">
-            <i>📅</i>
-          </div>
-        </div>
-        <div class="stat-card-value" id="promedioDiario">0</div>
-        <div class="stat-card-change positive">
-          <i>↗</i> <span>Cargando...</span>
-        </div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-card-header">
-          <div class="stat-card-title">Promotores Activos</div>
-          <div class="stat-card-icon">
-            <i>👥</i>
-          </div>
-        </div>
-        <div class="stat-card-value" id="promotoresActivos">0</div>
-        <div class="stat-card-change positive">
-          <i>↗</i> <span>Cargando...</span>
-        </div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-card-header">
-          <div class="stat-card-title">Pendientes</div>
-          <div class="stat-card-icon">
-            <i>⏳</i>
-          </div>
-        </div>
-        <div class="stat-card-value" id="totalPendientes">0</div>
-        <div class="stat-card-change negative">
-          <i>↘</i> <span>Cargando...</span>
-        </div>
-      </div>
-    </div>
 
-    <div class="filters-container">
-      <h2 class="filters-title">
-        <i>🔍</i> Filtros de Búsqueda
-      </h2>
-      <div class="filters-grid">
-        <div class="filter-group">
-          <label class="filter-label" for="fechaInicio">Desde:</label>
-          <input type="date" id="fechaInicio" class="filter-input">
+        <div class="filters-container">
+            <div class="filters-grid">
+                <div class="form-group">
+                    <label for="fechaInicio">Fecha Inicio</label>
+                    <input type="date" id="fechaInicio">
+                </div>
+                <div class="form-group">
+                    <label for="fechaFin">Fecha Fin</label>
+                    <input type="date" id="fechaFin">
+                </div>
+                <div class="form-group">
+                    <label for="promotorSelect">Promotor</label>
+                    <select id="promotorSelect">
+                        <option value="todos">Todos los promotores</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="estadoSelect">Estado</label>
+                    <select id="estadoSelect">
+                        <option value="todos">Todos los estados</option>
+                        <option value="LISTO">LISTO</option>
+                        <option value="PENDIENTE">PENDIENTE</option>
+                        <option value="RECHAZADO">RECHAZADO</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button id="btnFiltrar" class="btn btn-primary">Filtrar</button>
+                    <button id="btnExportar" class="btn btn-secondary">Exportar Excel</button>
+                </div>
+            </div>
         </div>
-        <div class="filter-group">
-          <label class="filter-label" for="fechaFin">Hasta:</label>
-          <input type="date" id="fechaFin" class="filter-input">
+
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="tabla">Tabla de Datos</button>
+                <button class="tab-btn" data-tab="graficas">Gráficas</button>
+            </div>
         </div>
-        <div class="filter-group">
-          <label class="filter-label" for="filtroPromotor">Promotor:</label>
-          <select id="filtroPromotor" class="filter-input">
-            <option value="">Todos los promotores</option>
-          </select>
+
+        <div class="table-container" id="tablaContainer">
+            <div class="table-wrapper">
+                <table id="tabla">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Fecha</th>
+                            <th>Promotor</th>
+                            <th>Teléfono</th>
+                            <th>ICC</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaBody">
+                        <!-- Los datos se llenarán dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="loader" id="tablaLoader">
+                <div class="spinner"></div>
+            </div>
         </div>
-        <div class="filter-group">
-          <label class="filter-label" for="filtroEstado">Estado:</label>
-          <select id="filtroEstado" class="filter-input">
-            <option value="">Todos los estados</option>
-            <option value="PENDIENTE">PENDIENTE</option>
-            <option value="LISTO">LISTO</option>
-          </select>
+
+        <div class="charts-container" id="graficasContainer" style="display: none;">
+            <div class="chart-card">
+                <h3>Distribución por Estado</h3>
+                <canvas id="chartEstado"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Actividad por Promotor</h3>
+                <canvas id="chartPromotor"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Tendencia Diaria</h3>
+                <canvas id="chartTendencia"></canvas>
+            </div>
         </div>
-      </div>
-      <div class="filters-actions">
-        <button class="btn btn-secondary" id="btnLimpiar">
-          <i>🗑️</i> Limpiar
-        </button>
-        <button class="btn btn-primary" id="btnFiltrar">
-          <i>🔍</i> Aplicar Filtros
-        </button>
-      </div>
-    </div>
+    </main>
 
-    <div class="content-tabs">
-      <div class="tab active" data-tab="tabla">
-        <i>📋</i> Vista de Tabla
-      </div>
-      <div class="tab" data-tab="graficas">
-        <i>📊</i> Vista de Gráficas
-      </div>
-    </div>
+    <footer class="footer">
+        <p>Servicios Integrales MADA &copy; <span id="currentYear"></span> | Dashboard Supervisor v2.0</p>
+    </footer>
 
-    <div class="table-container" id="tablaContainer">
-      <div class="table-wrapper">
-        <table id="tabla">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Fecha</th>
-              <th>Promotor</th>
-              <th>Teléfono</th>
-              <th>ICC</th>
-              <th>Estado</th>
-              <th>Tiempo (días)</th>
-            </tr>
-          </thead>
-          <tbody id="tablaBody">
-            <!-- Los datos se cargarán aquí -->
-          </tbody>
-        </table>
-      </div>
-      <div class="loader" id="tablaLoader">
-        <div class="spinner"></div>
-      </div>
-    </div>
+    <div class="toast" id="toast"></div>
 
-    <div class="charts-container" id="graficasContainer" style="display: none;">
-      <div class="chart-card">
-        <h3 class="chart-title">
-          <i>📊</i> Productividad por Promotor
-        </h3>
-        <div class="chart-wrapper">
-          <canvas id="graficaProductividad"></canvas>
-        </div>
-      </div>
-      
-      <div class="chart-card">
-        <h3 class="chart-title">
-          <i>📅</i> Portabilidades por Día
-        </h3>
-        <div class="chart-wrapper">
-          <canvas id="graficaTemporal"></canvas>
-        </div>
-      </div>
-      
-      <div class="chart-card">
-        <h3 class="chart-title">
-          <i>📈</i> Distribución por Estado
-        </h3>
-        <div class="chart-wrapper">
-          <canvas id="graficaEstados"></canvas>
-        </div>
-      </div>
-      
-      <div class="chart-card">
-        <h3 class="chart-title">
-          <i>🥇</i> Top 10 Promotores
-        </h3>
-        <div class="chart-wrapper">
-          <canvas id="graficaRanking"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <footer>
-    <p>Servicios Integrales MADA &copy; 2023 - Dashboard del Supervisor | Última actualización: <span id="lastUpdate">--:--:--</span></p>
-  </footer>
-
-  <div class="toast" id="toast">
-    <div class="toast-icon" id="toastIcon">✅</div>
-    <div class="toast-message" id="toastMessage">Operación completada con éxito</div>
-  </div>
-
-  <script>
-    // 🚀 URL DEL BACKEND - Debes actualizar esta URL con la que obtengas al implementar el Apps Script
-    // La URL se obtiene al implementar el proyecto de Apps Script como aplicación web
-    let WEBAPP_URL = '';
-    
-    // Intentar obtener la URL del sistema desde localStorage o usar una por defecto
-    function obtenerURLBackend() {
-      // Primero, intentar desde localStorage (si el formulario la guardó)
-      const urlGuardada = localStorage.getItem('mada_system_url');
-      if (urlGuardada) {
-        return urlGuardada;
-      }
-      
-      // Si no, usar la URL por defecto (la que se creó originalmente)
-      // NOTA: Debes reemplazar esta URL con la que obtengas al implementar el Apps Script
-      return 'https://script.google.com/macros/s/AKfycbw-78IRPNmKGaCfaqazQvBRSXN5SVhOn-hdlyUvpLfa3aPG3MhZ_NXgNkg2MkLI8T73/exec';
-    }
-    
-    // Variables globales
-    let datosOriginales = [];
-    let datosFiltrados = [];
-    let graficas = {};
-    let promotores = [];
-
-    // Elementos DOM
-    const elementos = {
-      tablaBody: document.getElementById("tablaBody"),
-      filtroPromotor: document.getElementById("filtroPromotor"),
-      filtroEstado: document.getElementById("filtroEstado"),
-      fechaInicio: document.getElementById("fechaInicio"),
-      fechaFin: document.getElementById("fechaFin"),
-      btnFiltrar: document.getElementById("btnFiltrar"),
-      btnLimpiar: document.getElementById("btnLimpiar"),
-      btnActualizar: document.getElementById("btnActualizar"),
-      btnExportar: document.getElementById("btnExportar"),
-      tabs: document.querySelectorAll(".tab"),
-      tablaContainer: document.getElementById("tablaContainer"),
-      graficasContainer: document.getElementById("graficasContainer"),
-      tablaLoader: document.getElementById("tablaLoader"),
-      totalPortabilidades: document.getElementById("totalPortabilidades"),
-      promedioDiario: document.getElementById("promedioDiario"),
-      promotoresActivos: document.getElementById("promotoresActivos"),
-      totalPendientes: document.getElementById("totalPendientes"),
-      toast: document.getElementById("toast"),
-      toastIcon: document.getElementById("toastIcon"),
-      toastMessage: document.getElementById("toastMessage"),
-      lastUpdate: document.getElementById("lastUpdate")
-    };
-
-    // Inicialización
-    document.addEventListener('DOMContentLoaded', function() {
-      // Obtener la URL del backend
-      WEBAPP_URL = obtenerURLBackend();
-      console.log('Usando URL del backend:', WEBAPP_URL);
-      
-      // Establecer fechas por defecto (últimos 30 días)
-      const hoy = new Date();
-      const hace30Dias = new Date();
-      hace30Dias.setDate(hoy.getDate() - 30);
-      
-      elementos.fechaInicio.value = formatearFechaInput(hace30Dias);
-      elementos.fechaFin.value = formatearFechaInput(hoy);
-      
-      // Cargar datos
-      cargarDatos();
-      
-      // Configurar event listeners
-      configurarEventListeners();
-      
-      // Actualizar hora de última actualización
-      actualizarHora();
-      setInterval(actualizarHora, 60000); // Actualizar cada minuto
-    });
-
-    // Configurar event listeners
-    function configurarEventListeners() {
-      elementos.btnFiltrar.addEventListener("click", aplicarFiltros);
-      elementos.btnLimpiar.addEventListener("click", limpiarFiltros);
-      elementos.btnActualizar.addEventListener("click", cargarDatos);
-      elementos.btnExportar.addEventListener("click", exportarDatos);
-      
-      // Tabs
-      elementos.tabs.forEach(tab => {
-        tab.addEventListener("click", function() {
-          elementos.tabs.forEach(t => t.classList.remove('active'));
-          this.classList.add('active');
-          
-          const tabId = this.getAttribute('data-tab');
-          if (tabId === 'tabla') {
-            elementos.tablaContainer.style.display = 'block';
-            elementos.graficasContainer.style.display = 'none';
-          } else {
-            elementos.tablaContainer.style.display = 'none';
-            elementos.graficasContainer.style.display = 'grid';
-            if (Object.keys(graficas).length === 0) {
-              inicializarGraficas();
+    <script>
+        // ============ CONFIGURACIÓN ============
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxX2_0X6Z_00nHr1pm5LqXIUVaQgFdtkLOcW-q7zzCzs9fkvlJkZ1e6OeuHasJuSdAu/exec';
+        
+        // ============ ESTADO GLOBAL ============
+        const state = {
+            datosOriginales: [],
+            datosFiltrados: [],
+            graficas: {},
+            promotores: new Set(),
+            filtros: {
+                fechaInicio: null,
+                fechaFin: null,
+                promotor: 'todos',
+                estado: 'todos'
             }
-            actualizarTodasLasGraficas();
-          }
-        });
-      });
-    }
+        };
 
-    // Cargar todos los datos del backend
-    async function cargarDatos() {
-      mostrarLoader();
-      
-      try {
-        // Usar la API del backend con timestamp para evitar caché
-        const url = `${WEBAPP_URL}?timestamp=${new Date().getTime()}`;
-        const res = await fetch(url);
-        
-        if (!res.ok) {
-          throw new Error(`Error HTTP: ${res.status}`);
-        }
-        
-        const result = await res.json();
-        
-        if (!result.success) {
-          throw new Error(result.message || "Error en la respuesta del servidor");
-        }
-        
-        // Procesar datos del backend
-        datosOriginales = result.data.map((fila, index) => {
-          // Normalizar datos
-          let promotor = fila.Promotor || '';
-          
-          // Procesar fecha
-          let fecha = fila.Fecha || '';
-          let fechaCompleta = fila.FechaCompleta || fecha;
-          
-          // Obtener teléfono e ICC
-          let telefono = fila.Telefono || '';
-          let icc = fila.ICC || '';
-          let estado = fila.Estado || 'PENDIENTE';
-          let tiempo = fila.Tiempo || 0;
-          
-          return {
-            id: index + 1,
-            fecha: fecha,
-            fechaCompleta: fechaCompleta,
-            fechaFiltro: fecha ? new Date(fecha + 'T00:00:00') : new Date(),
-            promotor: promotor,
-            telefono: telefono,
-            icc: icc,
-            estado: estado,
-            tiempo: tiempo
-          };
-        });
-        
-        // Inicializar datos filtrados con todos los datos
-        datosFiltrados = [...datosOriginales];
-        
-        // Actualizar la interfaz
-        llenarPromotores();
-        actualizarEstadisticas();
-        llenarTabla();
-        
-        ocultarLoader();
-        mostrarToast(`Datos cargados: ${datosOriginales.length} registros`, "success");
-        
-      } catch (error) {
-        console.error("Error al cargar los datos:", error);
-        ocultarLoader();
-        
-        mostrarToast("Error al cargar los datos. Verifica la conexión.", "error");
-      }
-    }
+        // ============ CACHE DE ELEMENTOS DOM ============
+        const elements = {
+            tablaBody: document.getElementById('tablaBody'),
+            tablaLoader: document.getElementById('tablaLoader'),
+            statsContainer: document.getElementById('statsContainer'),
+            fechaInicio: document.getElementById('fechaInicio'),
+            fechaFin: document.getElementById('fechaFin'),
+            promotorSelect: document.getElementById('promotorSelect'),
+            estadoSelect: document.getElementById('estadoSelect'),
+            btnFiltrar: document.getElementById('btnFiltrar'),
+            btnExportar: document.getElementById('btnExportar'),
+            tabBtns: document.querySelectorAll('.tab-btn'),
+            tablaContainer: document.getElementById('tablaContainer'),
+            graficasContainer: document.getElementById('graficasContainer'),
+            toast: document.getElementById('toast'),
+            fechaActual: document.getElementById('fechaActual'),
+            currentYear: document.getElementById('currentYear')
+        };
 
-    // Llenar select de promotores sin duplicados
-    function llenarPromotores() {
-      promotores = [...new Set(datosOriginales
-        .map(r => r.promotor)
-        .filter(p => p && p.trim() !== ''))];
-      
-      elementos.filtroPromotor.innerHTML = "<option value=''>Todos los promotores</option>";
-      promotores.sort().forEach(p => {
-        const opt = document.createElement("option");
-        opt.value = p;
-        opt.textContent = p;
-        elementos.filtroPromotor.appendChild(opt);
-      });
-    }
-
-    // Aplicar filtros
-    function aplicarFiltros() {
-      const inicioStr = elementos.fechaInicio.value;
-      const finStr = elementos.fechaFin.value;
-      const promSel = elementos.filtroPromotor.value;
-      const estadoSel = elementos.filtroEstado.value;
-      
-      let filtrados = datosOriginales;
-
-      // Filtrar por fecha de inicio
-      if (inicioStr) {
-        const inicioDate = new Date(inicioStr + 'T00:00:00');
-        filtrados = filtrados.filter(r => {
-          if (!r.fechaFiltro) return true;
-          return r.fechaFiltro >= inicioDate;
-        });
-      }
-      
-      // Filtrar por fecha de fin
-      if (finStr) {
-        const finDate = new Date(finStr + 'T23:59:59');
-        filtrados = filtrados.filter(r => {
-          if (!r.fechaFiltro) return true;
-          return r.fechaFiltro <= finDate;
-        });
-      }
-      
-      // Filtrar por promotor
-      if (promSel) {
-        filtrados = filtrados.filter(r => r.promotor === promSel);
-      }
-      
-      // Filtrar por estado
-      if (estadoSel) {
-        filtrados = filtrados.filter(r => r.estado === estadoSel);
-      }
-
-      datosFiltrados = filtrados;
-      
-      // Actualizar la interfaz
-      actualizarEstadisticas();
-      llenarTabla();
-      actualizarTodasLasGraficas();
-      
-      mostrarToast(`Filtros aplicados: ${datosFiltrados.length} registros`, "success");
-    }
-
-    // Limpiar filtros
-    function limpiarFiltros() {
-      const hoy = new Date();
-      const hace30Dias = new Date();
-      hace30Dias.setDate(hoy.getDate() - 30);
-      
-      elementos.fechaInicio.value = formatearFechaInput(hace30Dias);
-      elementos.fechaFin.value = formatearFechaInput(hoy);
-      elementos.filtroPromotor.value = '';
-      elementos.filtroEstado.value = '';
-      
-      datosFiltrados = [...datosOriginales];
-      
-      actualizarEstadisticas();
-      llenarTabla();
-      actualizarTodasLasGraficas();
-      
-      mostrarToast("Filtros limpiados", "success");
-    }
-
-    // Llenar tabla con datos
-    function llenarTabla() {
-      elementos.tablaBody.innerHTML = "";
-      
-      if (datosFiltrados.length === 0) {
-        elementos.tablaBody.innerHTML = `
-          <tr>
-            <td colspan="7" style="text-align: center; padding: 2rem;">
-              No se encontraron registros con los filtros aplicados.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-      
-      datosFiltrados.forEach((fila, index) => {
-        const tr = document.createElement("tr");
-        
-        // Determinar clase CSS para el estado
-        const estadoClase = fila.estado === 'PENDIENTE' ? 'status-pendiente' : 'status-listo';
-        const estadoTexto = fila.estado === 'PENDIENTE' ? 'PENDIENTE' : 'LISTO';
-        
-        tr.innerHTML = `
-          <td>${index + 1}</td>
-          <td>${formatearFechaParaTabla(fila.fechaCompleta)}</td>
-          <td>${fila.promotor || 'Sin nombre'}</td>
-          <td>${fila.telefono || ''}</td>
-          <td>${fila.icc || ''}</td>
-          <td><span class="status-badge ${estadoClase}">${estadoTexto}</span></td>
-          <td>${fila.tiempo || 0}</td>
-        `;
-        elementos.tablaBody.appendChild(tr);
-      });
-    }
-
-    // Actualizar estadísticas
-    function actualizarEstadisticas() {
-      // Total de portabilidades
-      elementos.totalPortabilidades.textContent = datosFiltrados.length;
-      
-      // Promedio diario
-      if (datosFiltrados.length > 0) {
-        const fechasUnicas = [...new Set(datosFiltrados.map(r => r.fecha))];
-        const promedio = (datosFiltrados.length / Math.max(fechasUnicas.length, 1)).toFixed(1);
-        elementos.promedioDiario.textContent = promedio;
-      } else {
-        elementos.promedioDiario.textContent = '0';
-      }
-      
-      // Promotores activos
-      const promotoresUnicos = [...new Set(datosFiltrados.map(r => r.promotor).filter(Boolean))];
-      elementos.promotoresActivos.textContent = promotoresUnicos.length;
-      
-      // Total pendientes
-      const pendientes = datosFiltrados.filter(r => r.estado === 'PENDIENTE').length;
-      elementos.totalPendientes.textContent = pendientes;
-      
-      // Actualizar textos de cambio
-      document.querySelectorAll('.stat-card-change span').forEach(span => {
-        if (datosFiltrados.length > 0) {
-          span.textContent = `${datosFiltrados.length} registros`;
-        }
-      });
-    }
-
-    // Inicializar gráficas
-    function inicializarGraficas() {
-      // Gráfica de productividad por promotor
-      const ctxProductividad = document.getElementById('graficaProductividad').getContext('2d');
-      graficas.productividad = new Chart(ctxProductividad, {
-        type: 'bar',
-        data: {
-          labels: [],
-          datasets: [{
-            label: 'Portabilidades',
-            data: [],
-            backgroundColor: '#3b82f6',
-            borderColor: '#2563eb',
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            title: { display: true, text: 'Productividad por Promotor', color: '#fff' }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: { stepSize: 1, color: '#fff' },
-              grid: { color: 'rgba(255,255,255,0.1)' }
+        // ============ UTILIDADES ============
+        const utils = {
+            formatearFecha: (fecha) => {
+                return fecha.toISOString().split('T')[0];
             },
-            x: {
-              ticks: { color: '#fff' },
-              grid: { color: 'rgba(255,255,255,0.1)' }
-            }
-          }
-        }
-      });
-      
-      // Gráfica temporal (portabilidades por día)
-      const ctxTemporal = document.getElementById('graficaTemporal').getContext('2d');
-      graficas.temporal = new Chart(ctxTemporal, {
-        type: 'line',
-        data: {
-          labels: [],
-          datasets: [{
-            label: 'Portabilidades',
-            data: [],
-            backgroundColor: 'rgba(14, 165, 233, 0.1)',
-            borderColor: '#0ea5e9',
-            borderWidth: 2,
-            tension: 0.3,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            title: { display: true, text: 'Portabilidades por Día', color: '#fff' }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: { color: '#fff' },
-              grid: { color: 'rgba(255,255,255,0.1)' }
+            
+            normalizarTexto: (texto) => {
+                return texto.toString().trim().toUpperCase();
             },
-            x: {
-              ticks: { color: '#fff' },
-              grid: { color: 'rgba(255,255,255,0.1)' }
-            }
-          }
-        }
-      });
-      
-      // Gráfica de distribución por estado
-      const ctxEstados = document.getElementById('graficaEstados').getContext('2d');
-      graficas.estados = new Chart(ctxEstados, {
-        type: 'doughnut',
-        data: {
-          labels: ['PENDIENTE', 'LISTO'],
-          datasets: [{
-            data: [0, 0],
-            backgroundColor: ['#f59e0b', '#10b981'],
-            borderColor: ['#d97706', '#047857'],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'top',
-              labels: { color: '#fff' }
+            
+            procesarFecha: (fechaStr) => {
+                if (!fechaStr) return utils.formatearFecha(new Date());
+                
+                // Manejar diferentes formatos de fecha
+                const fecha = new Date(fechaStr);
+                if (isNaN(fecha.getTime())) return utils.formatearFecha(new Date());
+                
+                return utils.formatearFecha(fecha);
             },
-            title: {
-              display: true,
-              text: 'Distribución por Estado',
-              color: '#fff'
-            }
-          }
-        }
-      });
-      
-      // Gráfica de ranking (horizontal bar)
-      const ctxRanking = document.getElementById('graficaRanking').getContext('2d');
-      graficas.ranking = new Chart(ctxRanking, {
-        type: 'bar',
-        data: {
-          labels: [],
-          datasets: [{
-            label: 'Portabilidades',
-            data: [],
-            backgroundColor: [
-              '#3b82f6', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444',
-              '#8b5cf6', '#ec4899', '#f97316', '#84cc16', '#64748b'
-            ]
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            title: {
-              display: true,
-              text: 'Top 10 Promotores',
-              color: '#fff'
-            }
-          },
-          scales: {
-            x: {
-              beginAtZero: true,
-              ticks: { color: '#fff' },
-              grid: { color: 'rgba(255,255,255,0.1)' }
+            
+            mostrarToast: (mensaje, tipo = 'success') => {
+                elements.toast.textContent = mensaje;
+                elements.toast.className = `toast ${tipo === 'success' ? 'toast-success' : 'toast-error'}`;
+                elements.toast.classList.add('show');
+                
+                setTimeout(() => {
+                    elements.toast.classList.remove('show');
+                }, 3000);
             },
-            y: {
-              ticks: { color: '#fff' },
-              grid: { color: 'rgba(255,255,255,0.1)' }
+            
+            mostrarLoader: () => {
+                elements.tablaLoader.style.display = 'flex';
+            },
+            
+            ocultarLoader: () => {
+                elements.tablaLoader.style.display = 'none';
+            },
+            
+            debounce: (func, wait) => {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
             }
-          }
-        }
-      });
-    }
+        };
 
-    // Actualizar todas las gráficas
-    function actualizarTodasLasGraficas() {
-      if (Object.keys(graficas).length === 0) return;
-      actualizarGraficaProductividad();
-      actualizarGraficaTemporal();
-      actualizarGraficaEstados();
-      actualizarGraficaRanking();
-    }
+        // ============ MANEJO DE DATOS ============
+        const dataHandler = {
+            async cargarDatos() {
+                utils.mostrarLoader();
+                
+                try {
+                    const response = await fetch(API_URL);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    
+                    const data = await response.json();
+                    
+                    state.datosOriginales = data.map((fila, index) => ({
+                        id: index + 1,
+                        fecha: utils.procesarFecha(fila.Fecha),
+                        fechaFiltro: new Date(utils.procesarFecha(fila.Fecha) + 'T00:00:00'),
+                        promotor: utils.normalizarTexto(fila.Promotor || ''),
+                        telefono: String(fila.Telefono || '').trim(),
+                        icc: String(fila.ICC || '').trim(),
+                        estado: fila.Estado || 'LISTO'
+                    }));
+                    
+                    state.datosFiltrados = [...state.datosOriginales];
+                    
+                    // Extraer promotores únicos
+                    state.promotores = new Set(
+                        state.datosOriginales.map(item => item.promotor).filter(Boolean)
+                    );
+                    
+                    this.actualizarSelectPromotores();
+                    uiHandler.actualizarEstadisticas();
+                    uiHandler.llenarTabla();
+                    
+                    utils.ocultarLoader();
+                    utils.mostrarToast(`${state.datosOriginales.length} registros cargados`, 'success');
+                    
+                } catch (error) {
+                    console.error('Error al cargar datos:', error);
+                    utils.ocultarLoader();
+                    utils.mostrarToast(`Error al cargar datos: ${error.message}`, 'error');
+                }
+            },
+            
+            actualizarSelectPromotores() {
+                const select = elements.promotorSelect;
+                select.innerHTML = '<option value="todos">Todos los promotores</option>';
+                
+                Array.from(state.promotores)
+                    .sort()
+                    .forEach(promotor => {
+                        const option = document.createElement('option');
+                        option.value = promotor;
+                        option.textContent = promotor;
+                        select.appendChild(option);
+                    });
+            },
+            
+            aplicarFiltros() {
+                const { fechaInicio, fechaFin, promotor, estado } = state.filtros;
+                
+                state.datosFiltrados = state.datosOriginales.filter(item => {
+                    // Filtro por fecha
+                    if (fechaInicio && item.fechaFiltro < new Date(fechaInicio + 'T00:00:00')) {
+                        return false;
+                    }
+                    if (fechaFin && item.fechaFiltro > new Date(fechaFin + 'T23:59:59')) {
+                        return false;
+                    }
+                    
+                    // Filtro por promotor
+                    if (promotor !== 'todos' && item.promotor !== promotor) {
+                        return false;
+                    }
+                    
+                    // Filtro por estado
+                    if (estado !== 'todos' && item.estado !== estado) {
+                        return false;
+                    }
+                    
+                    return true;
+                });
+                
+                uiHandler.actualizarEstadisticas();
+                uiHandler.llenarTabla();
+                utils.mostrarToast(`${state.datosFiltrados.length} registros filtrados`, 'success');
+            },
+            
+            exportarExcel() {
+                try {
+                    const ws = XLSX.utils.json_to_sheet(
+                        state.datosFiltrados.map(item => ({
+                            '#': item.id,
+                            'Fecha': item.fecha,
+                            'Promotor': item.promotor,
+                            'Teléfono': item.telefono,
+                            'ICC': item.icc,
+                            'Estado': item.estado
+                        }))
+                    );
+                    
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "Datos");
+                    
+                    const fecha = new Date().toISOString().slice(0, 10);
+                    XLSX.writeFile(wb, `dashboard_mada_${fecha}.xlsx`);
+                    
+                    utils.mostrarToast('Archivo Excel exportado', 'success');
+                } catch (error) {
+                    console.error('Error al exportar:', error);
+                    utils.mostrarToast('Error al exportar Excel', 'error');
+                }
+            }
+        };
 
-    // Actualizar gráfica de productividad
-    function actualizarGraficaProductividad() {
-      if (!graficas.productividad) return;
-      
-      const conteo = {};
-      datosFiltrados.forEach(r => {
-        const prom = r.promotor || 'Sin nombre';
-        conteo[prom] = (conteo[prom] || 0) + 1;
-      });
-      
-      const labels = Object.keys(conteo);
-      const valores = Object.values(conteo);
-      
-      graficas.productividad.data.labels = labels;
-      graficas.productividad.data.datasets[0].data = valores;
-      graficas.productividad.update();
-    }
+        // ============ MANEJO DE UI ============
+        const uiHandler = {
+            llenarTabla() {
+                const tbody = elements.tablaBody;
+                tbody.innerHTML = '';
+                
+                if (state.datosFiltrados.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 3rem;">
+                                No se encontraron datos con los filtros aplicados
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                // Usar DocumentFragment para mejor rendimiento
+                const fragment = document.createDocumentFragment();
+                
+                state.datosFiltrados.forEach(item => {
+                    const tr = document.createElement('tr');
+                    
+                    const badgeClass = {
+                        'LISTO': 'badge-success',
+                        'PENDIENTE': 'badge-warning',
+                        'RECHAZADO': 'badge-danger'
+                    }[item.estado] || 'badge-secondary';
+                    
+                    tr.innerHTML = `
+                        <td>${item.id}</td>
+                        <td>${item.fecha}</td>
+                        <td>${item.promotor}</td>
+                        <td>${item.telefono}</td>
+                        <td>${item.icc}</td>
+                        <td><span class="badge ${badgeClass}">${item.estado}</span></td>
+                    `;
+                    
+                    fragment.appendChild(tr);
+                });
+                
+                tbody.appendChild(fragment);
+            },
+            
+            actualizarEstadisticas() {
+                const total = state.datosFiltrados.length;
+                const listos = state.datosFiltrados.filter(d => d.estado === 'LISTO').length;
+                const pendientes = state.datosFiltrados.filter(d => d.estado === 'PENDIENTE').length;
+                const rechazados = state.datosFiltrados.filter(d => d.estado === 'RECHAZADO').length;
+                const tasaExito = total > 0 ? ((listos / total) * 100).toFixed(1) : 0;
+                
+                elements.statsContainer.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-label">Total Registros</div>
+                        <div class="stat-value">${total}</div>
+                        <div class="stat-desc">Filtros aplicados</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-label">Completados</div>
+                        <div class="stat-value">${listos}</div>
+                        <div class="stat-desc">Estado: LISTO</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-label">Pendientes</div>
+                        <div class="stat-value">${pendientes}</div>
+                        <div class="stat-desc">Estado: PENDIENTE</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Tasa de Éxito</div>
+                        <div class="stat-value">${tasaExito}%</div>
+                        <div class="stat-desc">Completados / Total</div>
+                    </div>
+                `;
+            },
+            
+            inicializarFechas() {
+                const hoy = new Date();
+                const hace30Dias = new Date();
+                hace30Dias.setDate(hoy.getDate() - 30);
+                
+                elements.fechaInicio.value = utils.formatearFecha(hace30Dias);
+                elements.fechaFin.value = utils.formatearFecha(hoy);
+                
+                // Actualizar fecha actual en header
+                const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                elements.fechaActual.textContent = hoy.toLocaleDateString('es-ES', opciones);
+                elements.currentYear.textContent = hoy.getFullYear();
+                
+                // Guardar filtros iniciales
+                state.filtros.fechaInicio = elements.fechaInicio.value;
+                state.filtros.fechaFin = elements.fechaFin.value;
+            },
+            
+            inicializarGraficas() {
+                // Destruir gráficas existentes
+                Object.values(state.graficas).forEach(chart => {
+                    if (chart) chart.destroy();
+                });
+                
+                // Gráfica de distribución por estado
+                const ctxEstado = document.getElementById('chartEstado').getContext('2d');
+                const estadosData = this.agruparPorEstado();
+                
+                state.graficas.estado = new Chart(ctxEstado, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(estadosData),
+                        datasets: [{
+                            data: Object.values(estadosData),
+                            backgroundColor: [
+                                '#10b981', // LISTO - verde
+                                '#f59e0b', // PENDIENTE - amarillo
+                                '#ef4444'  // RECHAZADO - rojo
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+                
+                // Gráfica de actividad por promotor (top 10)
+                const ctxPromotor = document.getElementById('chartPromotor').getContext('2d');
+                const promotoresData = this.agruparPorPromotor();
+                
+                state.graficas.promotor = new Chart(ctxPromotor, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(promotoresData).slice(0, 10),
+                        datasets: [{
+                            label: 'Registros',
+                            data: Object.values(promotoresData).slice(0, 10),
+                            backgroundColor: '#3b82f6'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            },
+            
+            agruparPorEstado() {
+                return state.datosFiltrados.reduce((acc, item) => {
+                    acc[item.estado] = (acc[item.estado] || 0) + 1;
+                    return acc;
+                }, {});
+            },
+            
+            agruparPorPromotor() {
+                const agrupado = state.datosFiltrados.reduce((acc, item) => {
+                    acc[item.promotor] = (acc[item.promotor] || 0) + 1;
+                    return acc;
+                }, {});
+                
+                // Ordenar por cantidad descendente
+                return Object.fromEntries(
+                    Object.entries(agrupado).sort(([,a], [,b]) => b - a)
+                );
+            }
+        };
 
-    // Actualizar gráfica temporal
-    function actualizarGraficaTemporal() {
-      if (!graficas.temporal) return;
-      
-      // Agrupar por fecha
-      const conteoPorFecha = {};
-      datosFiltrados.forEach(r => {
-        const fecha = r.fecha;
-        if (fecha) {
-          conteoPorFecha[fecha] = (conteoPorFecha[fecha] || 0) + 1;
-        }
-      });
-      
-      // Ordenar por fecha
-      const fechasOrdenadas = Object.keys(conteoPorFecha).sort();
-      const valoresOrdenados = fechasOrdenadas.map(fecha => conteoPorFecha[fecha]);
-      
-      // Formatear fechas para mostrar
-      const fechasFormateadas = fechasOrdenadas.map(f => {
-        const date = new Date(f + 'T00:00:00');
-        return date.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
-      });
-      
-      graficas.temporal.data.labels = fechasFormateadas;
-      graficas.temporal.data.datasets[0].data = valoresOrdenados;
-      graficas.temporal.update();
-    }
+        // ============ EVENT LISTENERS ============
+        const eventHandlers = {
+            inicializar() {
+                // Fechas iniciales
+                uiHandler.inicializarFechas();
+                
+                // Cargar datos iniciales
+                dataHandler.cargarDatos();
+                
+                // Configurar event listeners
+                this.configurarEventListeners();
+            },
+            
+            configurarEventListeners() {
+                // Filtros
+                elements.btnFiltrar.addEventListener('click', () => {
+                    state.filtros.fechaInicio = elements.fechaInicio.value;
+                    state.filtros.fechaFin = elements.fechaFin.value;
+                    state.filtros.promotor = elements.promotorSelect.value;
+                    state.filtros.estado = elements.estadoSelect.value;
+                    
+                    dataHandler.aplicarFiltros();
+                });
+                
+                // Exportar
+                elements.btnExportar.addEventListener('click', () => {
+                    dataHandler.exportarExcel();
+                });
+                
+                // Tabs
+                elements.tabBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const tabId = btn.dataset.tab;
+                        
+                        // Actualizar botones activos
+                        elements.tabBtns.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        
+                        // Mostrar contenido correspondiente
+                        if (tabId === 'tabla') {
+                            elements.tablaContainer.style.display = 'block';
+                            elements.graficasContainer.style.display = 'none';
+                        } else if (tabId === 'graficas') {
+                            elements.tablaContainer.style.display = 'none';
+                            elements.graficasContainer.style.display = 'grid';
+                            uiHandler.inicializarGraficas();
+                        }
+                    });
+                });
+                
+                // Filtros con debounce para mejor rendimiento
+                const aplicarFiltrosDebounced = utils.debounce(() => {
+                    elements.btnFiltrar.click();
+                }, 300);
+                
+                elements.fechaInicio.addEventListener('change', aplicarFiltrosDebounced);
+                elements.fechaFin.addEventListener('change', aplicarFiltrosDebounced);
+                elements.promotorSelect.addEventListener('change', aplicarFiltrosDebounced);
+                elements.estadoSelect.addEventListener('change', aplicarFiltrosDebounced);
+                
+                // Actualizar datos cada 5 minutos
+                setInterval(() => {
+                    dataHandler.cargarDatos();
+                }, 300000);
+            }
+        };
 
-    // Actualizar gráfica de estados
-    function actualizarGraficaEstados() {
-      if (!graficas.estados) return;
-      
-      const pendientes = datosFiltrados.filter(r => r.estado === 'PENDIENTE').length;
-      const listos = datosFiltrados.filter(r => r.estado === 'LISTO').length;
-      
-      graficas.estados.data.datasets[0].data = [pendientes, listos];
-      graficas.estados.update();
-    }
-
-    // Actualizar gráfica de ranking
-    function actualizarGraficaRanking() {
-      if (!graficas.ranking) return;
-      
-      const conteo = {};
-      datosFiltrados.forEach(r => {
-        const prom = r.promotor || 'Sin nombre';
-        conteo[prom] = (conteo[prom] || 0) + 1;
-      });
-      
-      // Ordenar por cantidad (descendente)
-      const entries = Object.entries(conteo);
-      entries.sort((a, b) => b[1] - a[1]);
-      
-      // Tomar los primeros 10
-      const top10 = entries.slice(0, 10);
-      
-      const labels = top10.map(entry => entry[0]);
-      const valores = top10.map(entry => entry[1]);
-      
-      graficas.ranking.data.labels = labels;
-      graficas.ranking.data.datasets[0].data = valores;
-      graficas.ranking.update();
-    }
-
-    // Exportar datos a Excel
-    function exportarDatos() {
-      if (datosFiltrados.length === 0) {
-        mostrarToast("No hay datos para exportar", "error");
-        return;
-      }
-      
-      try {
-        // Preparar datos para exportación
-        const datosExportar = datosFiltrados.map(fila => ({
-          ID: fila.id,
-          Fecha: formatearFechaParaTabla(fila.fechaCompleta),
-          Promotor: fila.promotor,
-          Teléfono: fila.telefono,
-          ICC: fila.icc,
-          Estado: fila.estado,
-          'Tiempo (días)': fila.tiempo
-        }));
-        
-        // Crear libro de trabajo
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.json_to_sheet(datosExportar);
-        
-        // Añadir hoja al libro
-        XLSX.utils.book_append_sheet(wb, ws, "Portabilidades");
-        
-        // Generar nombre de archivo con fecha
-        const fechaHoy = new Date().toISOString().split('T')[0];
-        const nombreArchivo = `Portabilidades_MADA_${fechaHoy}.xlsx`;
-        
-        // Descargar archivo
-        XLSX.writeFile(wb, nombreArchivo);
-        
-        mostrarToast(`Exportado: ${nombreArchivo}`, "success");
-      } catch (error) {
-        console.error("Error al exportar datos:", error);
-        mostrarToast("Error al exportar", "error");
-      }
-    }
-
-    // Utilidades
-    function formatearFechaInput(fecha) {
-      return fecha.toISOString().split('T')[0];
-    }
-
-    function formatearFechaParaTabla(fechaStr) {
-      if (!fechaStr) return '';
-      
-      try {
-        // Intentar parsear la fecha
-        const fecha = new Date(fechaStr);
-        if (isNaN(fecha.getTime())) {
-          // Si no se puede parsear, devolver el string original
-          return fechaStr;
-        }
-        
-        // Formatear como DD/MM/YYYY HH:mm
-        const dia = fecha.getDate().toString().padStart(2, '0');
-        const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
-        const año = fecha.getFullYear();
-        const horas = fecha.getHours().toString().padStart(2, '0');
-        const minutos = fecha.getMinutes().toString().padStart(2, '0');
-        
-        return `${dia}/${mes}/${año} ${horas}:${minutos}`;
-      } catch (e) {
-        return fechaStr;
-      }
-    }
-
-    function mostrarLoader() {
-      elementos.tablaLoader.style.display = 'flex';
-    }
-
-    function ocultarLoader() {
-      elementos.tablaLoader.style.display = 'none';
-    }
-
-    function mostrarToast(mensaje, tipo = "success") {
-      elementos.toast.className = `toast toast-${tipo}`;
-      elementos.toastMessage.textContent = mensaje;
-      elementos.toastIcon.textContent = tipo === "success" ? "✅" : "❌";
-      
-      elementos.toast.classList.add("show");
-      
-      setTimeout(() => {
-        elementos.toast.classList.remove("show");
-      }, 3000);
-    }
-
-    function actualizarHora() {
-      const ahora = new Date();
-      const horaFormateada = ahora.toLocaleTimeString('es-MX', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-      elementos.lastUpdate.textContent = horaFormateada;
-    }
-  </script>
+        // ============ INICIALIZACIÓN ============
+        document.addEventListener('DOMContentLoaded', () => {
+            eventHandlers.inicializar();
+        });
+    </script>
 </body>
 </html>
