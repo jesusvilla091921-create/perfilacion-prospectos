@@ -548,7 +548,7 @@
         </header>
 
         <main class="main-content">
-            <!-- Tarjeta del Promotor -->
+            <!-- Paso 1: Nombre del Promotor -->
             <div class="card" id="promotor-card">
                 <h2 class="card-title"><i class="fas fa-user"></i> Paso 1: Ingresa tu nombre</h2>
                 <div class="form-group">
@@ -558,7 +558,7 @@
                 </div>
             </div>
 
-            <!-- Tarjeta de Carga de Imágenes -->
+            <!-- Paso 2: Subir Imágenes -->
             <div class="card" id="upload-card">
                 <h2 class="card-title"><i class="fas fa-file-upload"></i> Paso 2: Sube las capturas</h2>
                 <div class="upload-area" id="uploadArea">
@@ -587,7 +587,7 @@
                 </div>
             </div>
 
-            <!-- Tarjeta de la Tabla (Inicialmente oculta) -->
+            <!-- Paso 3: Tabla de Resultados (oculta inicialmente) -->
             <div class="card hidden" id="table-card">
                 <h2 class="card-title"><i class="fas fa-table"></i> Resultados del Procesamiento</h2>
                 <div class="registros-counter">
@@ -622,7 +622,7 @@
                 </div>
             </div>
 
-            <!-- Tarjeta de Envío -->
+            <!-- Paso 4: Enviar Registros (oculta inicialmente) -->
             <div class="card hidden" id="send-card">
                 <h2 class="card-title"><i class="fas fa-paper-plane"></i> Paso 3: Enviar Registros</h2>
                 
@@ -647,7 +647,7 @@
                 </div>
             </div>
 
-            <!-- Tarjeta de Log -->
+            <!-- Registro de Actividad -->
             <div class="card" id="log-card">
                 <div class="log-header">
                     <h2 class="log-title"><i class="fas fa-file-alt"></i> Registro de Actividad</h2>
@@ -675,8 +675,7 @@
         // =======================================================
         const CONFIG = {
             MAX_REGISTROS: 40,
-            WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbxX2_0X6Z_00nHr1pm5LqXIUVaQgFdtkLOcW-q7zzCzs9fkvlJkZ1e6OeuHasJuSdAu/exec',
-            OCR_WHITELIST: '0123456789'
+            WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbxX2_0X6Z_00nHr1pm5LqXIUVaQgFdtkLOcW-q7zzCzs9fkvlJkZ1e6OeuHasJuSdAu/exec'
         };
 
         // =======================================================
@@ -697,6 +696,10 @@
                     validado: false,
                     completo: false
                 };
+            },
+            
+            obtenerRegistrosValidos: () => {
+                return Estado.registros.filter(r => r.validado);
             }
         };
 
@@ -799,16 +802,15 @@
                     // Buscar teléfono (10 dígitos)
                     const matchTelefono = textoLimpio.match(/\d{10}/g);
                     if (matchTelefono) {
-                        // Tomar el primer teléfono válido
-                        resultado.telefono = matchTelefono.find(t => Utils.Data.validarTelefono(t)) || matchTelefono[0] || '';
+                        resultado.telefono = matchTelefono[0];
                     }
                     
                     // Buscar ICC (18-20 dígitos)
                     const iccs = textoLimpio.match(/\d{18,20}/g) || [];
                     if (iccs.length > 0) {
-                        // Preferir ICC que empiece con 89
-                        const icc89 = iccs.find(i => i.startsWith('89'));
-                        resultado.icc = icc89 || iccs[0] || '';
+                        // Ordenar por longitud (más largo primero)
+                        iccs.sort((a, b) => b.length - a.length);
+                        resultado.icc = iccs[0];
                     }
                     
                     return resultado;
@@ -817,7 +819,7 @@
         };
 
         // =======================================================
-        // 5. MÓDULO DE OCR SIMPLIFICADO
+        // 5. MÓDULO DE OCR CORREGIDO
         // =======================================================
         const OCR = {
             procesarImagen: async (file) => {
@@ -825,14 +827,15 @@
                     const reader = new FileReader();
                     reader.onload = async (e) => {
                         try {
-                            // Usar Tesseract directamente sin workers complejos
+                            // Usar Tesseract de forma más simple y confiable
                             const result = await Tesseract.recognize(
                                 e.target.result,
                                 'eng',
                                 {
                                     logger: m => {
+                                        // Podemos agregar logging aquí si es necesario
                                         if (m.status === 'recognizing text') {
-                                            // Puedes mostrar progreso aquí si quieres
+                                            // Opcional: mostrar progreso
                                         }
                                     }
                                 }
@@ -868,6 +871,7 @@
                 
                 Estado.ocrEnProgreso = true;
                 D.btnProcesarOCR.disabled = true;
+                D.btnLimpiarImagenes.disabled = true;
                 D.progressContainer.style.display = 'block';
                 D.progressFill.style.width = '0%';
                 
@@ -878,13 +882,11 @@
                 Utils.UI.agregarLog(`Iniciando OCR de ${totalImagenes} captura(s)...`, "info");
                 
                 try {
-                    // Mostrar la tabla solo si hay más de 1 imagen
-                    if (totalImagenes > 0) {
-                        Utils.UI.mostrarElemento('table-card');
-                        Utils.UI.mostrarElemento('send-card');
-                    }
+                    // Mostrar la tabla
+                    Utils.UI.mostrarElemento('table-card');
+                    Utils.UI.mostrarElemento('send-card');
                     
-                    // Limpiar tabla existente
+                    // Limpiar tabla existente y registros
                     D.cuerpoTabla.innerHTML = '';
                     Estado.registros = [];
                     
@@ -898,20 +900,14 @@
                             );
                             
                             const resultado = await OCR.procesarImagen(file);
-                            
                             procesados++;
                             
+                            // Crear nuevo registro con los datos del OCR
+                            const nuevoRegistro = Estado.inicializarRegistro();
+                            
                             if (resultado.telefono || resultado.icc) {
-                                // Crear nuevo registro
-                                const nuevoRegistro = Estado.inicializarRegistro();
                                 nuevoRegistro.telefono = resultado.telefono;
                                 nuevoRegistro.icc = resultado.icc;
-                                
-                                Estado.registros.push(nuevoRegistro);
-                                
-                                // Agregar fila a la tabla
-                                Tabla.agregarFila(nuevoRegistro, i);
-                                
                                 exitosos++;
                                 
                                 Utils.UI.agregarLog(
@@ -919,16 +915,16 @@
                                     "success"
                                 );
                             } else {
-                                // Crear registro vacío para esta imagen
-                                const nuevoRegistro = Estado.inicializarRegistro();
-                                Estado.registros.push(nuevoRegistro);
-                                Tabla.agregarFila(nuevoRegistro, i);
-                                
                                 Utils.UI.agregarLog(`Imagen ${i + 1}: No se encontraron datos`, "warning");
                             }
                             
+                            Estado.registros.push(nuevoRegistro);
+                            
+                            // Agregar fila a la tabla
+                            Tabla.agregarFila(nuevoRegistro, i);
+                            
                             // Pequeña pausa entre procesamientos
-                            await new Promise(resolve => setTimeout(resolve, 300));
+                            await new Promise(resolve => setTimeout(resolve, 500));
                             
                         } catch (error) {
                             // Crear registro vacío para esta imagen
@@ -948,6 +944,7 @@
                     Estado.imagenes = [];
                     D.uploadCount.textContent = "0 capturas seleccionadas";
                     D.uploadText.textContent = "Arrastra y suelta las capturas o haz clic para seleccionar";
+                    D.btnProcesarOCR.disabled = true;
                     
                     Utils.UI.agregarLog(`OCR completado: ${exitosos} de ${totalImagenes} imágenes procesadas`, "info");
                     Utils.UI.mostrarToast(`Procesadas ${totalImagenes} imágenes`, exitosos > 0 ? "success" : "warning", 3000);
@@ -957,7 +954,6 @@
                     Utils.UI.mostrarToast("Error en el proceso OCR", "error");
                 } finally {
                     Estado.ocrEnProgreso = false;
-                    D.btnProcesarOCR.disabled = true;
                     setTimeout(() => {
                         D.progressContainer.style.display = 'none';
                         D.progressFill.style.width = '0%';
@@ -1179,7 +1175,7 @@
         // =======================================================
         const Envio = {
             enviarRegistros: async () => {
-                const registrosValidos = Estado.registros.filter(r => r.validado);
+                const registrosValidos = Estado.obtenerRegistrosValidos();
                 
                 if (registrosValidos.length === 0) {
                     Utils.UI.mostrarToast("No hay registros válidos para enviar", "error");
@@ -1211,6 +1207,7 @@
                 try {
                     Utils.UI.actualizarProgreso(30, "Conectando con el servidor...");
                     
+                    // Enviar datos al backend
                     const response = await fetch(CONFIG.WEBAPP_URL, {
                         method: 'POST',
                         headers: { 
@@ -1221,10 +1218,7 @@
                     
                     Utils.UI.actualizarProgreso(70, "Enviando datos...");
                     
-                    if (!response.ok) {
-                        throw new Error(`Error HTTP: ${response.status}`);
-                    }
-                    
+                    // Manejar respuesta
                     const result = await response.json();
                     Utils.UI.actualizarProgreso(100, "Envío completado!");
                     
@@ -1258,7 +1252,7 @@
                 D.summaryExitosos.textContent = resultado.exitosos || 0;
                 D.summaryDuplicados.textContent = resultado.duplicados || 0;
                 D.summaryErrores.textContent = resultado.errores || 0;
-                D.summaryTotal.textContent = resultado.total || Estado.registros.filter(r => r.validado).length;
+                D.summaryTotal.textContent = resultado.total || Estado.obtenerRegistrosValidos().length;
                 
                 let detallesHTML = `<div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">`;
                 detallesHTML += `<p><strong>📅 Lote:</strong> ${resultado.lote || 'Registro'}</p>`;
@@ -1273,7 +1267,7 @@
             },
             
             previsualizar: () => {
-                const registrosValidos = Estado.registros.filter(r => r.validado);
+                const registrosValidos = Estado.obtenerRegistrosValidos();
                 
                 if (registrosValidos.length === 0) {
                     Utils.UI.mostrarToast("No hay registros válidos para previsualizar", "warning");
@@ -1309,10 +1303,13 @@
                     return;
                 }
                 
-                const archivosArray = Array.from(files).slice(0, CONFIG.MAX_REGISTROS);
+                const archivosArray = Array.from(files);
+                
+                // Limitar a 40 archivos máximo
+                const archivosLimitados = archivosArray.slice(0, CONFIG.MAX_REGISTROS);
                 
                 // Validar que sean imágenes
-                const archivosValidos = archivosArray.filter(file => {
+                const archivosValidos = archivosLimitados.filter(file => {
                     if (!file.type.startsWith('image/')) {
                         Utils.UI.mostrarToast(`${file.name} no es una imagen válida`, "warning");
                         return false;
@@ -1321,6 +1318,11 @@
                 });
                 
                 if (archivosValidos.length === 0) return;
+                
+                if (archivosValidos.length > CONFIG.MAX_REGISTROS) {
+                    Utils.UI.mostrarToast(`Solo se pueden procesar hasta ${CONFIG.MAX_REGISTROS} imágenes`, "warning");
+                    return;
+                }
                 
                 // Actualizar estado
                 Estado.imagenes = archivosValidos;
@@ -1339,7 +1341,7 @@
                 // Cachear elementos
                 cachearElementosDOM();
                 
-                // Promotor
+                // Promotor - actualizar estado global
                 D.promotor.addEventListener('input', function() {
                     Estado.promotorActual = this.value.trim();
                     
@@ -1353,7 +1355,7 @@
                         input.value = Estado.promotorActual;
                     });
                     
-                    // Revalidar todos
+                    // Revalidar todos los registros
                     Estado.registros.forEach((_, index) => {
                         Tabla.validarFila(index);
                     });
@@ -1421,7 +1423,9 @@
             // Mensaje de bienvenida
             setTimeout(() => {
                 Utils.UI.agregarLog("Sistema MADA inicializado", "info");
-                Utils.UI.mostrarToast("Ingresa tu nombre y sube las capturas para comenzar", "info", 3000);
+                Utils.UI.agregarLog("1. Ingresa tu nombre completo", "info");
+                Utils.UI.agregarLog("2. Sube las capturas (hasta 40)", "info");
+                Utils.UI.agregarLog("3. Haz clic en 'Procesar capturas con OCR'", "info");
             }, 500);
         }
 
