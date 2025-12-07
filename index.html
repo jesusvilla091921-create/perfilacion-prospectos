@@ -849,10 +849,6 @@
     </style>
 </head>
 <body>
-    <!-- CONTINÚA EN LA SEGUNDA PARTE -->
-</body>
-</html>
-<body>
     <div class="app-container">
         <header class="header">
             <div class="logo-icon">📱</div>
@@ -1023,8 +1019,7 @@
         </div>
     </div>
 
-    <script>
-        // =======================================================
+    <script>        // =======================================================
         // 1. CONFIGURACIÓN MEJORADA
         // =======================================================
         const CONFIG = {
@@ -1222,7 +1217,7 @@
                 
                 validarTelefono: (telefono) => {
                     const limpio = telefono.replace(/\D/g, '');
-                    return limpio.length === 10 && limpio.startsWith('55');
+                    return limpio.length == 10; // Solo valida que tenga 10 dígitos
                 },
                 
                 validarICC: (icc) => {
@@ -1233,8 +1228,8 @@
                 extraerDatosOCR: (texto) => {
                     const resultado = { telefono: '', icc: '' };
                     
-                    // Buscar teléfono (10 dígitos, preferiblemente que empiece con 55)
-                    const telefonos = texto.match(/\b55\d{8}\b/g) || texto.match(/\b\d{10}\b/g);
+                    // Buscar teléfono (10 dígitos, cualquier prefijo)
+                    const telefonos = texto.match(/\b\d{10}\b/g);
                     if (telefonos && telefonos.length > 0) {
                         resultado.telefono = telefonos[0].replace(/\D/g, '');
                     }
@@ -1496,8 +1491,7 @@
                 }
             }
         };
-
-        // =======================================================
+                // =======================================================
         // 6. MÓDULO DE TABLA MEJORADO
         // =======================================================
         const Tabla = {
@@ -1521,11 +1515,11 @@
                         <input type="text" 
                                data-field="telefono" 
                                data-index="${index}" 
-                               placeholder="55XXXXXXXX" 
+                               placeholder="Ej: 3312345678" 
                                maxlength="10" 
                                class="telefono-input" 
                                value="${registro.telefono || ''}"
-                               title="10 dígitos, debe comenzar con 55">
+                               title="Debe tener exactamente 10 dígitos">
                     </td>
                     <td>
                         <input type="text" 
@@ -1612,7 +1606,7 @@
                 // Feedback visual
                 if (telefonoInput) {
                     telefonoInput.classList.toggle('error-input', registro.telefono.length > 0 && !telefonoValido);
-                    telefonoInput.title = telefonoValido ? 'Teléfono válido' : 'Debe tener 10 dígitos y comenzar con 55';
+                    telefonoInput.title = telefonoValido ? 'Teléfono válido' : 'Debe tener 10 dígitos';
                 }
                 
                 if (iccInput) {
@@ -2063,7 +2057,7 @@
                                 <i class="fas fa-check-circle"></i> Formatos Requeridos
                             </h3>
                             <ul style="padding-left: 1.5rem; color: var(--text); line-height: 1.6;">
-                                <li><strong>Teléfono:</strong> 10 dígitos, debe comenzar con 55</li>
+                                <li><strong>Teléfono:</strong> 10 dígitos exactos (cualquier prefijo válido: 55, 33, 81, etc.)</li>
                                 <li><strong>ICC:</strong> 18-20 dígitos, preferiblemente comienza con 89</li>
                                 <li><strong>Promotor:</strong> Nombre completo sin acentos (se convertirán automáticamente)</li>
                             </ul>
@@ -2072,7 +2066,7 @@
                         <div>
                             <h3 style="color: var(--primary-light); margin-bottom: 0.5rem;">
                                 <i class="fas fa-lightbulb"></i> Consejos
-                            </hh3>
+                            </h3>
                             <ul style="padding-left: 1.5rem; color: var(--text); line-height: 1.6;">
                                 <li>Usa capturas nítidas para mejores resultados de OCR</li>
                                 <li>Puedes procesar hasta 40 imágenes simultáneamente</li>
