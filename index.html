@@ -1,1436 +1,2338 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MADA - Sistema de Registro de Portabilidades</title>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-dark: #4338ca;
-            --primary-light: #6366f1;
-            --secondary: #0ea5e9;
-            --accent: #10b981;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --dark: #0f172a;
-            --darker: #000000;
-            --text: #e2e8f0;
-            --text-light: #94a3b8;
-            --radius: 12px;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            --transition: all 0.3s ease;
-        }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MADA - Sistema de Registro de Portabilidades</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ========== VARIABLES Y RESET ========== */
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --primary-light: #6366f1;
+            --secondary: #0ea5e9;
+            --accent: #10b981;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --dark: #0f172a;
+            --darker: #000000;
+            --text: #e2e8f0;
+            --text-light: #94a3b8;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
-            color: var(--text);
-            min-height: 100vh;
-            line-height: 1.6;
-        }
-        
-        .app-container {
-            max-width: 1200px;
-            margin: 1rem auto;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-lg);
-            background: var(--dark);
-            min-height: calc(100vh - 2rem);
-            overflow: hidden;
-        }
-        
-        .main-content { 
-            padding: 1.5rem; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 1.5rem; 
-        }
-        
-        .card {
-            background: var(--darker);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            color: var(--text);
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid var(--primary);
-        }
-        
-        .card-title i { color: var(--primary-light); }
-        
-        .header { 
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .logo-icon { 
-            font-size: 2rem; 
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            width: 60px; 
-            height: 60px; 
-            display: inline-flex; 
-            justify-content: center; 
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .company-name { 
-            font-size: 1.8rem; 
-            font-weight: 700; 
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .app-title { 
-            font-size: 1.3rem; 
-            opacity: 0.9;
-            margin-bottom: 0.25rem;
-        }
-        
-        .system-status { 
-            font-size: 0.9rem; 
-            margin-top: 0.5rem; 
-            color: var(--text);
-        }
-        
-        .form-group { 
-            margin-bottom: 1.2rem; 
-        }
-        
-        .form-label { 
-            display: block; 
-            font-weight: 500; 
-            margin-bottom: 0.5rem; 
-            font-size: 0.95rem; 
-            color: var(--text-light); 
-        }
-        
-        .form-input {
-            width: 100%; 
-            padding: 0.9rem; 
-            border-radius: 8px; 
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 1rem; 
-            transition: var(--transition); 
-            background: rgba(255, 255, 255, 0.05); 
-            color: var(--text);
-            text-transform: uppercase; 
-        }
-        
-        .form-input:focus { 
-            outline: none; 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); 
-        }
-        
-        .upload-area {
-            border: 2px dashed var(--primary); 
-            border-radius: var(--radius); 
-            padding: 2rem; 
-            text-align: center; 
-            transition: var(--transition); 
-            cursor: pointer; 
-            background: rgba(79, 70, 229, 0.1); 
-            min-height: 200px;
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center;
-        }
-        
-        .upload-area:hover, .upload-area.dragover { 
-            border-color: var(--primary-light); 
-            background-color: rgba(79, 70, 229, 0.2); 
-        }
-        
-        .upload-icon { 
-            font-size: 3rem; 
-            margin-bottom: 1rem; 
-            color: var(--secondary); 
-        }
-        
-        .upload-hint { 
-            font-size: 0.9rem; 
-            color: var(--text-light); 
-            margin-bottom: 1rem; 
-            max-width: 600px;
-        }
-        
-        .upload-count { 
-            background: var(--primary); 
-            color: white; 
-            padding: 0.5rem 1.5rem; 
-            border-radius: 20px; 
-            font-weight: 600; 
-            margin-top: 1rem;
-        }
-        
-        .btn { 
-            padding: 0.9rem 1.5rem; 
-            border-radius: var(--radius); 
-            border: none; 
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: var(--transition); 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 0.5rem; 
-            font-size: 1rem; 
-        }
-        
-        .btn-primary { 
-            background: linear-gradient(135deg, var(--accent) 0%, var(--success) 100%); 
-            color: var(--darker); 
-        }
-        
-        .btn-secondary { 
-            background: var(--primary); 
-            color: white; 
-        }
-        
-        .btn-warning { 
-            background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%); 
-            color: white; 
-        }
-        
-        .btn-danger { 
-            background: linear-gradient(135deg, var(--error) 0%, #dc2626 100%); 
-            color: white; 
-        }
-        
-        .btn:disabled { 
-            background: rgba(255, 255, 255, 0.1); 
-            color: var(--text-light); 
-            cursor: not-allowed; 
-            opacity: 0.6;
-        }
-        
-        .button-group { 
-            display: flex; 
-            gap: 1rem; 
-            margin-top: 1.5rem; 
-            flex-wrap: wrap; 
-        }
-        
-        .progress-container { 
-            margin-top: 1.5rem; 
-            display: none; 
-        }
-        
-        .progress-bar { 
-            height: 10px; 
-            background-color: rgba(255, 255, 255, 0.1); 
-            border-radius: 5px; 
-            overflow: hidden; 
-            margin-bottom: 0.5rem; 
-        }
-        
-        .progress-fill { 
-            height: 100%; 
-            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%); 
-            width: 0%; 
-            transition: width 0.3s ease; 
-            border-radius: 5px; 
-        }
-        
-        .progress-text { 
-            font-size: 0.9rem; 
-            color: var(--text-light); 
-            text-align: center; 
-        }
-        
-        .registros-counter { 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 1rem; 
-            padding: 1rem; 
-            background: rgba(0, 0, 0, 0.3); 
-            border-radius: var(--radius); 
-            margin-top: 1rem; 
-        }
-        
-        .counter-item { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-        }
-        
-        .counter-value { 
-            font-size: 2rem; 
-            font-weight: 700; 
-            background: linear-gradient(135deg, #fff, #e2e8f0); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-        }
-        
-        .counter-label { 
-            font-size: 0.9rem; 
-            color: var(--text-light); 
-            margin-top: 0.25rem; 
-            text-align: center;
-        }
-        
-        .table-container { 
-            overflow-x: auto; 
-            border-radius: var(--radius); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            background: rgba(0, 0, 0, 0.3); 
-            margin-top: 1rem; 
-        }
-        
-        .registros-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            min-width: 1000px; 
-        }
-        
-        .registros-table th { 
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); 
-            color: white; 
-            padding: 1rem; 
-            text-align: left; 
-            font-weight: 600; 
-            font-size: 0.9rem; 
-            position: sticky; 
-            top: 0; 
-            z-index: 10; 
-        }
-        
-        .registros-table td { 
-            padding: 0.75rem; 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
-            color: var(--text); 
-        }
-        
-        .registros-table tr:nth-child(even) { 
-            background: rgba(255, 255, 255, 0.02); 
-        }
-        
-        .registros-table tr:hover { 
-            background: rgba(255, 255, 255, 0.05); 
-        }
-        
-        .registros-table input { 
-            width: 100%; 
-            padding: 0.75rem; 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            border-radius: 6px; 
-            background: rgba(255, 255, 255, 0.07); 
-            color: var(--text); 
-            font-size: 0.95rem; 
-            text-transform: uppercase; 
-        }
-        
-        .registros-table input:focus { 
-            outline: none; 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); 
-        }
-        
-        .registros-table input.error-input { 
-            border-color: var(--error); 
-            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3); 
-        }
-        
-        .estado-badge { 
-            display: inline-flex; 
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem; 
-            border-radius: 20px; 
-            font-size: 0.85rem; 
-            font-weight: 600; 
-        }
-        
-        .status-valid { 
-            background-color: rgba(16, 185, 129, 0.15); 
-            color: var(--success); 
-        }
-        
-        .status-incomplete { 
-            background-color: rgba(245, 158, 11, 0.15); 
-            color: var(--warning); 
-        }
-        
-        .status-empty { 
-            background-color: rgba(239, 68, 68, 0.15); 
-            color: var(--error); 
-        }
-        
-        .results-summary { 
-            display: none; 
-            margin-top: 1.5rem; 
-            padding: 1.5rem; 
-            border-radius: var(--radius); 
-            background: rgba(255, 255, 255, 0.05); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-        }
-        
-        .summary-grid { 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 1.5rem; 
-            margin-bottom: 1.5rem; 
-        }
-        
-        .summary-card { 
-            background: var(--darker); 
-            padding: 1.5rem; 
-            border-radius: var(--radius); 
-            text-align: center; 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-        }
-        
-        .summary-value { 
-            font-size: 2.5rem; 
-            font-weight: 800; 
-            margin-bottom: 0.5rem; 
-        }
-        
-        .summary-success { color: var(--success); }
-        .summary-warning { color: var(--warning); }
-        .summary-error { color: var(--error); }
-        
-        .log { 
-            background: rgba(255, 255, 255, 0.05); 
-            border-radius: var(--radius); 
-            padding: 1rem; 
-            height: 300px; 
-            overflow-y: auto; 
-            font-family: 'Courier New', monospace; 
-            font-size: 0.85rem; 
-            line-height: 1.5; 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-        }
-        
-        .log-entry { 
-            padding: 0.5rem 1rem; 
-            margin-bottom: 0.5rem; 
-            border-left: 4px solid; 
-            border-radius: 4px; 
-        }
-        
-        .log-entry.success { 
-            background-color: rgba(16, 185, 129, 0.1); 
-            color: var(--success); 
-            border-left-color: var(--success); 
-        }
-        
-        .log-entry.error { 
-            background-color: rgba(239, 68, 68, 0.1); 
-            color: var(--error); 
-            border-left-color: var(--error); 
-        }
-        
-        .log-entry.warning { 
-            background-color: rgba(245, 158, 11, 0.1); 
-            color: var(--warning); 
-            border-left-color: var(--warning); 
-        }
-        
-        .log-entry.info { 
-            background-color: rgba(79, 70, 229, 0.1); 
-            color: var(--primary-light); 
-            border-left-color: var(--primary-light); 
-        }
-        
-        .log-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 1rem; 
-        }
-        
-        .footer { 
-            text-align: center; 
-            padding: 1.5rem; 
-            color: var(--text-light); 
-            font-size: 0.9rem; 
-            background: var(--darker); 
-            border-top: 1px solid rgba(255, 255, 255, 0.1); 
-        }
-        
-        .toast { 
-            position: fixed; 
-            top: 20px; 
-            right: 20px; 
-            padding: 1rem 1.5rem; 
-            border-radius: var(--radius); 
-            background-color: rgba(30, 41, 59, 0.95); 
-            box-shadow: var(--shadow-lg); 
-            display: flex; 
-            align-items: center; 
-            gap: 0.75rem; 
-            z-index: 1000; 
-            transform: translateX(150%); 
-            transition: transform 0.3s ease; 
-            max-width: 400px; 
-            color: var(--text); 
-            border-left: 4px solid;
-        }
-        
-        .toast.show { 
-            transform: translateX(0); 
-        }
-        
-        .toast-success { border-left-color: var(--success); }
-        .toast-error { border-left-color: var(--error); }
-        .toast-warning { border-left-color: var(--warning); }
-        
-        .hidden {
-            display: none !important;
-        }
-        
-        @media (max-width: 768px) {
-            .app-container { 
-                margin: 0; 
-                border-radius: 0; 
-            }
-            
-            .registros-counter,
-            .summary-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .button-group .btn { 
-                min-width: 100%; 
-            }
-            
-            .registros-table { 
-                min-width: 800px; 
-            }
-            
-            .company-name {
-                font-size: 1.4rem;
-            }
-            
-            .app-title {
-                font-size: 1.1rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .registros-counter,
-            .summary-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ========== LAYOUT PRINCIPAL ========== */
+        .app-container {
+            max-width: 1400px;
+            margin: 1rem auto;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            background: var(--dark);
+            min-height: calc(100vh - 2rem);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .main-content { 
+            padding: 1.5rem; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 1.5rem; 
+        }
+
+        /* ========== COMPONENTES CARD ========== */
+        .card {
+            background: var(--darker);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            border-color: rgba(79, 70, 229, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text);
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .card-title i { 
+            color: var(--primary-light); 
+        }
+
+        /* ========== HEADER ========== */
+        .header { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite linear;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .logo-icon { 
+            font-size: 2rem; 
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 60px; 
+            height: 60px; 
+            display: inline-flex; 
+            justify-content: center; 
+            align-items: center;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(5px);
+        }
+
+        .company-name { 
+            font-size: 1.8rem; 
+            font-weight: 700; 
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .app-title { 
+            font-size: 1.3rem; 
+            opacity: 0.9;
+            margin-bottom: 0.25rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .app-subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .system-status { 
+            font-size: 0.9rem; 
+            margin-top: 0.5rem; 
+            color: var(--text);
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* ========== FORMULARIOS ========== */
+        .form-group { 
+            margin-bottom: 1.2rem; 
+        }
+
+        .form-label { 
+            display: block; 
+            font-weight: 500; 
+            margin-bottom: 0.5rem; 
+            font-size: 0.95rem; 
+            color: var(--text-light); 
+        }
+
+        .form-input {
+            width: 100%; 
+            padding: 0.9rem; 
+            border-radius: 8px; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1rem; 
+            transition: var(--transition); 
+            background: rgba(255, 255, 255, 0.05); 
+            color: var(--text);
+            text-transform: uppercase;
+            font-family: 'Courier New', monospace;
+        }
+
+        .form-input:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); 
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .input-hint {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+            opacity: 0.8;
+        }
+
+        /* ========== UPLOAD AREA ========== */
+        .upload-area {
+            border: 2px dashed var(--primary); 
+            border-radius: var(--radius); 
+            padding: 2rem; 
+            text-align: center; 
+            transition: var(--transition); 
+            cursor: pointer; 
+            background: rgba(79, 70, 229, 0.1); 
+            min-height: 200px;
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+            position: relative;
+        }
+
+        .upload-area:hover, .upload-area.dragover { 
+            border-color: var(--primary-light); 
+            background-color: rgba(79, 70, 229, 0.2); 
+            transform: translateY(-2px);
+        }
+
+        .upload-icon { 
+            font-size: 3rem; 
+            margin-bottom: 1rem; 
+            color: var(--secondary); 
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .upload-hint { 
+            font-size: 0.9rem; 
+            color: var(--text-light); 
+            margin-bottom: 1rem; 
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        .upload-count { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white; 
+            padding: 0.5rem 1.5rem; 
+            border-radius: 20px; 
+            font-weight: 600; 
+            margin-top: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        /* ========== BOTONES ========== */
+        .btn { 
+            padding: 0.9rem 1.5rem; 
+            border-radius: var(--radius); 
+            border: none; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: var(--transition); 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 0.5rem; 
+            font-size: 1rem; 
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(0, 0); opacity: 0.5; }
+            100% { transform: scale(20, 20); opacity: 0; }
+        }
+
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--accent) 0%, var(--success) 100%); 
+            color: var(--darker); 
+        }
+
+        .btn-primary:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-secondary { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); 
+            color: white; 
+        }
+
+        .btn-secondary:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-warning { 
+            background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%); 
+            color: white; 
+        }
+
+        .btn-warning:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-danger { 
+            background: linear-gradient(135deg, var(--error) 0%, #dc2626 100%); 
+            color: white; 
+        }
+
+        .btn-danger:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn:disabled { 
+            background: rgba(255, 255, 255, 0.1); 
+            color: var(--text-light); 
+            cursor: not-allowed; 
+            opacity: 0.6;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .button-group { 
+            display: flex; 
+            gap: 1rem; 
+            margin-top: 1.5rem; 
+            flex-wrap: wrap; 
+        }
+
+        /* ========== PROGRESS BAR ========== */
+        .progress-container { 
+            margin-top: 1.5rem; 
+            display: none; 
+        }
+
+        .progress-bar { 
+            height: 12px; 
+            background-color: rgba(255, 255, 255, 0.1); 
+            border-radius: 6px; 
+            overflow: hidden; 
+            margin-bottom: 0.5rem; 
+            position: relative;
+        }
+
+        .progress-fill { 
+            height: 100%; 
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%); 
+            width: 0%; 
+            transition: width 0.5s ease; 
+            border-radius: 6px; 
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        .progress-text { 
+            font-size: 0.9rem; 
+            color: var(--text-light); 
+            text-align: center; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* ========== COUNTERS ========== */
+        .registros-counter { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 1rem; 
+            padding: 1rem; 
+            background: rgba(0, 0, 0, 0.3); 
+            border-radius: var(--radius); 
+            margin-top: 1rem; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .counter-item { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            background: rgba(255, 255, 255, 0.03);
+            transition: var(--transition);
+        }
+
+        .counter-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .counter-value { 
+            font-size: 2.2rem; 
+            font-weight: 700; 
+            background: linear-gradient(135deg, #fff, #e2e8f0); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .counter-label { 
+            font-size: 0.9rem; 
+            color: var(--text-light); 
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* ========== TABLA ========== */
+        .table-container { 
+            overflow-x: auto; 
+            border-radius: var(--radius); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            background: rgba(0, 0, 0, 0.3); 
+            margin-top: 1rem;
+            position: relative;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .registros-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            min-width: 1000px; 
+        }
+
+        .registros-table th { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); 
+            color: white; 
+            padding: 1rem; 
+            text-align: left; 
+            font-weight: 600; 
+            font-size: 0.9rem; 
+            position: sticky; 
+            top: 0; 
+            z-index: 10; 
+            white-space: nowrap;
+        }
+
+        .registros-table td { 
+            padding: 0.75rem; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+            color: var(--text); 
+            vertical-align: middle;
+        }
+
+        .registros-table tr:nth-child(even) { 
+            background: rgba(255, 255, 255, 0.02); 
+        }
+
+        .registros-table tr:hover { 
+            background: rgba(255, 255, 255, 0.05); 
+        }
+
+        .registros-table input { 
+            width: 100%; 
+            padding: 0.75rem; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 6px; 
+            background: rgba(255, 255, 255, 0.07); 
+            color: var(--text); 
+            font-size: 0.95rem; 
+            text-transform: uppercase;
+            font-family: 'Courier New', monospace;
+            transition: var(--transition);
+        }
+
+        .registros-table input:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); 
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .registros-table input.error-input { 
+            border-color: var(--error); 
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3); 
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* ========== BADGES DE ESTADO ========== */
+        .estado-badge { 
+            display: inline-flex; 
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem; 
+            border-radius: 20px; 
+            font-size: 0.85rem; 
+            font-weight: 600; 
+            white-space: nowrap;
+        }
+
+        .status-valid { 
+            background-color: rgba(16, 185, 129, 0.15); 
+            color: var(--success); 
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-incomplete { 
+            background-color: rgba(245, 158, 11, 0.15); 
+            color: var(--warning); 
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-empty { 
+            background-color: rgba(239, 68, 68, 0.15); 
+            color: var(--error); 
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* ========== RESULTADOS ========== */
+        .results-summary { 
+            display: none; 
+            margin-top: 1.5rem; 
+            padding: 1.5rem; 
+            border-radius: var(--radius); 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .summary-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 1.5rem; 
+            margin-bottom: 1.5rem; 
+        }
+
+        .summary-card { 
+            background: var(--darker); 
+            padding: 1.5rem; 
+            border-radius: var(--radius); 
+            text-align: center; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            transition: var(--transition);
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .summary-value { 
+            font-size: 2.5rem; 
+            font-weight: 800; 
+            margin-bottom: 0.5rem; 
+            line-height: 1;
+        }
+
+        .summary-success { 
+            color: var(--success); 
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+        }
+        .summary-warning { 
+            color: var(--warning); 
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+        }
+        .summary-error { 
+            color: var(--error); 
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+        }
+
+        /* ========== LOG DE ACTIVIDAD ========== */
+        .log { 
+            background: rgba(255, 255, 255, 0.05); 
+            border-radius: var(--radius); 
+            padding: 1rem; 
+            height: 300px; 
+            overflow-y: auto; 
+            font-family: 'Courier New', monospace; 
+            font-size: 0.85rem; 
+            line-height: 1.5; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+
+        .log-entry { 
+            padding: 0.5rem 1rem; 
+            margin-bottom: 0.5rem; 
+            border-left: 4px solid; 
+            border-radius: 4px; 
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .log-entry.success { 
+            background-color: rgba(16, 185, 129, 0.1); 
+            color: var(--success); 
+            border-left-color: var(--success); 
+        }
+
+        .log-entry.error { 
+            background-color: rgba(239, 68, 68, 0.1); 
+            color: var(--error); 
+            border-left-color: var(--error); 
+        }
+
+        .log-entry.warning { 
+            background-color: rgba(245, 158, 11, 0.1); 
+            color: var(--warning); 
+            border-left-color: var(--warning); 
+        }
+
+        .log-entry.info { 
+            background-color: rgba(79, 70, 229, 0.1); 
+            color: var(--primary-light); 
+            border-left-color: var(--primary-light); 
+        }
+
+        .log-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 1rem; 
+        }
+
+        /* ========== FOOTER ========== */
+        .footer { 
+            text-align: center; 
+            padding: 1.5rem; 
+            color: var(--text-light); 
+            font-size: 0.9rem; 
+            background: var(--darker); 
+            border-top: 1px solid rgba(255, 255, 255, 0.1); 
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+
+        /* ========== TOAST NOTIFICATIONS ========== */
+        .toast { 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            padding: 1rem 1.5rem; 
+            border-radius: var(--radius); 
+            background-color: rgba(30, 41, 59, 0.95); 
+            box-shadow: var(--shadow-lg); 
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            z-index: 1000; 
+            transform: translateX(150%); 
+            transition: transform 0.3s ease; 
+            max-width: 400px; 
+            color: var(--text); 
+            border-left: 4px solid;
+            backdrop-filter: blur(10px);
+        }
+
+        .toast.show { 
+            transform: translateX(0); 
+        }
+
+        .toast-success { border-left-color: var(--success); }
+        .toast-error { border-left-color: var(--error); }
+        .toast-warning { border-left-color: var(--warning); }
+        .toast-info { border-left-color: var(--primary); }
+
+        /* ========== UTILIDADES ========== */
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            padding: 0.5rem;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .app-container { 
+                margin: 0; 
+                border-radius: 0; 
+            }
+            
+            .registros-counter,
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .button-group { 
+                flex-direction: column;
+            }
+            
+            .button-group .btn { 
+                width: 100%; 
+            }
+            
+            .registros-table { 
+                min-width: 800px; 
+            }
+            
+            .company-name {
+                font-size: 1.4rem;
+            }
+            
+            .app-title {
+                font-size: 1.1rem;
+            }
+
+            .counter-value {
+                font-size: 1.8rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .registros-counter,
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+            
+            .upload-area {
+                padding: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="app-container">
-        <header class="header">
-            <div class="logo-icon">📱</div>
-            <div class="company-name">SERVICIOS INTEGRALES MADA</div>
-            <div class="app-title">SISTEMA DE REGISTRO DE PORTABILIDADES</div>
-            <div class="app-subtitle">OCR especializado en teléfono e ICC</div>
-            <div class="system-status" id="systemStatus">Estado del sistema: Listo</div>
-        </header>
+    <!-- CONTINÚA EN LA SEGUNDA PARTE -->
+</body>
+</html>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="logo-icon">📱</div>
+            <div class="company-name">SERVICIOS INTEGRALES MADA</div>
+            <div class="app-title">SISTEMA DE REGISTRO DE PORTABILIDADES</div>
+            <div class="app-subtitle">OCR especializado en teléfono e ICC</div>
+            <div class="system-status" id="systemStatus">
+                <span class="status-indicator"></span>
+                Estado del sistema: <span id="statusText">Listo</span>
+            </div>
+        </header>
 
-        <main class="main-content">
-                        <div class="card" id="promotor-card">
-                <h2 class="card-title"><i class="fas fa-user"></i> Paso 1: Ingresa tu nombre</h2>
-                <div class="form-group">
-                    <label class="form-label" for="promotor">Nombre completo del promotor *</label>
-                    <input type="text" id="promotor" class="form-input" placeholder="Ej: JUAN PEREZ HERNANDEZ" />
-                    <p class="input-hint">Este nombre se asignará a todos los trámites que proceses. (Se fuerza a MAYÚSCULAS/Sin acentos)</p>
-                </div>
-            </div>
+        <main class="main-content">
+            <!-- Paso 1: Promotor -->
+            <div class="card fade-in" id="promotor-card">
+                <h2 class="card-title"><i class="fas fa-user"></i> Paso 1: Ingresa tu nombre</h2>
+                <div class="form-group">
+                    <label class="form-label" for="promotor">Nombre completo del promotor *</label>
+                    <input type="text" id="promotor" class="form-input" placeholder="Ej: JUAN PEREZ HERNANDEZ" maxlength="50" />
+                    <p class="input-hint">Este nombre se asignará a todos los trámites que proceses. (Se fuerza a MAYÚSCULAS/Sin acentos)</p>
+                </div>
+            </div>
 
-                        <div class="card" id="upload-card">
-                <h2 class="card-title"><i class="fas fa-file-upload"></i> Paso 2: Sube las capturas</h2>
-                <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-                    <div class="upload-text">
-                        <p id="uploadText">Arrastra y suelta las capturas o haz clic para seleccionar</p>
-                        <p class="upload-hint" style="margin-top: 0.5rem;">Puedes subir 1 imagen para un trámite individual, o hasta 40 imágenes para procesamiento masivo</p>
-                    </div>
-                    <p class="upload-hint"><strong>OCR ESPECIALIZADO:</strong> Solo extraerá teléfono (10 dígitos) e ICC (18-20 dígitos)</p>
-                    <div class="upload-count" id="uploadCount">0 capturas seleccionadas</div>
-                    <input type="file" id="fileInput" accept="image/*" multiple style="display: none;" />
-                </div>
-                
-                <div class="button-group">
-                    <button class="btn btn-secondary" id="btnProcesarOCR" disabled>
-                        <i class="fas fa-search-plus"></i> Procesar capturas con OCR
-                    </button>
-                    <button class="btn btn-warning" id="btnLimpiarImagenes" disabled>
-                        <i class="fas fa-trash-alt"></i> Limpiar imágenes
-                    </button>
-                </div>
-                
-                <div class="progress-container" id="progressContainer">
-                    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-                    <div class="progress-text" id="progressText">Preparando procesamiento...</div>
-                </div>
-            </div>
+            <!-- Paso 2: Subir capturas -->
+            <div class="card fade-in" id="upload-card">
+                <h2 class="card-title"><i class="fas fa-file-upload"></i> Paso 2: Sube las capturas</h2>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                    <div class="upload-text">
+                        <p id="uploadText">Arrastra y suelta las capturas o haz clic para seleccionar</p>
+                        <p class="upload-hint" style="margin-top: 0.5rem;">Puedes subir 1 imagen para un trámite individual, o hasta 40 imágenes para procesamiento masivo</p>
+                    </div>
+                    <p class="upload-hint"><strong>OCR ESPECIALIZADO:</strong> Solo extraerá teléfono (10 dígitos) e ICC (18-20 dígitos)</p>
+                    <div class="upload-count" id="uploadCount">0 capturas seleccionadas</div>
+                    <input type="file" id="fileInput" accept="image/*,.png,.jpg,.jpeg,.webp" multiple style="display: none;" />
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-secondary" id="btnProcesarOCR" disabled>
+                        <i class="fas fa-search-plus"></i> Procesar capturas con OCR
+                    </button>
+                    <button class="btn btn-warning" id="btnLimpiarImagenes" disabled>
+                        <i class="fas fa-trash-alt"></i> Limpiar imágenes
+                    </button>
+                    <button class="btn btn-danger" id="btnCancelarOCR" style="display: none;">
+                        <i class="fas fa-stop-circle"></i> Cancelar procesamiento
+                    </button>
+                </div>
+                
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                    <div class="progress-text">
+                        <span id="progressText">Preparando procesamiento...</span>
+                        <span id="progressPercentage">0%</span>
+                    </div>
+                </div>
+            </div>
 
-                        <div class="card hidden" id="table-card">
-                <h2 class="card-title"><i class="fas fa-table"></i> Resultados del Procesamiento</h2>
-                <div class="registros-counter">
-                    <div class="counter-item"><div class="counter-value" id="counterTotal">0</div><div class="counter-label">Total Registros</div></div>
-                    <div class="counter-item"><div class="counter-value" id="counterValidados">0</div><div class="counter-label">Completos Válidos</div></div>
-                    <div class="counter-item"><div class="counter-value" id="counterPendientes">0</div><div class="counter-label">Faltan Datos</div></div>
-                    <div class="counter-item"><div class="counter-value" id="counterVacios">0</div><div class="counter-label">Por Validar</div></div>
-                </div>
-                
-                <div class="table-container">
-                    <table class="registros-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 5%;">#</th>
-                                <th style="width: 25%;">PROMOTOR</th>
-                                <th style="width: 15%;">TELÉFONO (10 dígitos)</th>
-                                <th style="width: 25%;">ICC (18-20 dígitos)</th>
-                                <th style="width: 15%;">Estado</th>
-                                <th style="width: 15%;">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cuerpoTabla">
-                                                    </tbody>
-                    </table>
-                </div>
-                
-                <div class="button-group" style="margin-top: 1.5rem;">
-                    <button class="btn btn-warning" id="btnLimpiarTabla"><i class="fas fa-broom"></i> Limpiar tabla</button>
-                    <button class="btn btn-danger" id="btnEliminarInvalidos"><i class="fas fa-filter"></i> Eliminar no válidos</button>
-                    <button class="btn btn-secondary" id="btnValidarTodos"><i class="fas fa-check-double"></i> Validar todos</button>
-                </div>
-            </div>
+            <!-- Resultados del procesamiento -->
+            <div class="card hidden fade-in" id="table-card">
+                <h2 class="card-title"><i class="fas fa-table"></i> Resultados del Procesamiento</h2>
+                <div class="registros-counter">
+                    <div class="counter-item"><div class="counter-value" id="counterTotal">0</div><div class="counter-label">Total Registros</div></div>
+                    <div class="counter-item"><div class="counter-value" id="counterValidados">0</div><div class="counter-label">Completos Válidos</div></div>
+                    <div class="counter-item"><div class="counter-value" id="counterPendientes">0</div><div class="counter-label">Faltan Datos</div></div>
+                    <div class="counter-item"><div class="counter-value" id="counterVacios">0</div><div class="counter-label">Por Validar</div></div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="registros-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">#</th>
+                                <th style="width: 25%;">PROMOTOR</th>
+                                <th style="width: 15%;">TELÉFONO (10 dígitos)</th>
+                                <th style="width: 25%;">ICC (18-20 dígitos)</th>
+                                <th style="width: 15%;">Estado</th>
+                                <th style="width: 15%;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpoTabla">
+                            <!-- Filas generadas dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="button-group" style="margin-top: 1.5rem;">
+                    <button class="btn btn-warning" id="btnLimpiarTabla">
+                        <i class="fas fa-broom"></i> Limpiar tabla
+                    </button>
+                    <button class="btn btn-danger" id="btnEliminarInvalidos">
+                        <i class="fas fa-filter"></i> Eliminar no válidos
+                    </button>
+                    <button class="btn btn-secondary" id="btnValidarTodos">
+                        <i class="fas fa-check-double"></i> Validar todos
+                    </button>
+                    <button class="btn btn-primary" id="btnExportarCSV">
+                        <i class="fas fa-file-export"></i> Exportar CSV
+                    </button>
+                </div>
+            </div>
 
-                        <div class="card hidden" id="send-card">
-                <h2 class="card-title"><i class="fas fa-paper-plane"></i> Paso 3: Enviar Registros</h2>
-                
-                <div class="results-summary hidden" id="resultsSummary">
-                    <h3 style="margin-bottom: 1rem; color: var(--text);">Resumen del Envío</h3>
-                    <div class="summary-grid">
-                        <div class="summary-card"><div class="summary-value summary-success" id="summaryExitosos">0</div><div class="counter-label">Éxitos</div></div>
-                        <div class="summary-card"><div class="summary-value summary-warning" id="summaryDuplicados">0</div><div class="counter-label">Duplicados</div></div>
-                        <div class="summary-card"><div class="summary-value summary-error" id="summaryErrores">0</div><div class="counter-label">Errores</div></div>
-                        <div class="summary-card"><div class="summary-value" id="summaryTotal">0</div><div class="counter-label">Total Procesados</div></div>
-                    </div>
-                    <div id="detallesEnvio" style="font-size: 0.9rem; color: var(--text-light); margin-top: 1rem;"></div>
-                </div>
-                
-                <div class="button-group">
-                    <button class="btn btn-primary" id="btnEnviarLote" disabled>
-                        <i class="fas fa-share-square"></i> ENVIAR REGISTROS
-                    </button>
-                    <button class="btn btn-secondary" id="btnPrevisualizar" disabled>
-                        <i class="fas fa-eye"></i> Previsualizar
-                    </button>
-                </div>
-            </div>
+            <!-- Paso 3: Enviar registros -->
+            <div class="card hidden fade-in" id="send-card">
+                <h2 class="card-title"><i class="fas fa-paper-plane"></i> Paso 3: Enviar Registros</h2>
+                
+                <div class="results-summary hidden" id="resultsSummary">
+                    <h3 style="margin-bottom: 1rem; color: var(--text);">Resumen del Envío</h3>
+                    <div class="summary-grid">
+                        <div class="summary-card"><div class="summary-value summary-success" id="summaryExitosos">0</div><div class="counter-label">Éxitos</div></div>
+                        <div class="summary-card"><div class="summary-value summary-warning" id="summaryDuplicados">0</div><div class="counter-label">Duplicados</div></div>
+                        <div class="summary-card"><div class="summary-value summary-error" id="summaryErrores">0</div><div class="counter-label">Errores</div></div>
+                        <div class="summary-card"><div class="summary-value" id="summaryTotal">0</div><div class="counter-label">Total Procesados</div></div>
+                    </div>
+                    <div id="detallesEnvio" style="font-size: 0.9rem; color: var(--text-light); margin-top: 1rem;"></div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-primary" id="btnEnviarLote" disabled>
+                        <i class="fas fa-share-square"></i> ENVIAR REGISTROS
+                    </button>
+                    <button class="btn btn-secondary" id="btnPrevisualizar" disabled>
+                        <i class="fas fa-eye"></i> Previsualizar
+                    </button>
+                    <button class="btn btn-warning" id="btnGenerarReporte">
+                        <i class="fas fa-chart-bar"></i> Generar Reporte
+                    </button>
+                </div>
+            </div>
 
-                        <div class="card" id="log-card">
-                <div class="log-header">
-                    <h2 class="log-title"><i class="fas fa-file-alt"></i> Registro de Actividad</h2>
-                    <button class="btn btn-secondary" id="btnClearLog"><i class="fas fa-trash-alt"></i> Limpiar</button>
-                </div>
-                <div class="log-container">
-                    <div class="log" id="log"></div>
-                </div>
-            </div>
-        </main>
+            <!-- Registro de actividad -->
+            <div class="card fade-in" id="log-card">
+                <div class="log-header">
+                    <h2 class="log-title"><i class="fas fa-file-alt"></i> Registro de Actividad</h2>
+                    <div class="button-group" style="margin: 0;">
+                        <button class="btn btn-secondary" id="btnClearLog"><i class="fas fa-trash-alt"></i> Limpiar</button>
+                        <button class="btn btn-warning" id="btnExportarLog"><i class="fas fa-download"></i> Exportar</button>
+                    </div>
+                </div>
+                <div class="log-container">
+                    <div class="log" id="log"></div>
+                </div>
+            </div>
+        </main>
 
-        <footer class="footer">
-            <p>SERVICIOS INTEGRALES MADA &copy; 2023 | Sistema de Registro de Portabilidades</p>
-        </footer>
-    </div>
+        <footer class="footer">
+            <p>SERVICIOS INTEGRALES MADA &copy; 2023 | Sistema de Registro de Portabilidades</p>
+            <p style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.7;">Versión 2.0 | Última actualización: <span id="fechaActual"></span></p>
+        </footer>
+    </div>
 
-    <div class="toast" id="toast">
-        <div class="toast-icon" id="toastIcon"></div>
-        <div class="toast-message" id="toastMessage"></div>
-    </div>
-    
-    <script>
-        // =======================================================
-        // 1. CONFIGURACIÓN
-        // =======================================================
-        const CONFIG = {
-            MAX_REGISTROS: 40,
-            // 🛑 URL DE TU APPS SCRIPT
-            WEBAPP_URL: 'https://script.google.com/macros/s/AKfycby3soX7BLxbE7t8ZijhD_zzp9CSmk0LkFY6tLcWknLoWJCP9DSIgmfNuxLbdkCfP12B/exec'
-        };
+    <!-- Toast notifications -->
+    <div class="toast" id="toast">
+        <div class="toast-icon" id="toastIcon"></div>
+        <div class="toast-message" id="toastMessage"></div>
+    </div>
+    
+    <!-- Modal de ayuda -->
+    <div class="modal hidden" id="helpModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 1rem;">
+        <div class="card" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 class="card-title"><i class="fas fa-question-circle"></i> Ayuda del Sistema</h2>
+                <button class="btn btn-danger" onclick="Modal.cerrarAyuda()" style="padding: 0.5rem 1rem;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="contenidoAyuda"></div>
+        </div>
+    </div>
 
-        // =======================================================
-        // 2. ESTADO GLOBAL
-        // =======================================================
-        const Estado = {
-            imagenes: [],
-            registros: [],
-            promotorActual: '',
-            ocrEnProgreso: false,
-            
-            inicializarRegistro: () => {
-                return {
-                    id: Date.now() + Math.random(),
-                    promotor: Utils.Data.normalizarTexto(Estado.promotorActual), // Normalización aquí
-                    telefono: '',
-                    icc: '',
-                    validado: false,
-                    completo: false
-                };
-            },
-            
-            obtenerRegistrosValidos: () => {
-                return Estado.registros.filter(r => r.validado);
-            }
-        };
+    <script>
+        // =======================================================
+        // 1. CONFIGURACIÓN MEJORADA
+        // =======================================================
+        const CONFIG = {
+            MAX_REGISTROS: 40,
+            MAX_CONCURRENT_OCR: 3, // Procesar 3 imágenes a la vez
+            OCR_TIMEOUT: 30000, // 30 segundos máximo por imagen
+            WEBAPP_URL: 'https://script.google.com/macros/s/AKfycby3soX7BLxbE7t8ZijhD_zzp9CSmk0LkFY6tLcWknLoWJCP9DSIgmfNuxLbdkCfP12B/exec',
+            VERSION: '2.0.0'
+        };
 
-        // =======================================================
-        // 3. CACHE DE ELEMENTOS DOM
-        // =======================================================
-        const D = {};
-        
-        const cachearElementosDOM = () => {
-            const elementos = [
-                'promotor', 'uploadArea', 'uploadText', 'uploadCount', 'fileInput',
-                'btnProcesarOCR', 'btnLimpiarImagenes', 'progressContainer', 'progressFill', 'progressText',
-                'btnEnviarLote', 'btnPrevisualizar', 'cuerpoTabla', 'counterTotal', 'counterValidados',
-                'counterPendientes', 'counterVacios', 'btnLimpiarTabla', 'btnEliminarInvalidos',
-                'btnValidarTodos', 'log', 'btnClearLog', 'systemStatus', 'resultsSummary',
-                'summaryExitosos', 'summaryDuplicados', 'summaryErrores', 'summaryTotal', 'detallesEnvio',
-                'toast', 'toastIcon', 'toastMessage', 'table-card', 'send-card'
-            ];
-            
-            elementos.forEach(id => {
-                D[id] = document.getElementById(id);
-            });
-        };
+        // =======================================================
+        // 2. ESTADO GLOBAL MEJORADO
+        // =======================================================
+        const Estado = {
+            imagenes: [],
+            registros: [],
+            promotorActual: '',
+            ocrEnProgreso: false,
+            ocrCancelado: false,
+            workersActivos: 0,
+            
+            inicializarRegistro: () => {
+                return {
+                    id: Date.now() + Math.random().toString(36).substr(2, 9),
+                    promotor: Estado.promotorActual,
+                    telefono: '',
+                    icc: '',
+                    validado: false,
+                    completo: false,
+                    timestamp: new Date().toISOString(),
+                    imagenProcesada: false
+                };
+            },
+            
+            obtenerRegistrosValidos: () => {
+                return Estado.registros.filter(r => r.validado);
+            },
+            
+            limpiarEstado: () => {
+                Estado.imagenes = [];
+                Estado.registros = [];
+                Estado.ocrEnProgreso = false;
+                Estado.ocrCancelado = false;
+                Estado.workersActivos = 0;
+            }
+        };
 
-        // =======================================================
-        // 4. UTILIDADES (MODIFICADO: Se agrega normalización de texto)
-        // =======================================================
-        const Utils = {
-            UI: {
-                mostrarToast: (mensaje, tipo = "success", duracion = 3000) => {
-                    D.toast.className = `toast toast-${tipo}`;
-                    D.toastMessage.textContent = mensaje;
-                    
-                    const iconos = {
-                        success: '<i class="fas fa-check-circle"></i>',
-                        error: '<i class="fas fa-times-circle"></i>',
-                        warning: '<i class="fas fa-exclamation-triangle"></i>',
-                        info: '<i class="fas fa-info-circle"></i>'
-                    };
-                    
-                    D.toastIcon.innerHTML = iconos[tipo] || iconos.info;
-                    D.toast.classList.add("show");
-                    
-                    setTimeout(() => {
-                        D.toast.classList.remove("show");
-                    }, duracion);
-                },
-                
-                agregarLog: (mensaje, tipo = "info") => {
-                    const timestamp = new Date().toLocaleTimeString('es-MX', { 
-                        hour: '2-digit', 
-                        minute: '2-digit', 
-                        second: '2-digit' 
-                    });
-                    
-                    const logEntry = document.createElement('div');
-                    logEntry.className = `log-entry ${tipo}`;
-                    logEntry.textContent = `[${timestamp}] ${mensaje}`;
-                    
-                    D.log.appendChild(logEntry);
-                    D.log.scrollTop = D.log.scrollHeight;
-                },
-                
-                limpiarLog: () => {
-                    D.log.innerHTML = '';
-                    Utils.UI.agregarLog("Registro de actividad limpiado.", "info");
-                },
-                
-                mostrarElemento: (id) => {
-                    const elemento = document.getElementById(id);
-                    if (elemento) elemento.classList.remove('hidden');
-                },
-                
-                ocultarElemento: (id) => {
-                    const elemento = document.getElementById(id);
-                    if (elemento) elemento.classList.add('hidden');
-                },
-                
-                actualizarProgreso: (porcentaje, mensaje) => {
-                    if (D.progressFill) D.progressFill.style.width = `${porcentaje}%`;
-                    if (D.progressText) D.progressText.textContent = mensaje;
-                }
-            },
-            
-            Data: {
-                normalizarTexto: (texto) => {
-                    if (!texto) return '';
-                    return String(texto)
-                        .normalize("NFD")
-                        .replace(/[\u0300-\u036f]/g, "") 
-                        .toUpperCase() 
-                        .trim();
-                },
-                
-                validarTelefono: (telefono) => {
-                    const limpio = telefono.replace(/\D/g, '');
-                    return limpio.length === 10;
-                },
-                
-                validarICC: (icc) => {
-                    const limpio = icc.replace(/\D/g, '');
-                    return limpio.length >= 18 && limpio.length <= 20;
-                },
-                
-                extraerDatosOCR: (texto) => {
-                    const resultado = { telefono: '', icc: '' };
-                    const textoLimpio = texto.replace(/\s+/g, '');
-                    
-                    // Buscar teléfono (10 dígitos)
-                    const matchTelefono = textoLimpio.match(/\d{10}/g);
-                    if (matchTelefono) {
-                        resultado.telefono = matchTelefono[0];
-                    }
-                    
-                    // Buscar ICC (18-20 dígitos)
-                    const iccs = textoLimpio.match(/\d{18,20}/g) || [];
-                    if (iccs.length > 0) {
-                        // Ordenar por longitud (más largo primero)
-                        iccs.sort((a, b) => b.length - a.length);
-                        resultado.icc = iccs[0];
-                    }
-                    
-                    return resultado;
-                }
-            }
-        };
+        // =======================================================
+        // 3. CACHE DE ELEMENTOS DOM COMPLETO
+        // =======================================================
+        const D = {};
+        
+        const cachearElementosDOM = () => {
+            const elementos = [
+                'promotor', 'uploadArea', 'uploadText', 'uploadCount', 'fileInput',
+                'btnProcesarOCR', 'btnLimpiarImagenes', 'btnCancelarOCR', 'progressContainer', 
+                'progressFill', 'progressText', 'progressPercentage', 'btnEnviarLote', 
+                'btnPrevisualizar', 'cuerpoTabla', 'counterTotal', 'counterValidados',
+                'counterPendientes', 'counterVacios', 'btnLimpiarTabla', 'btnEliminarInvalidos',
+                'btnValidarTodos', 'btnExportarCSV', 'log', 'btnClearLog', 'btnExportarLog',
+                'systemStatus', 'statusText', 'resultsSummary', 'summaryExitosos', 
+                'summaryDuplicados', 'summaryErrores', 'summaryTotal', 'detallesEnvio',
+                'toast', 'toastIcon', 'toastMessage', 'table-card', 'send-card',
+                'btnGenerarReporte', 'fechaActual', 'helpModal', 'contenidoAyuda'
+            ];
+            
+            elementos.forEach(id => {
+                D[id] = document.getElementById(id);
+            });
+        };
 
-        // =======================================================
-        // 5. MÓDULO DE OCR CORREGIDO
-        // =======================================================
-        const OCR = {
-            procesarImagen: async (file) => {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = async (e) => {
-                        try {
-                            const result = await Tesseract.recognize(
-                                e.target.result,
-                                'eng',
-                                {
-                                    logger: m => { }
-                                }
-                            );
-                            
-                            resolve(Utils.Data.extraerDatosOCR(result.data.text));
-                        } catch (error) {
-                            reject(new Error(`Error en OCR: ${error.message}`));
-                        }
-                    };
-                    reader.onerror = () => reject(new Error("Error al leer archivo"));
-                    reader.readAsDataURL(file);
-                });
-            },
-            
-            procesarLoteImagenes: async () => {
-                if (Estado.imagenes.length === 0) {
-                    Utils.UI.mostrarToast("No hay imágenes para procesar", "warning");
-                    return;
-                }
-                
-                if (Estado.ocrEnProgreso) {
-                    Utils.UI.mostrarToast("Ya hay un proceso OCR en ejecución", "warning");
-                    return;
-                }
-                
-                // Validar que haya promotor y normalizarlo
-                const promotorNormalizado = Utils.Data.normalizarTexto(Estado.promotorActual);
-                if (!promotorNormalizado || promotorNormalizado.length < 3) {
-                    Utils.UI.mostrarToast("Primero ingresa tu nombre completo (mín. 3 caracteres)", "error");
-                    D.promotor.focus();
-                    return;
-                }
-                Estado.promotorActual = promotorNormalizado; 
-                D.promotor.value = promotorNormalizado;
-                
-                Estado.ocrEnProgreso = true;
-                D.btnProcesarOCR.disabled = true;
-                D.btnLimpiarImagenes.disabled = true;
-                D.progressContainer.style.display = 'block';
-                D.progressFill.style.width = '0%';
-                
-                const totalImagenes = Estado.imagenes.length;
-                let procesados = 0;
-                let exitosos = 0;
-                
-                Utils.UI.agregarLog(`Iniciando OCR de ${totalImagenes} captura(s)...`, "info");
-                
-                try {
-                    Utils.UI.mostrarElemento('table-card');
-                    Utils.UI.mostrarElemento('send-card');
-                    
-                    // Limpiar tabla existente y registros
-                    D.cuerpoTabla.innerHTML = '';
-                    Estado.registros = [];
-                    
-                    for (let i = 0; i < totalImagenes; i++) {
-                        const file = Estado.imagenes[i];
-                        
-                        try {
-                            Utils.UI.actualizarProgreso(
-                                (i / totalImagenes) * 100, 
-                                `Procesando imagen ${i + 1} de ${totalImagenes}...`
-                            );
-                            
-                            const resultado = await OCR.procesarImagen(file);
-                            procesados++;
-                            
-                            // Crear nuevo registro con los datos del OCR
-                            const nuevoRegistro = Estado.inicializarRegistro();
-                            
-                            if (resultado.telefono || resultado.icc) {
-                                nuevoRegistro.telefono = resultado.telefono;
-                                nuevoRegistro.icc = resultado.icc;
-                                exitosos++;
-                                
-                                Utils.UI.agregarLog(
-                                    `Imagen ${i + 1}: ${resultado.telefono ? 'Teléfono extraído' : ''} ${resultado.icc ? 'ICC extraído' : ''}`,
-                                    "success"
-                                );
-                            } else {
-                                Utils.UI.agregarLog(`Imagen ${i + 1}: No se encontraron datos`, "warning");
-                            }
-                            
-                            Estado.registros.push(nuevoRegistro);
-                            
-                            // Agregar fila a la tabla
-                            Tabla.agregarFila(nuevoRegistro, i);
-                            
-                            // Pequeña pausa entre procesamientos
-                            await new Promise(resolve => setTimeout(resolve, 500));
-                            
-                        } catch (error) {
-                            // Crear registro vacío para esta imagen
-                            const nuevoRegistro = Estado.inicializarRegistro();
-                            Estado.registros.push(nuevoRegistro);
-                            Tabla.agregarFila(nuevoRegistro, i);
-                            
-                            Utils.UI.agregarLog(`Error en imagen ${i + 1}: ${error.message}`, "error");
-                        }
-                    }
-                    
-                    // Finalizar proceso
-                    Utils.UI.actualizarProgreso(100, "Procesamiento completado");
-                    Tabla.actualizarContadores();
-                    
-                    // Limpiar imágenes procesadas
-                    Estado.imagenes = [];
-                    D.uploadCount.textContent = "0 capturas seleccionadas";
-                    D.uploadText.textContent = "Arrastra y suelta las capturas o haz clic para seleccionar";
-                    D.btnProcesarOCR.disabled = true;
-                    
-                    Utils.UI.agregarLog(`OCR completado: ${exitosos} de ${totalImagenes} imágenes procesadas`, "info");
-                    Utils.UI.mostrarToast(`Procesadas ${totalImagenes} imágenes`, exitosos > 0 ? "success" : "warning", 3000);
-                    
-                } catch (error) {
-                    Utils.UI.agregarLog(`Error crítico en OCR: ${error.message}`, "error");
-                    Utils.UI.mostrarToast("Error en el proceso OCR", "error");
-                } finally {
-                    Estado.ocrEnProgreso = false;
-                    setTimeout(() => {
-                        D.progressContainer.style.display = 'none';
-                        D.progressFill.style.width = '0%';
-                    }, 1000);
-                }
-            }
-        };
+        // =======================================================
+        // 4. UTILIDADES MEJORADAS
+        // =======================================================
+        const Utils = {
+            UI: {
+                mostrarToast: (mensaje, tipo = "success", duracion = 4000) => {
+                    D.toast.className = `toast toast-${tipo}`;
+                    D.toastMessage.textContent = mensaje;
+                    
+                    const iconos = {
+                        success: '<i class="fas fa-check-circle"></i>',
+                        error: '<i class="fas fa-times-circle"></i>',
+                        warning: '<i class="fas fa-exclamation-triangle"></i>',
+                        info: '<i class="fas fa-info-circle"></i>'
+                    };
+                    
+                    D.toastIcon.innerHTML = iconos[tipo] || iconos.info;
+                    D.toast.classList.add("show");
+                    
+                    setTimeout(() => {
+                        D.toast.classList.remove("show");
+                    }, duracion);
+                },
+                
+                agregarLog: (mensaje, tipo = "info") => {
+                    const timestamp = new Date().toLocaleTimeString('es-MX', { 
+                        hour: '2-digit', 
+                        minute: '2-digit', 
+                        second: '2-digit' 
+                    });
+                    
+                    const logEntry = document.createElement('div');
+                    logEntry.className = `log-entry ${tipo}`;
+                    logEntry.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>${mensaje}</span>
+                            <small style="opacity: 0.7;">${timestamp}</small>
+                        </div>
+                    `;
+                    
+                    D.log.appendChild(logEntry);
+                    D.log.scrollTop = D.log.scrollHeight;
+                },
+                
+                limpiarLog: () => {
+                    D.log.innerHTML = '';
+                    Utils.UI.agregarLog("Registro de actividad limpiado.", "info");
+                },
+                
+                exportarLog: () => {
+                    const logEntries = D.log.querySelectorAll('.log-entry');
+                    if (logEntries.length === 0) {
+                        Utils.UI.mostrarToast("No hay registros para exportar", "warning");
+                        return;
+                    }
+                    
+                    let logText = "Registro de Actividad - Sistema MADA\n";
+                    logText += "================================\n\n";
+                    
+                    logEntries.forEach(entry => {
+                        const text = entry.textContent.replace(/\s+/g, ' ').trim();
+                        logText += text + '\n';
+                    });
+                    
+                    const blob = new Blob([logText], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `log_mada_${new Date().toISOString().slice(0,10)}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    Utils.UI.mostrarToast("Log exportado correctamente", "success");
+                },
+                
+                mostrarElemento: (id) => {
+                    const elemento = document.getElementById(id);
+                    if (elemento) {
+                        elemento.classList.remove('hidden');
+                        elemento.classList.add('fade-in');
+                    }
+                },
+                
+                ocultarElemento: (id) => {
+                    const elemento = document.getElementById(id);
+                    if (elemento) {
+                        elemento.classList.add('hidden');
+                        elemento.classList.remove('fade-in');
+                    }
+                },
+                
+                actualizarProgreso: (porcentaje, mensaje) => {
+                    if (D.progressFill) {
+                        D.progressFill.style.width = `${porcentaje}%`;
+                        D.progressPercentage.textContent = `${Math.round(porcentaje)}%`;
+                    }
+                    if (D.progressText) {
+                        D.progressText.innerHTML = `<span>${mensaje}</span>`;
+                    }
+                },
+                
+                actualizarEstadoSistema: (mensaje, tipo = "success") => {
+                    D.statusText.textContent = mensaje;
+                    const indicator = D.systemStatus.querySelector('.status-indicator');
+                    if (indicator) {
+                        indicator.style.background = `var(--${tipo})`;
+                    }
+                }
+            },
+            
+            Data: {
+                normalizarTexto: (texto) => {
+                    if (!texto) return '';
+                    return String(texto)
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "") 
+                        .replace(/[^a-zA-Z0-9\s]/g, "")
+                        .toUpperCase() 
+                        .trim()
+                        .replace(/\s+/g, ' ');
+                },
+                
+                validarTelefono: (telefono) => {
+                    const limpio = telefono.replace(/\D/g, '');
+                    return limpio.length === 10 && limpio.startsWith('55');
+                },
+                
+                validarICC: (icc) => {
+                    const limpio = icc.replace(/\D/g, '');
+                    return limpio.length >= 18 && limpio.length <= 20;
+                },
+                
+                extraerDatosOCR: (texto) => {
+                    const resultado = { telefono: '', icc: '' };
+                    
+                    // Buscar teléfono (10 dígitos, preferiblemente que empiece con 55)
+                    const telefonos = texto.match(/\b55\d{8}\b/g) || texto.match(/\b\d{10}\b/g);
+                    if (telefonos && telefonos.length > 0) {
+                        resultado.telefono = telefonos[0].replace(/\D/g, '');
+                    }
+                    
+                    // Buscar ICC (18-20 dígitos)
+                    const iccs = texto.match(/\b\d{18,20}\b/g) || [];
+                    if (iccs.length > 0) {
+                        // Preferir ICC que empiecen con 89 (estándar internacional)
+                        const iccValido = iccs.find(icc => icc.startsWith('89')) || iccs[0];
+                        resultado.icc = iccValido.replace(/\D/g, '');
+                    }
+                    
+                    return resultado;
+                },
+                
+                exportarCSV: (registros) => {
+                    if (!registros || registros.length === 0) {
+                        Utils.UI.mostrarToast("No hay datos para exportar", "warning");
+                        return;
+                    }
+                    
+                    const headers = ['PROMOTOR', 'TELÉFONO', 'ICC', 'ESTADO', 'FECHA'];
+                    const csvData = registros.map(registro => [
+                        registro.promotor,
+                        registro.telefono,
+                        registro.icc,
+                        registro.validado ? 'VÁLIDO' : 'INCOMPLETO',
+                        new Date(registro.timestamp).toLocaleString()
+                    ]);
+                    
+                    const csvContent = [
+                        headers.join(','),
+                        ...csvData.map(row => row.map(cell => `"${cell}"`).join(','))
+                    ].join('\n');
+                    
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `portabilidades_${new Date().toISOString().slice(0,10)}.csv`;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                    
+                    Utils.UI.mostrarToast("CSV exportado correctamente", "success");
+                }
+            }
+        };
 
-        // =======================================================
-        // 6. MÓDULO DE TABLA
-        // =======================================================
-        const Tabla = {
-            agregarFila: (registro, index) => {
-                const tr = document.createElement('tr');
-                tr.id = `fila-${index}`;
-                
-                tr.innerHTML = `
-                    <td style="text-align: center; font-weight: 600;">${index + 1}</td>
-                    <td>
-                        <input type="text" 
-                               data-field="promotor" 
-                               data-index="${index}" 
-                               placeholder="Nombre del promotor" 
-                               class="promotor-input" 
-                               value="${registro.promotor || ''}"
-                               readonly>
-                    </td>
-                    <td>
-                        <input type="text" 
-                               data-field="telefono" 
-                               data-index="${index}" 
-                               placeholder="10 dígitos" 
-                               maxlength="10" 
-                               class="telefono-input" 
-                               value="${registro.telefono || ''}">
-                    </td>
-                    <td>
-                        <input type="text" 
-                               data-field="icc" 
-                               data-index="${index}" 
-                               placeholder="18-20 dígitos" 
-                               maxlength="20" 
-                               class="icc-input" 
-                               value="${registro.icc || ''}">
-                    </td>
-                    <td style="text-align: center;">
-                        <span class="estado-badge" id="estado-${index}">
-                            <i class="fas fa-clock"></i> POR VALIDAR
-                        </span>
-                    </td>
-                    <td style="text-align: center;">
-                        <button type="button" 
-                                class="btn btn-danger" 
-                                onclick="Tabla.limpiarFila(${index})"
-                                style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-                            <i class="fas fa-times"></i> Limpiar
-                        </button>
-                    </td>
-                `;
-                
-                D.cuerpoTabla.appendChild(tr);
-                
-                // Añadir listeners de input
-                const inputs = tr.querySelectorAll('input');
-                inputs.forEach(input => {
-                    if (!input.hasAttribute('readonly')) {
-                        input.addEventListener('input', (e) => {
-                            const index = parseInt(e.target.getAttribute('data-index'));
-                            const field = e.target.getAttribute('data-field');
-                            let value = e.target.value;
-                            
-                            if (field !== 'promotor') {
-                                value = value.replace(/\D/g, '').slice(0, field === 'telefono' ? 10 : 20);
-                                e.target.value = value;
-                            } else {
-                                // NORMALIZACIÓN en tiempo real
-                                value = Utils.Data.normalizarTexto(value);
-                                e.target.value = value;
-                            }
-                            
-                            Tabla.actualizarRegistro(index, field, value);
-                        });
-                    }
-                });
-                
-                Tabla.validarFila(index);
-            },
-            
-            actualizarRegistro: (index, campo, valor) => {
-                if (Estado.registros[index]) {
-                    Estado.registros[index][campo] = valor;
-                    Tabla.validarFila(index);
-                    Tabla.actualizarContadores();
-                }
-            },
-            
-            validarFila: (index) => {
-                const registro = Estado.registros[index];
-                if (!registro) return;
-                
-                const telefonoInput = document.querySelector(`#fila-${index} input[data-field="telefono"]`);
-                const iccInput = document.querySelector(`#fila-${index} input[data-field="icc"]`);
-                const estadoBadge = document.getElementById(`estado-${index}`);
-                
-                const promotorNormalizado = Utils.Data.normalizarTexto(registro.promotor);
-                const telefonoValido = Utils.Data.validarTelefono(registro.telefono);
-                const iccValido = Utils.Data.validarICC(registro.icc);
-                const promotorValido = promotorNormalizado.length >= 3;
-                
-                registro.validado = telefonoValido && iccValido && promotorValido;
-                registro.completo = registro.telefono.length > 0 || registro.icc.length > 0;
-                
-                // Feedback visual
-                if (telefonoInput) {
-                    telefonoInput.classList.toggle('error-input', registro.telefono.length > 0 && !telefonoValido);
-                }
-                
-                if (iccInput) {
-                    iccInput.classList.toggle('error-input', registro.icc.length > 0 && !iccValido);
-                }
-                
-                // Actualizar badge
-                if (registro.validado) {
-                    estadoBadge.innerHTML = `<i class="fas fa-check-circle"></i> VÁLIDO`;
-                    estadoBadge.className = "estado-badge status-valid";
-                } else if (registro.completo) {
-                    estadoBadge.innerHTML = `<i class="fas fa-exclamation-triangle"></i> INCOMPLETO`;
-                    estadoBadge.className = "estado-badge status-incomplete";
-                } else {
-                    estadoBadge.innerHTML = `<i class="fas fa-clock"></i> POR VALIDAR`;
-                    estadoBadge.className = "estado-badge status-empty";
-                }
-            },
-            
-            actualizarContadores: () => {
-                const total = Estado.registros.length;
-                const validados = Estado.registros.filter(r => r.validado).length;
-                const pendientes = Estado.registros.filter(r => r.completo && !r.validado).length;
-                const vacios = Estado.registros.filter(r => !r.completo).length;
-                
-                D.counterTotal.textContent = total;
-                D.counterValidados.textContent = validados;
-                D.counterPendientes.textContent = pendientes;
-                D.counterVacios.textContent = vacios;
-                
-                // Actualizar botones
-                D.btnEnviarLote.disabled = validados === 0;
-                D.btnPrevisualizar.disabled = validados === 0;
-                
-                if (validados > 0) {
-                    D.btnEnviarLote.innerHTML = `<i class="fas fa-share-square"></i> ENVIAR (${validados} válidos)`;
-                }
-            },
-            
-            limpiarFila: (index) => {
-                if (Estado.registros[index]) {
-                    Estado.registros[index].telefono = '';
-                    Estado.registros[index].icc = '';
-                    Estado.registros[index].validado = false;
-                    Estado.registros[index].completo = false;
-                    
-                    document.querySelectorAll(`#fila-${index} input`).forEach(input => {
-                        if (!input.hasAttribute('readonly')) {
-                            input.value = '';
-                            input.classList.remove('error-input');
-                        }
-                    });
-                    
-                    Tabla.validarFila(index);
-                    Tabla.actualizarContadores();
-                    Utils.UI.agregarLog(`Fila ${index + 1} limpiada`, "info");
-                }
-            },
-            
-            limpiarTablaCompleta: () => {
-                if (Estado.registros.length === 0) {
-                    Utils.UI.mostrarToast("La tabla ya está vacía", "info");
-                    return;
-                }
-                
-                if (!confirm("¿Estás seguro de limpiar todos los registros?")) {
-                    return;
-                }
-                
-                Estado.registros = [];
-                D.cuerpoTabla.innerHTML = '';
-                Tabla.actualizarContadores();
-                Utils.UI.ocultarElemento('table-card');
-                Utils.UI.ocultarElemento('send-card');
-                Utils.UI.mostrarToast("Tabla limpiada", "success");
-                Utils.UI.agregarLog("Tabla completa limpiada", "info");
-            },
-            
-            eliminarInvalidos: () => {
-                const invalidos = Estado.registros.filter(r => r.completo && !r.validado);
-                
-                if (invalidos.length === 0) {
-                    Utils.UI.mostrarToast("No hay registros inválidos", "info");
-                    return;
-                }
-                
-                if (!confirm(`¿Eliminar ${invalidos.length} registros inválidos?`)) {
-                    return;
-                }
-                
-                // Filtrar solo los válidos
-                Estado.registros = Estado.registros.filter(r => r.validado);
-                
-                // Reconstruir tabla
-                D.cuerpoTabla.innerHTML = '';
-                Estado.registros.forEach((registro, index) => {
-                    Tabla.agregarFila(registro, index);
-                });
-                
-                Tabla.actualizarContadores();
-                Utils.UI.mostrarToast(`${invalidos.length} registros eliminados`, "success");
-                Utils.UI.agregarLog(`${invalidos.length} registros inválidos eliminados`, "info");
-            }
-        };
+        // =======================================================
+        // 5. MÓDULO DE OCR OPTIMIZADO (PARALELO)
+        // =======================================================
+        const OCR = {
+            worker: null,
+            
+            procesarImagen: async (file, timeout = CONFIG.OCR_TIMEOUT) => {
+                return new Promise(async (resolve, reject) => {
+                    const timeoutId = setTimeout(() => {
+                        reject(new Error("Timeout en procesamiento OCR"));
+                    }, timeout);
+                    
+                    try {
+                        const reader = new FileReader();
+                        reader.onload = async (e) => {
+                            try {
+                                const result = await Tesseract.recognize(
+                                    e.target.result,
+                                    'eng+spa',
+                                    {
+                                        logger: m => {
+                                            // Solo loguear progreso importante
+                                            if (m.status === 'recognizing text') {
+                                                // console.log(`Progreso: ${m.progress * 100}%`);
+                                            }
+                                        },
+                                        workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/worker.min.js',
+                                        langPath: 'https://tessdata.projectnaptha.com/4.0.0',
+                                        corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@4.0.4/tesseract-core.wasm.js'
+                                    }
+                                );
+                                
+                                clearTimeout(timeoutId);
+                                resolve(Utils.Data.extraerDatosOCR(result.data.text));
+                            } catch (error) {
+                                clearTimeout(timeoutId);
+                                reject(new Error(`Error en OCR: ${error.message}`));
+                            }
+                        };
+                        reader.onerror = () => {
+                            clearTimeout(timeoutId);
+                            reject(new Error("Error al leer archivo"));
+                        };
+                        reader.readAsDataURL(file);
+                    } catch (error) {
+                        clearTimeout(timeoutId);
+                        reject(error);
+                    }
+                });
+            },
+            
+            procesarLoteImagenes: async () => {
+                if (Estado.imagenes.length === 0) {
+                    Utils.UI.mostrarToast("No hay imágenes para procesar", "warning");
+                    return;
+                }
+                
+                if (Estado.ocrEnProgreso) {
+                    Utils.UI.mostrarToast("Ya hay un proceso OCR en ejecución", "warning");
+                    return;
+                }
+                
+                // Validar promotor
+                const promotorNormalizado = Utils.Data.normalizarTexto(Estado.promotorActual);
+                if (!promotorNormalizado || promotorNormalizado.length < 3) {
+                    Utils.UI.mostrarToast("Primero ingresa tu nombre completo (mín. 3 caracteres)", "error");
+                    D.promotor.focus();
+                    return;
+                }
+                
+                Estado.promotorActual = promotorNormalizado;
+                D.promotor.value = promotorNormalizado;
+                Estado.ocrEnProgreso = true;
+                Estado.ocrCancelado = false;
+                
+                // Actualizar UI
+                D.btnProcesarOCR.disabled = true;
+                D.btnLimpiarImagenes.disabled = true;
+                D.btnCancelarOCR.style.display = 'inline-flex';
+                D.progressContainer.style.display = 'block';
+                Utils.UI.actualizarProgreso(0, "Iniciando procesamiento...");
+                
+                const totalImagenes = Estado.imagenes.length;
+                let procesados = 0;
+                let exitosos = 0;
+                let errores = 0;
+                
+                Utils.UI.agregarLog(`Iniciando OCR de ${totalImagenes} captura(s)...`, "info");
+                Utils.UI.actualizarEstadoSistema("Procesando OCR...", "warning");
+                
+                try {
+                    Utils.UI.mostrarElemento('table-card');
+                    Utils.UI.mostrarElemento('send-card');
+                    
+                    // Limpiar tabla existente
+                    D.cuerpoTabla.innerHTML = '';
+                    Estado.registros = [];
+                    
+                    // Función para procesar una imagen
+                    const procesarImagen = async (file, index) => {
+                        if (Estado.ocrCancelado) return null;
+                        
+                        try {
+                            Utils.UI.actualizarProgreso(
+                                (procesados / totalImagenes) * 100, 
+                                `Procesando imagen ${index + 1} de ${totalImagenes}...`
+                            );
+                            
+                            const resultado = await OCR.procesarImagen(file);
+                            procesados++;
+                            
+                            if (resultado.telefono || resultado.icc) {
+                                exitosos++;
+                                Utils.UI.agregarLog(
+                                    `Imagen ${index + 1}: ${resultado.telefono ? 'Teléfono extraído' : ''} ${resultado.icc ? 'ICC extraído' : ''}`,
+                                    "success"
+                                );
+                            } else {
+                                Utils.UI.agregarLog(`Imagen ${index + 1}: No se encontraron datos`, "warning");
+                            }
+                            
+                            return { index, resultado };
+                        } catch (error) {
+                            procesados++;
+                            errores++;
+                            Utils.UI.agregarLog(`Error en imagen ${index + 1}: ${error.message}`, "error");
+                            return { index, resultado: { telefono: '', icc: '' } };
+                        }
+                    };
+                    
+                    // Procesar imágenes en lotes concurrentes
+                    const batchSize = CONFIG.MAX_CONCURRENT_OCR;
+                    for (let i = 0; i < totalImagenes; i += batchSize) {
+                        if (Estado.ocrCancelado) break;
+                        
+                        const batch = Estado.imagenes.slice(i, i + batchSize);
+                        const batchPromises = batch.map((file, batchIndex) => 
+                            procesarImagen(file, i + batchIndex)
+                        );
+                        
+                        const resultados = await Promise.all(batchPromises);
+                        
+                        // Procesar resultados del lote
+                        resultados.forEach((resultado, batchIndex) => {
+                            if (!resultado || Estado.ocrCancelado) return;
+                            
+                            const nuevoRegistro = Estado.inicializarRegistro();
+                            nuevoRegistro.telefono = resultado.resultado.telefono;
+                            nuevoRegistro.icc = resultado.resultado.icc;
+                            nuevoRegistro.imagenProcesada = true;
+                            
+                            Estado.registros.push(nuevoRegistro);
+                            Tabla.agregarFila(nuevoRegistro, i + batchIndex);
+                        });
+                        
+                        // Pequeña pausa entre lotes para no sobrecargar
+                        if (i + batchSize < totalImagenes && !Estado.ocrCancelado) {
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                        }
+                    }
+                    
+                    if (Estado.ocrCancelado) {
+                        Utils.UI.actualizarProgreso(100, "Procesamiento cancelado");
+                        Utils.UI.agregarLog("Procesamiento OCR cancelado por el usuario", "warning");
+                        Utils.UI.mostrarToast("Procesamiento cancelado", "warning");
+                        Utils.UI.actualizarEstadoSistema("Listo", "success");
+                    } else {
+                        // Finalizar proceso
+                        Utils.UI.actualizarProgreso(100, "Procesamiento completado");
+                        Tabla.actualizarContadores();
+                        
+                        // Limpiar imágenes procesadas
+                        Estado.imagenes = [];
+                        D.uploadCount.textContent = "0 capturas seleccionadas";
+                        D.uploadText.textContent = "Arrastra y suelta las capturas o haz clic para seleccionar";
+                        
+                        Utils.UI.agregarLog(
+                            `OCR completado: ${exitosos} exitosos, ${errores} errores de ${totalImagenes} imágenes`,
+                            exitosos > 0 ? "success" : "warning"
+                        );
+                        
+                        const mensaje = Estado.ocrCancelado 
+                            ? "Procesamiento cancelado" 
+                            : `Procesadas ${totalImagenes} imágenes (${exitosos} exitosos)`;
+                        
+                        Utils.UI.mostrarToast(mensaje, exitosos > 0 ? "success" : "warning", 3000);
+                        Utils.UI.actualizarEstadoSistema("Listo", "success");
+                    }
+                    
+                } catch (error) {
+                    Utils.UI.agregarLog(`Error crítico en OCR: ${error.message}`, "error");
+                    Utils.UI.mostrarToast("Error en el proceso OCR", "error");
+                    Utils.UI.actualizarEstadoSistema("Error en OCR", "error");
+                } finally {
+                    Estado.ocrEnProgreso = false;
+                    D.btnProcesarOCR.disabled = false;
+                    D.btnLimpiarImagenes.disabled = false;
+                    D.btnCancelarOCR.style.display = 'none';
+                    
+                    setTimeout(() => {
+                        D.progressContainer.style.display = 'none';
+                        Utils.UI.actualizarProgreso(0, "Listo");
+                    }, 2000);
+                }
+            },
+            
+            cancelarProcesamiento: () => {
+                if (Estado.ocrEnProgreso) {
+                    Estado.ocrCancelado = true;
+                    Utils.UI.agregarLog("Solicitando cancelación de OCR...", "warning");
+                }
+            }
+        };
 
-        // =======================================================
-        // 7. MÓDULO DE ENVÍO
-        // =======================================================
-        const Envio = {
-            enviarRegistros: async () => {
-                const registrosValidos = Estado.obtenerRegistrosValidos();
-                
-                if (registrosValidos.length === 0) {
-                    Utils.UI.mostrarToast("No hay registros válidos para enviar", "error");
-                    return;
-                }
-                
-                if (!confirm(`¿Enviar ${registrosValidos.length} registros válidos?`)) {
-                    return;
-                }
-                
-                // Preparar UI
-                D.btnEnviarLote.disabled = D.btnPrevisualizar.disabled = true;
-                D.progressContainer.style.display = 'block';
-                Utils.UI.actualizarProgreso(10, "Preparando envío...");
-                
-                Utils.UI.agregarLog(`Enviando ${registrosValidos.length} registros...`, "info");
-                
-                const datosEnvio = {
-                    action: "guardarMultiplesRegistros",
-                    nombreLote: `Registro_${new Date().toISOString().slice(0,10)}`,
-                    timestamp: new Date().toISOString(),
-                    registros: registrosValidos.map(r => ({
-                        promotor: r.promotor,
-                        telefono: r.telefono,
-                        icc: r.icc
-                    }))
-                };
-                
-                try {
-                    Utils.UI.actualizarProgreso(30, "Conectando con el servidor...");
-                    
-                    // Enviar datos al backend
-                    const response = await fetch(CONFIG.WEBAPP_URL, {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(datosEnvio)
-                    });
-                    
-                    Utils.UI.actualizarProgreso(70, "Enviando datos...");
-                    
-                    // Manejar respuesta
-                    const result = await response.json();
-                    Utils.UI.actualizarProgreso(100, "Envío completado!");
-                    
-                    // Mostrar resultados
-                    Envio.mostrarResultados(result);
-                    
-                    Utils.UI.agregarLog(`Envío completado: ${result.exitosos || registrosValidos.length} registros guardados`, "success");
-                    Utils.UI.mostrarToast(`Envío exitoso: ${result.exitosos || registrosValidos.length} registros`, "success", 5000);
-                    
-                    // Preguntar si limpiar después de enviar
-                    setTimeout(() => {
-                        if (confirm("¿Deseas limpiar la tabla para nuevos registros?")) {
-                            Tabla.limpiarTablaCompleta();
-                        }
-                    }, 1000);
-                    
-                } catch (error) {
-                    Utils.UI.agregarLog(`Error en envío: ${error.message}`, "error");
-                    Utils.UI.mostrarToast(`Error: ${error.message}`, "error", 5000);
-                } finally {
-                    D.btnEnviarLote.disabled = D.btnPrevisualizar.disabled = false;
-                    setTimeout(() => {
-                        D.progressContainer.style.display = 'none';
-                        Utils.UI.actualizarProgreso(0, "Listo");
-                    }, 1500);
-                }
-            },
-            
-            mostrarResultados: (resultado) => {
-                D.resultsSummary.classList.remove('hidden');
-                D.summaryExitosos.textContent = resultado.exitosos || 0;
-                D.summaryDuplicados.textContent = resultado.duplicados || 0;
-                D.summaryErrores.textContent = resultado.errores || 0;
-                D.summaryTotal.textContent = resultado.total || Estado.obtenerRegistrosValidos().length;
-                
-                let detallesHTML = `<div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">`;
-                detallesHTML += `<p><strong>📅 Lote:</strong> ${resultado.lote || 'Registro'}</p>`;
-                detallesHTML += `<p><strong>📊 Resultado:</strong> ${resultado.message || 'Envío completado'}</p>`;
-                
-                if (resultado.sheetUrl) {
-                    detallesHTML += `<p><strong>🔗 URL:</strong> <a href="${resultado.sheetUrl}" target="_blank" style="color: var(--primary-light);">Ver en Google Sheets</a></p>`;
-                }
-                
-                detallesHTML += `</div>`;
-                D.detallesEnvio.innerHTML = detallesHTML;
-            },
-            
-            previsualizar: () => {
-                const registrosValidos = Estado.obtenerRegistrosValidos();
-                
-                if (registrosValidos.length === 0) {
-                    Utils.UI.mostrarToast("No hay registros válidos para previsualizar", "warning");
-                    return;
-                }
-                
-                let previsualizacion = `📋 PREVISUALIZACIÓN\n`;
-                previsualizacion += `========================\n`;
-                previsualizacion += `Total: ${registrosValidos.length} registros\n`;
-                previsualizacion += `Promotor: ${Estado.promotorActual}\n`;
-                previsualizacion += `========================\n\n`;
-                
-                registrosValidos.forEach((r, index) => {
-                    previsualizacion += `${index + 1}. ${r.promotor} | Tel: ${r.telefono} | ICC: ${r.icc}\n`;
-                });
-                
-                alert(previsualizacion);
-                Utils.UI.agregarLog("Previsualización generada", "info");
-            }
-        };
+        // =======================================================
+        // 6. MÓDULO DE TABLA MEJORADO
+        // =======================================================
+        const Tabla = {
+            agregarFila: (registro, index) => {
+                const tr = document.createElement('tr');
+                tr.id = `fila-${index}`;
+                tr.className = 'fade-in';
+                
+                tr.innerHTML = `
+                    <td style="text-align: center; font-weight: 600;">${index + 1}</td>
+                    <td>
+                        <input type="text" 
+                               data-field="promotor" 
+                               data-index="${index}" 
+                               placeholder="Nombre del promotor" 
+                               class="promotor-input" 
+                               value="${registro.promotor || ''}"
+                               readonly>
+                    </td>
+                    <td>
+                        <input type="text" 
+                               data-field="telefono" 
+                               data-index="${index}" 
+                               placeholder="55XXXXXXXX" 
+                               maxlength="10" 
+                               class="telefono-input" 
+                               value="${registro.telefono || ''}"
+                               title="10 dígitos, debe comenzar con 55">
+                    </td>
+                    <td>
+                        <input type="text" 
+                               data-field="icc" 
+                               data-index="${index}" 
+                               placeholder="89XXXXXXXXXXXXXXX" 
+                               maxlength="20" 
+                               class="icc-input" 
+                               value="${registro.icc || ''}"
+                               title="18-20 dígitos, preferiblemente comienza con 89">
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="estado-badge" id="estado-${index}">
+                            <i class="fas fa-clock"></i> POR VALIDAR
+                        </span>
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                            <button type="button" 
+                                    class="btn btn-danger" 
+                                    onclick="Tabla.limpiarFila(${index})"
+                                    style="padding: 0.5rem; font-size: 0.9rem;"
+                                    title="Limpiar campos">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button type="button" 
+                                    class="btn btn-secondary" 
+                                    onclick="Tabla.copiarFila(${index})"
+                                    style="padding: 0.5rem; font-size: 0.9rem;"
+                                    title="Copiar datos">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                D.cuerpoTabla.appendChild(tr);
+                
+                // Añadir listeners de input con debounce
+                const inputs = tr.querySelectorAll('input:not([readonly])');
+                inputs.forEach(input => {
+                    let timeout;
+                    input.addEventListener('input', (e) => {
+                        clearTimeout(timeout);
+                        timeout = setTimeout(() => {
+                            const index = parseInt(e.target.getAttribute('data-index'));
+                            const field = e.target.getAttribute('data-field');
+                            let value = e.target.value;
+                            
+                            value = value.replace(/\D/g, '').slice(0, field === 'telefono' ? 10 : 20);
+                            e.target.value = value;
+                            
+                            Tabla.actualizarRegistro(index, field, value);
+                        }, 300);
+                    });
+                });
+                
+                Tabla.validarFila(index);
+            },
+            
+            actualizarRegistro: (index, campo, valor) => {
+                if (Estado.registros[index]) {
+                    Estado.registros[index][campo] = valor;
+                    Tabla.validarFila(index);
+                    Tabla.actualizarContadores();
+                }
+            },
+            
+            validarFila: (index) => {
+                const registro = Estado.registros[index];
+                if (!registro) return;
+                
+                const telefonoInput = document.querySelector(`#fila-${index} input[data-field="telefono"]`);
+                const iccInput = document.querySelector(`#fila-${index} input[data-field="icc"]`);
+                const estadoBadge = document.getElementById(`estado-${index}`);
+                
+                const telefonoValido = Utils.Data.validarTelefono(registro.telefono);
+                const iccValido = Utils.Data.validarICC(registro.icc);
+                const promotorValido = registro.promotor && registro.promotor.length >= 3;
+                
+                registro.validado = telefonoValido && iccValido && promotorValido;
+                registro.completo = registro.telefono.length > 0 || registro.icc.length > 0;
+                
+                // Feedback visual
+                if (telefonoInput) {
+                    telefonoInput.classList.toggle('error-input', registro.telefono.length > 0 && !telefonoValido);
+                    telefonoInput.title = telefonoValido ? 'Teléfono válido' : 'Debe tener 10 dígitos y comenzar con 55';
+                }
+                
+                if (iccInput) {
+                    iccInput.classList.toggle('error-input', registro.icc.length > 0 && !iccValido);
+                    iccInput.title = iccValido ? 'ICC válido' : 'Debe tener entre 18-20 dígitos';
+                }
+                
+                // Actualizar badge
+                if (registro.validado) {
+                    estadoBadge.innerHTML = `<i class="fas fa-check-circle"></i> VÁLIDO`;
+                    estadoBadge.className = "estado-badge status-valid";
+                    estadoBadge.title = "Registro completo y válido";
+                } else if (registro.completo) {
+                    estadoBadge.innerHTML = `<i class="fas fa-exclamation-triangle"></i> INCOMPLETO`;
+                    estadoBadge.className = "estado-badge status-incomplete";
+                    estadoBadge.title = "Faltan datos o son inválidos";
+                } else {
+                    estadoBadge.innerHTML = `<i class="fas fa-clock"></i> POR VALIDAR`;
+                    estadoBadge.className = "estado-badge status-empty";
+                    estadoBadge.title = "Esperando datos";
+                }
+            },
+            
+            actualizarContadores: () => {
+                const total = Estado.registros.length;
+                const validados = Estado.registros.filter(r => r.validado).length;
+                const pendientes = Estado.registros.filter(r => r.completo && !r.validado).length;
+                const vacios = Estado.registros.filter(r => !r.completo).length;
+                
+                D.counterTotal.textContent = total;
+                D.counterValidados.textContent = validados;
+                D.counterPendientes.textContent = pendientes;
+                D.counterVacios.textContent = vacios;
+                
+                // Actualizar botones
+                D.btnEnviarLote.disabled = validados === 0;
+                D.btnPrevisualizar.disabled = validados === 0;
+                D.btnGenerarReporte.disabled = total === 0;
+                
+                if (validados > 0) {
+                    D.btnEnviarLote.innerHTML = `<i class="fas fa-share-square"></i> ENVIAR (${validados} válidos)`;
+                }
+                
+                // Actualizar título de la tarjeta de tabla
+                const cardTitle = document.querySelector('#table-card .card-title');
+                if (cardTitle && total > 0) {
+                    cardTitle.innerHTML = `<i class="fas fa-table"></i> Resultados (${total} registros)`;
+                }
+            },
+            
+            limpiarFila: (index) => {
+                if (Estado.registros[index]) {
+                    Estado.registros[index].telefono = '';
+                    Estado.registros[index].icc = '';
+                    Estado.registros[index].validado = false;
+                    Estado.registros[index].completo = false;
+                    
+                    document.querySelectorAll(`#fila-${index} input`).forEach(input => {
+                        if (!input.hasAttribute('readonly')) {
+                            input.value = '';
+                            input.classList.remove('error-input');
+                        }
+                    });
+                    
+                    Tabla.validarFila(index);
+                    Tabla.actualizarContadores();
+                    Utils.UI.agregarLog(`Fila ${index + 1} limpiada`, "info");
+                }
+            },
+            
+            copiarFila: (index) => {
+                const registro = Estado.registros[index];
+                if (registro) {
+                    const texto = `Promotor: ${registro.promotor}\nTeléfono: ${registro.telefono}\nICC: ${registro.icc}`;
+                    navigator.clipboard.writeText(texto).then(() => {
+                        Utils.UI.mostrarToast("Datos copiados al portapapeles", "success");
+                    });
+                }
+            },
+            
+            limpiarTablaCompleta: () => {
+                if (Estado.registros.length === 0) {
+                    Utils.UI.mostrarToast("La tabla ya está vacía", "info");
+                    return;
+                }
+                
+                if (!confirm("¿Estás seguro de limpiar todos los registros? Esta acción no se puede deshacer.")) {
+                    return;
+                }
+                
+                Estado.limpiarEstado();
+                D.cuerpoTabla.innerHTML = '';
+                Tabla.actualizarContadores();
+                Utils.UI.ocultarElemento('table-card');
+                Utils.UI.ocultarElemento('send-card');
+                Utils.UI.mostrarToast("Tabla limpiada completamente", "success");
+                Utils.UI.agregarLog("Tabla completa limpiada", "info");
+            },
+            
+            eliminarInvalidos: () => {
+                const invalidos = Estado.registros.filter(r => r.completo && !r.validado);
+                
+                if (invalidos.length === 0) {
+                    Utils.UI.mostrarToast("No hay registros inválidos", "info");
+                    return;
+                }
+                
+                if (!confirm(`¿Eliminar ${invalidos.length} registros inválidos?`)) {
+                    return;
+                }
+                
+                // Filtrar solo los válidos
+                Estado.registros = Estado.registros.filter(r => r.validado);
+                
+                // Reconstruir tabla
+                D.cuerpoTabla.innerHTML = '';
+                Estado.registros.forEach((registro, index) => {
+                    Tabla.agregarFila(registro, index);
+                });
+                
+                Tabla.actualizarContadores();
+                Utils.UI.mostrarToast(`${invalidos.length} registros eliminados`, "success");
+                Utils.UI.agregarLog(`${invalidos.length} registros inválidos eliminados`, "info");
+            },
+            
+            exportarCSV: () => {
+                Utils.Data.exportarCSV(Estado.registros);
+            }
+        };
 
-        // =======================================================
-        // 8. MANEJO DE EVENTOS 
-        // =======================================================
-        const Events = {
-            manejarArchivos: (files) => {
-                const promotorNormalizado = Utils.Data.normalizarTexto(D.promotor.value);
-                if (!promotorNormalizado || promotorNormalizado.length < 3) {
-                    Utils.UI.mostrarToast("Primero ingresa tu nombre completo (mín. 3 caracteres)", "error");
-                    D.promotor.focus();
-                    return;
-                }
-                
-                const archivosArray = Array.from(files);
-                const archivosLimitados = archivosArray.slice(0, CONFIG.MAX_REGISTROS);
-                
-                const archivosValidos = archivosLimitados.filter(file => {
-                    if (!file.type.startsWith('image/')) {
-                        Utils.UI.mostrarToast(`${file.name} no es una imagen válida`, "warning");
-                        return false;
-                    }
-                    return true;
-                });
-                
-                if (archivosValidos.length === 0) return;
-                
-                if (archivosValidos.length > CONFIG.MAX_REGISTROS) {
-                    Utils.UI.mostrarToast(`Solo se pueden procesar hasta ${CONFIG.MAX_REGISTROS} imágenes`, "warning");
-                    return;
-                }
-                
-                // Actualizar estado
-                Estado.imagenes = archivosValidos;
-                
-                // Actualizar UI
-                D.uploadText.textContent = `${Estado.imagenes.length} captura(s) lista(s) para procesar`;
-                D.uploadCount.textContent = `${Estado.imagenes.length} captura(s) seleccionada(s)`;
-                D.btnProcesarOCR.disabled = false;
-                D.btnLimpiarImagenes.disabled = false;
-                
-                Utils.UI.mostrarToast(`${archivosValidos.length} imagen(es) cargada(s)`, "success");
-                Utils.UI.agregarLog(`${archivosValidos.length} imagen(es) cargada(s) para OCR`, "success");
-            },
-            
-            configurarListeners: () => {
-                // Cachear elementos
-                cachearElementosDOM();
-                
-                // Promotor - actualizar estado global con normalización
-                D.promotor.addEventListener('input', function() {
-                    const normalizado = Utils.Data.normalizarTexto(this.value);
-                    this.value = normalizado; // Forzar mayúsculas/sin acentos
-                    Estado.promotorActual = normalizado;
-                    
-                    // Actualizar promotor en todos los registros existentes
-                    Estado.registros.forEach(registro => {
-                        registro.promotor = Estado.promotorActual;
-                    });
-                    
-                    // Actualizar inputs readonly en la tabla
-                    document.querySelectorAll('input[data-field="promotor"]').forEach(input => {
-                        input.value = Estado.promotorActual;
-                    });
-                    
-                    // Revalidar todos los registros
-                    Estado.registros.forEach((_, index) => {
-                        Tabla.validarFila(index);
-                    });
-                    
-                    Tabla.actualizarContadores();
-                });
-                
-                // Upload Area
-                function preventDefaults(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-                
-                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                    D.uploadArea.addEventListener(eventName, preventDefaults, false);
-                });
-                
-                D.uploadArea.addEventListener('click', () => D.fileInput.click());
-                D.uploadArea.addEventListener('drop', (e) => {
-                    D.uploadArea.classList.remove('dragover');
-                    Events.manejarArchivos(e.dataTransfer.files);
-                });
-                D.uploadArea.addEventListener('dragover', () => D.uploadArea.classList.add('dragover'));
-                D.uploadArea.addEventListener('dragleave', () => D.uploadArea.classList.remove('dragover'));
-                D.fileInput.addEventListener('change', (e) => Events.manejarArchivos(e.target.files));
-                
-                // Botones
-                D.btnProcesarOCR.addEventListener('click', () => OCR.procesarLoteImagenes());
-                D.btnLimpiarImagenes.addEventListener('click', () => {
-                    Estado.imagenes = [];
-                    D.uploadCount.textContent = "0 capturas seleccionadas";
-                    D.uploadText.textContent = "Arrastra y suelta las capturas o haz clic para seleccionar";
-                    D.btnProcesarOCR.disabled = true;
-                    D.btnLimpiarImagenes.disabled = true;
-                    Utils.UI.mostrarToast("Imágenes limpiadas", "success");
-                });
-                
-                D.btnClearLog.addEventListener('click', Utils.UI.limpiarLog);
-                D.btnLimpiarTabla.addEventListener('click', Tabla.limpiarTablaCompleta);
-                D.btnEliminarInvalidos.addEventListener('click', Tabla.eliminarInvalidos);
-                
-                D.btnValidarTodos.addEventListener('click', () => {
-                    Estado.registros.forEach((_, index) => {
-                        Tabla.validarFila(index);
-                    });
-                    Tabla.actualizarContadores();
-                    Utils.UI.mostrarToast("Validación completada", "success");
-                });
-                
-                D.btnEnviarLote.addEventListener('click', Envio.enviarRegistros);
-                D.btnPrevisualizar.addEventListener('click', Envio.previsualizar);
-            }
-        };
+        // =======================================================
+        // 7. MÓDULO DE ENVÍO MEJORADO
+        // =======================================================
+        const Envio = {
+            enviarRegistros: async () => {
+                const registrosValidos = Estado.obtenerRegistrosValidos();
+                
+                if (registrosValidos.length === 0) {
+                    Utils.UI.mostrarToast("No hay registros válidos para enviar", "error");
+                    return;
+                }
+                
+                if (!confirm(`¿Enviar ${registrosValidos.length} registros válidos al servidor?`)) {
+                    return;
+                }
+                
+                // Preparar UI
+                D.btnEnviarLote.disabled = D.btnPrevisualizar.disabled = true;
+                D.progressContainer.style.display = 'block';
+                Utils.UI.actualizarProgreso(10, "Preparando envío...");
+                Utils.UI.actualizarEstadoSistema("Enviando datos...", "warning");
+                
+                Utils.UI.agregarLog(`Enviando ${registrosValidos.length} registros al servidor...`, "info");
+                
+                const datosEnvio = {
+                    action: "guardarMultiplesRegistros",
+                    nombreLote: `Registro_${new Date().toISOString().slice(0,10)}_${Date.now()}`,
+                    timestamp: new Date().toISOString(),
+                    promotor: Estado.promotorActual,
+                    totalRegistros: registrosValidos.length,
+                    registros: registrosValidos.map(r => ({
+                        promotor: r.promotor,
+                        telefono: r.telefono,
+                        icc: r.icc,
+                        timestamp: r.timestamp
+                    }))
+                };
+                
+                try {
+                    Utils.UI.actualizarProgreso(30, "Conectando con el servidor...");
+                    
+                    // Enviar datos al backend con timeout
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 30000);
+                    
+                    const response = await fetch(CONFIG.WEBAPP_URL, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(datosEnvio),
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    Utils.UI.actualizarProgreso(70, "Enviando datos...");
+                    
+                    // Manejar respuesta
+                    const result = await response.json();
+                    Utils.UI.actualizarProgreso(100, "Envío completado!");
+                    
+                    // Mostrar resultados
+                    Envio.mostrarResultados(result);
+                    
+                    Utils.UI.agregarLog(
+                        `Envío completado: ${result.exitosos || registrosValidos.length} registros guardados`, 
+                        "success"
+                    );
+                    
+                    Utils.UI.mostrarToast(
+                        `Envío exitoso: ${result.exitosos || registrosValidos.length} registros`, 
+                        "success", 
+                        5000
+                    );
+                    
+                    Utils.UI.actualizarEstadoSistema("Envío completado", "success");
+                    
+                    // Preguntar si limpiar después de enviar
+                    setTimeout(() => {
+                        if (confirm("¿Deseas limpiar la tabla para nuevos registros?")) {
+                            Tabla.limpiarTablaCompleta();
+                        }
+                    }, 1500);
+                    
+                } catch (error) {
+                    Utils.UI.agregarLog(`Error en envío: ${error.message}`, "error");
+                    Utils.UI.mostrarToast(`Error de conexión: ${error.message}`, "error", 5000);
+                    Utils.UI.actualizarEstadoSistema("Error en envío", "error");
+                } finally {
+                    D.btnEnviarLote.disabled = D.btnPrevisualizar.disabled = false;
+                    setTimeout(() => {
+                        D.progressContainer.style.display = 'none';
+                        Utils.UI.actualizarProgreso(0, "Listo");
+                    }, 1500);
+                }
+            },
+            
+            mostrarResultados: (resultado) => {
+                D.resultsSummary.classList.remove('hidden');
+                D.summaryExitosos.textContent = resultado.exitosos || 0;
+                D.summaryDuplicados.textContent = resultado.duplicados || 0;
+                D.summaryErrores.textContent = resultado.errores || 0;
+                D.summaryTotal.textContent = resultado.total || Estado.obtenerRegistrosValidos().length;
+                
+                let detallesHTML = `<div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">`;
+                detallesHTML += `<p><strong>📅 Lote:</strong> ${resultado.lote || 'Registro'}</p>`;
+                detallesHTML += `<p><strong>📊 Resultado:</strong> ${resultado.message || 'Envío completado'}</p>`;
+                detallesHTML += `<p><strong>👤 Promotor:</strong> ${Estado.promotorActual}</p>`;
+                detallesHTML += `<p><strong>🕒 Fecha:</strong> ${new Date().toLocaleString()}</p>`;
+                
+                if (resultado.sheetUrl) {
+                    detallesHTML += `<p><strong>🔗 URL:</strong> <a href="${resultado.sheetUrl}" target="_blank" style="color: var(--primary-light); text-decoration: none;">Ver en Google Sheets <i class="fas fa-external-link-alt"></i></a></p>`;
+                }
+                
+                detallesHTML += `</div>`;
+                D.detallesEnvio.innerHTML = detallesHTML;
+            },
+            
+            previsualizar: () => {
+                const registrosValidos = Estado.obtenerRegistrosValidos();
+                
+                if (registrosValidos.length === 0) {
+                    Utils.UI.mostrarToast("No hay registros válidos para previsualizar", "warning");
+                    return;
+                }
+                
+                let previsualizacion = `📋 PREVISUALIZACIÓN - SISTEMA MADA\n`;
+                previsualizacion += `========================================\n`;
+                previsualizacion += `Total registros: ${registrosValidos.length}\n`;
+                previsualizacion += `Promotor: ${Estado.promotorActual}\n`;
+                previsualizacion += `Fecha: ${new Date().toLocaleDateString()}\n`;
+                previsualizacion += `========================================\n\n`;
+                
+                registrosValidos.forEach((r, index) => {
+                    previsualizacion += `${index + 1}. ${r.promotor} | Tel: ${r.telefono} | ICC: ${r.icc}\n`;
+                });
+                
+                // Crear ventana emergente con estilo
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0,0,0,0.8); z-index: 2000; display: flex;
+                    justify-content: center; align-items: center; padding: 1rem;
+                `;
+                
+                const contenido = document.createElement('div');
+                contenido.style.cssText = `
+                    background: var(--darker); padding: 2rem; border-radius: var(--radius);
+                    max-width: 600px; max-height: 80vh; overflow-y: auto;
+                    border: 1px solid rgba(255,255,255,0.1);
+                    font-family: 'Courier New', monospace; white-space: pre-wrap;
+                    color: var(--text); line-height: 1.5;
+                `;
+                contenido.textContent = previsualizacion;
+                
+                const btnCerrar = document.createElement('button');
+                btnCerrar.textContent = 'Cerrar';
+                btnCerrar.className = 'btn btn-danger';
+                btnCerrar.style.marginTop = '1rem';
+                btnCerrar.onclick = () => document.body.removeChild(modal);
+                
+                contenido.appendChild(btnCerrar);
+                modal.appendChild(contenido);
+                modal.onclick = (e) => {
+                    if (e.target === modal) document.body.removeChild(modal);
+                };
+                
+                document.body.appendChild(modal);
+                Utils.UI.agregarLog("Previsualización generada", "info");
+            },
+            
+            generarReporte: () => {
+                if (Estado.registros.length === 0) {
+                    Utils.UI.mostrarToast("No hay datos para generar reporte", "warning");
+                    return;
+                }
+                
+                const total = Estado.registros.length;
+                const validados = Estado.registros.filter(r => r.validado).length;
+                const porcentaje = total > 0 ? Math.round((validados / total) * 100) : 0;
+                
+                let reporte = `📊 REPORTE DE ACTIVIDAD - SISTEMA MADA\n`;
+                reporte += `========================================\n`;
+                reporte += `Fecha: ${new Date().toLocaleString()}\n`;
+                reporte += `Promotor: ${Estado.promotorActual || 'No definido'}\n`;
+                reporte += `========================================\n\n`;
+                reporte += `📈 ESTADÍSTICAS:\n`;
+                reporte += `  • Total registros: ${total}\n`;
+                reporte += `  • Registros válidos: ${validados}\n`;
+                reporte += `  • Registros pendientes: ${total - validados}\n`;
+                reporte += `  • Porcentaje de éxito: ${porcentaje}%\n\n`;
+                reporte += `📝 DETALLE DE REGISTROS:\n`;
+                
+                Estado.registros.forEach((r, index) => {
+                    const estado = r.validado ? '✅ VÁLIDO' : '⚠️ PENDIENTE';
+                    reporte += `${index + 1}. ${r.promotor} | Tel: ${r.telefono || '---'} | ICC: ${r.icc || '---'} | ${estado}\n`;
+                });
+                
+                // Mostrar reporte en modal
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0,0,0,0.9); z-index: 2000; display: flex;
+                    justify-content: center; align-items: center; padding: 1rem;
+                `;
+                
+                const contenido = document.createElement('div');
+                contenido.style.cssText = `
+                    background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
+                    padding: 2rem; border-radius: var(--radius);
+                    max-width: 700px; max-height: 80vh; overflow-y: auto;
+                    border: 1px solid rgba(255,255,255,0.1);
+                    font-family: 'Segoe UI', sans-serif;
+                    color: var(--text); line-height: 1.6;
+                    box-shadow: var(--shadow-lg);
+                `;
+                
+                contenido.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 style="color: var(--primary-light);"><i class="fas fa-chart-bar"></i> Reporte de Actividad</h2>
+                        <button class="btn btn-danger" id="cerrarReporte" style="padding: 0.5rem 1rem;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: var(--radius); margin-bottom: 1.5rem;">
+                        <h3 style="color: var(--text); margin-bottom: 1rem;">📊 Estadísticas</h3>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                            <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: var(--radius);">
+                                <div style="font-size: 2rem; color: var(--primary-light); font-weight: bold;">${total}</div>
+                                <div style="color: var(--text-light); font-size: 0.9rem;">Total Registros</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: var(--radius);">
+                                <div style="font-size: 2rem; color: var(--success); font-weight: bold;">${validados}</div>
+                                <div style="color: var(--text-light); font-size: 0.9rem;">Válidos</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 1rem; background: rgba(0,0,0,0.5); padding: 1rem; border-radius: var(--radius);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Progreso:</span>
+                                <span>${porcentaje}%</span>
+                            </div>
+                            <div style="height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden;">
+                                <div style="width: ${porcentaje}%; height: 100%; background: linear-gradient(90deg, var(--success), var(--accent)); border-radius: 5px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: var(--radius);">
+                        <h3 style="color: var(--text); margin-bottom: 1rem;">📝 Detalle de Registros</h3>
+                        <div style="max-height: 300px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.9rem;">
+                            ${reporte.split('\n').slice(8).join('<br>')}
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button class="btn btn-primary" id="exportarReporte">
+                            <i class="fas fa-download"></i> Exportar Reporte
+                        </button>
+                        <button class="btn btn-secondary" id="imprimirReporte">
+                            <i class="fas fa-print"></i> Imprimir
+                        </button>
+                    </div>
+                `;
+                
+                modal.appendChild(contenido);
+                document.body.appendChild(modal);
+                
+                // Event listeners para botones del modal
+                contenido.querySelector('#cerrarReporte').onclick = () => {
+                    document.body.removeChild(modal);
+                };
+                
+                contenido.querySelector('#exportarReporte').onclick = () => {
+                    const blob = new Blob([reporte], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `reporte_mada_${new Date().toISOString().slice(0,10)}.txt`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    Utils.UI.mostrarToast("Reporte exportado", "success");
+                };
+                
+                contenido.querySelector('#imprimirReporte').onclick = () => {
+                    window.print();
+                };
+                
+                modal.onclick = (e) => {
+                    if (e.target === modal) document.body.removeChild(modal);
+                };
+                
+                Utils.UI.agregarLog("Reporte generado", "info");
+            }
+        };
 
-        // =======================================================
-        // 9. INICIALIZACIÓN 
-        // =======================================================
-        function inicializarSistema() {
-            Events.configurarListeners();
-            D.systemStatus.textContent = "Estado: Listo para procesar";
-            setTimeout(() => {
-                Utils.UI.agregarLog("Sistema MADA inicializado", "info");
-                Utils.UI.agregarLog("1. Ingresa tu nombre completo", "info");
-                Utils.UI.agregarLog("2. Sube las capturas (hasta 40)", "info");
-                Utils.UI.agregarLog("3. Haz clic en 'Procesar capturas con OCR'", "info");
-            }, 500);
-        }
+        // =======================================================
+        // 8. MÓDULO DE AYUDA/MODAL
+        // =======================================================
+        const Modal = {
+            mostrarAyuda: () => {
+                D.helpModal.classList.remove('hidden');
+                D.contenidoAyuda.innerHTML = `
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <div>
+                            <h3 style="color: var(--primary-light); margin-bottom: 0.5rem;">
+                                <i class="fas fa-info-circle"></i> Instrucciones de Uso
+                            </h3>
+                            <ol style="padding-left: 1.5rem; color: var(--text); line-height: 1.6;">
+                                <li><strong>Paso 1:</strong> Ingresa tu nombre completo en el campo "Promotor"</li>
+                                <li><strong>Paso 2:</strong> Arrastra y suelta o haz clic para seleccionar imágenes de capturas</li>
+                                <li><strong>Paso 3:</strong> Haz clic en "Procesar capturas con OCR" para extraer automáticamente teléfono e ICC</li>
+                                <li><strong>Paso 4:</strong> Revisa y corrige los datos en la tabla si es necesario</li>
+                                <li><strong>Paso 5:</strong> Haz clic en "Enviar registros" para guardar en el servidor</li>
+                            </ol>
+                        </div>
+                        
+                        <div>
+                            <h3 style="color: var(--primary-light); margin-bottom: 0.5rem;">
+                                <i class="fas fa-check-circle"></i> Formatos Requeridos
+                            </h3>
+                            <ul style="padding-left: 1.5rem; color: var(--text); line-height: 1.6;">
+                                <li><strong>Teléfono:</strong> 10 dígitos, debe comenzar con 55</li>
+                                <li><strong>ICC:</strong> 18-20 dígitos, preferiblemente comienza con 89</li>
+                                <li><strong>Promotor:</strong> Nombre completo sin acentos (se convertirán automáticamente)</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h3 style="color: var(--primary-light); margin-bottom: 0.5rem;">
+                                <i class="fas fa-lightbulb"></i> Consejos
+                            </hh3>
+                            <ul style="padding-left: 1.5rem; color: var(--text); line-height: 1.6;">
+                                <li>Usa capturas nítidas para mejores resultados de OCR</li>
+                                <li>Puedes procesar hasta 40 imágenes simultáneamente</li>
+                                <li>Exporta tus datos regularmente como respaldo</li>
+                                <li>Revisa siempre los datos extraídos por el OCR</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: rgba(79, 70, 229, 0.1); padding: 1rem; border-radius: var(--radius);">
+                            <h4 style="color: var(--primary-light); margin-bottom: 0.5rem;">
+                                <i class="fas fa-headset"></i> Soporte Técnico
+                            </h4>
+                            <p style="color: var(--text);">Para problemas o sugerencias, contacta al equipo de desarrollo.</p>
+                        </div>
+                    </div>
+                `;
+            },
+            
+            cerrarAyuda: () => {
+                D.helpModal.classList.add('hidden');
+            }
+        };
 
-        // =======================================================
-        // 10. EJECUCIÓN
-        // =======================================================
-        document.addEventListener('DOMContentLoaded', inicializarSistema);
-    </script>
+        // =======================================================
+        // 9. MANEJO DE EVENTOS MEJORADO
+        // =======================================================
+        const Events = {
+            manejarArchivos: (files) => {
+                const promotorNormalizado = Utils.Data.normalizarTexto(D.promotor.value);
+                if (!promotorNormalizado || promotorNormalizado.length < 3) {
+                    Utils.UI.mostrarToast("Primero ingresa tu nombre completo (mín. 3 caracteres)", "error");
+                    D.promotor.focus();
+                    return;
+                }
+                
+                const archivosArray = Array.from(files);
+                const archivosLimitados = archivosArray.slice(0, CONFIG.MAX_REGISTROS);
+                
+                const archivosValidos = archivosLimitados.filter(file => {
+                    const tiposPermitidos = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    
+                    if (!tiposPermitidos.includes(file.type)) {
+                        Utils.UI.mostrarToast(`${file.name}: Tipo de archivo no soportado`, "warning");
+                        return false;
+                    }
+                    
+                    if (file.size > maxSize) {
+                        Utils.UI.mostrarToast(`${file.name}: El archivo es demasiado grande (máx. 5MB)`, "warning");
+                        return false;
+                    }
+                    
+                    return true;
+                });
+                
+                if (archivosValidos.length === 0) return;
+                
+                if (archivosValidos.length > CONFIG.MAX_REGISTROS) {
+                    Utils.UI.mostrarToast(`Solo se pueden procesar hasta ${CONFIG.MAX_REGISTROS} imágenes`, "warning");
+                    return;
+                }
+                
+                // Actualizar estado
+                Estado.imagenes = archivosValidos;
+                
+                // Actualizar UI
+                const plural = archivosValidos.length === 1 ? 'captura' : 'capturas';
+                D.uploadText.textContent = `${Estado.imagenes.length} ${plural} lista(s) para procesar`;
+                D.uploadCount.textContent = `${Estado.imagenes.length} ${plural} seleccionada(s)`;
+                D.btnProcesarOCR.disabled = false;
+                D.btnLimpiarImagenes.disabled = false;
+                
+                Utils.UI.mostrarToast(`${archivosValidos.length} ${plural} cargada(s)`, "success");
+                Utils.UI.agregarLog(`${archivosValidos.length} ${plural} cargada(s) para OCR`, "success");
+            },
+            
+            configurarListeners: () => {
+                // Cachear elementos
+                cachearElementosDOM();
+                
+                // Fecha actual en footer
+                D.fechaActual.textContent = new Date().toLocaleDateString('es-MX', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                // Promotor - actualizar estado global con normalización
+                D.promotor.addEventListener('input', function() {
+                    const normalizado = Utils.Data.normalizarTexto(this.value);
+                    this.value = normalizado;
+                    Estado.promotorActual = normalizado;
+                    
+                    // Actualizar promotor en todos los registros existentes
+                    Estado.registros.forEach(registro => {
+                        registro.promotor = Estado.promotorActual;
+                    });
+                    
+                    // Actualizar inputs readonly en la tabla
+                    document.querySelectorAll('input[data-field="promotor"]').forEach(input => {
+                        input.value = Estado.promotorActual;
+                    });
+                    
+                    // Revalidar todos los registros
+                    Estado.registros.forEach((_, index) => {
+                        Tabla.validarFila(index);
+                    });
+                    
+                    Tabla.actualizarContadores();
+                });
+                
+                // Upload Area
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    D.uploadArea.addEventListener(eventName, preventDefaults, false);
+                });
+                
+                D.uploadArea.addEventListener('click', () => D.fileInput.click());
+                D.uploadArea.addEventListener('drop', (e) => {
+                    D.uploadArea.classList.remove('dragover');
+                    Events.manejarArchivos(e.dataTransfer.files);
+                });
+                D.uploadArea.addEventListener('dragover', () => D.uploadArea.classList.add('dragover'));
+                D.uploadArea.addEventListener('dragleave', () => D.uploadArea.classList.remove('dragover'));
+                D.fileInput.addEventListener('change', (e) => Events.manejarArchivos(e.target.files));
+                
+                // Botones principales
+                D.btnProcesarOCR.addEventListener('click', () => OCR.procesarLoteImagenes());
+                D.btnCancelarOCR.addEventListener('click', OCR.cancelarProcesamiento);
+                
+                D.btnLimpiarImagenes.addEventListener('click', () => {
+                    Estado.imagenes = [];
+                    D.uploadCount.textContent = "0 capturas seleccionadas";
+                    D.uploadText.textContent = "Arrastra y suelta las capturas o haz clic para seleccionar";
+                    D.btnProcesarOCR.disabled = true;
+                    D.btnLimpiarImagenes.disabled = true;
+                    Utils.UI.mostrarToast("Imágenes limpiadas", "success");
+                });
+                
+                // Botones de log
+                D.btnClearLog.addEventListener('click', Utils.UI.limpiarLog);
+                D.btnExportarLog.addEventListener('click', Utils.UI.exportarLog);
+                
+                // Botones de tabla
+                D.btnLimpiarTabla.addEventListener('click', Tabla.limpiarTablaCompleta);
+                D.btnEliminarInvalidos.addEventListener('click', Tabla.eliminarInvalidos);
+                D.btnExportarCSV.addEventListener('click', Tabla.exportarCSV);
+                
+                D.btnValidarTodos.addEventListener('click', () => {
+                    Estado.registros.forEach((_, index) => {
+                        Tabla.validarFila(index);
+                    });
+                    Tabla.actualizarContadores();
+                    Utils.UI.mostrarToast("Validación completada", "success");
+                });
+                
+                // Botones de envío
+                D.btnEnviarLote.addEventListener('click', Envio.enviarRegistros);
+                D.btnPrevisualizar.addEventListener('click', Envio.previsualizar);
+                D.btnGenerarReporte.addEventListener('click', Envio.generarReporte);
+                
+                // Ayuda contextual
+                const helpButton = document.createElement('button');
+                helpButton.className = 'btn btn-secondary';
+                helpButton.innerHTML = '<i class="fas fa-question-circle"></i> Ayuda';
+                helpButton.style.position = 'fixed';
+                helpButton.style.bottom = '20px';
+                helpButton.style.right = '20px';
+                helpButton.style.zIndex = '100';
+                helpButton.onclick = Modal.mostrarAyuda;
+                document.body.appendChild(helpButton);
+                
+                // Atajos de teclado
+                document.addEventListener('keydown', (e) => {
+                    // Ctrl + Enter para procesar OCR
+                    if (e.ctrlKey && e.key === 'Enter' && !D.btnProcesarOCR.disabled) {
+                        e.preventDefault();
+                        D.btnProcesarOCR.click();
+                    }
+                    
+                    // Ctrl + S para enviar
+                    if (e.ctrlKey && e.key === 's' && !D.btnEnviarLote.disabled) {
+                        e.preventDefault();
+                        D.btnEnviarLote.click();
+                    }
+                    
+                    // Ctrl + L para limpiar log
+                    if (e.ctrlKey && e.key === 'l') {
+                        e.preventDefault();
+                        D.btnClearLog.click();
+                    }
+                    
+                    // Escape para cerrar modales
+                    if (e.key === 'Escape') {
+                        const modal = document.querySelector('.modal:not(.hidden)');
+                        if (modal) {
+                            modal.classList.add('hidden');
+                        }
+                    }
+                });
+            }
+        };
+
+        // =======================================================
+        // 10. INICIALIZACIÓN MEJORADA
+        // =======================================================
+        function inicializarSistema() {
+            try {
+                Events.configurarListeners();
+                Utils.UI.actualizarEstadoSistema("Sistema listo", "success");
+                
+                // Mostrar mensaje de bienvenida
+                setTimeout(() => {
+                    Utils.UI.agregarLog("✅ Sistema MADA inicializado", "success");
+                    Utils.UI.agregarLog(`Versión ${CONFIG.VERSION}`, "info");
+                    Utils.UI.agregarLog("1. Ingresa tu nombre completo", "info");
+                    Utils.UI.agregarLog("2. Sube las capturas (hasta 40)", "info");
+                    Utils.UI.agregarLog("3. Haz clic en 'Procesar capturas con OCR'", "info");
+                    Utils.UI.agregarLog("Atajos: Ctrl+Enter (Procesar) | Ctrl+S (Enviar) | Ctrl+L (Limpiar Log)", "info");
+                }, 500);
+                
+                // Verificar conexión a internet
+                if (!navigator.onLine) {
+                    Utils.UI.mostrarToast("Sin conexión a internet. Algunas funciones pueden no estar disponibles.", "warning");
+                    Utils.UI.agregarLog("⚠️ Sin conexión a internet", "warning");
+                }
+                
+            } catch (error) {
+                console.error("Error al inicializar el sistema:", error);
+                Utils.UI.mostrarToast("Error al inicializar el sistema. Recarga la página.", "error");
+            }
+        }
+
+        // =======================================================
+        // 11. EJECUCIÓN
+        // =======================================================
+        document.addEventListener('DOMContentLoaded', inicializarSistema);
+        
+        // Manejar conexión/desconexión
+        window.addEventListener('online', () => {
+            Utils.UI.agregarLog("✅ Conexión a internet restablecida", "success");
+            Utils.UI.actualizarEstadoSistema("Conectado", "success");
+        });
+        
+        window.addEventListener('offline', () => {
+            Utils.UI.agregarLog("⚠️ Sin conexión a internet", "warning");
+            Utils.UI.actualizarEstadoSistema("Sin conexión", "warning");
+        });
+        
+        // Prevenir cierre accidental durante procesamiento
+        window.addEventListener('beforeunload', (e) => {
+            if (Estado.ocrEnProgreso || Estado.registros.length > 0) {
+                e.preventDefault();
+                e.returnValue = 'Hay procesos en ejecución o datos no guardados. ¿Estás seguro de querer salir?';
+            }
+        });
+    </script>
 </body>
 </html>
