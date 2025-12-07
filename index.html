@@ -853,7 +853,7 @@
         <header class="header">
             <div class="logo-icon">📱</div>
             <div class="company-name">SERVICIOS INTEGRALES MADA</div>
-            <div class="app-title">DESARROLLADO POR JESUS CHAVEZ❤️</div>
+            <div class="app-title">SISTEMA DE REGISTRO DE PORTABILIDADES</div>
             <div class="app-subtitle">OCR especializado en teléfono e ICC</div>
             <div class="system-status" id="systemStatus">
                 <span class="status-indicator"></span>
@@ -1019,15 +1019,22 @@
         </div>
     </div>
 
-    <script>        // =======================================================
-        // 1. CONFIGURACIÓN MEJORADA
+    <script>
+                // =======================================================
+        // 1. CONFIGURACIÓN MEJORADA CON MÚLTIPLES URLs DE RESPALDO
         // =======================================================
         const CONFIG = {
             MAX_REGISTROS: 40,
-            MAX_CONCURRENT_OCR: 3, // Procesar 3 imágenes a la vez
-            OCR_TIMEOUT: 30000, // 30 segundos máximo por imagen
-            WEBAPP_URL: 'https://script.google.com/macros/s/AKfycby3soX7BLxbE7t8ZijhD_zzp9CSmk0LkFY6tLcWknLoWJCP9DSIgmfNuxLbdkCfP12B/exec',
-            VERSION: '2.0.0'
+            MAX_CONCURRENT_OCR: 3,
+            OCR_TIMEOUT: 30000,
+            // URLs de respaldo en caso de que la principal falle
+            WEBAPP_URLS: [
+                'https://script.google.com/macros/s/AKfycby3soX7BLxbE7t8ZijhD_zzp9CSmk0LkFY6tLcWknLoWJCP9DSIgmfNuxLbdkCfP12B/exec',
+                'https://script.google.com/macros/s/AKfycbwOJ9c06VXzRktRY0dPm7M5Q2K9fyw7qxzG0EDK56g/dev' // URL de desarrollo
+            ],
+            VERSION: '2.1.0',
+            MAX_RETRIES: 3,
+            RETRY_DELAY: 1000
         };
 
         // =======================================================
@@ -1040,6 +1047,7 @@
             ocrEnProgreso: false,
             ocrCancelado: false,
             workersActivos: 0,
+            currentWebAppUrlIndex: 0,
             
             inicializarRegistro: () => {
                 return {
@@ -1064,6 +1072,15 @@
                 Estado.ocrEnProgreso = false;
                 Estado.ocrCancelado = false;
                 Estado.workersActivos = 0;
+            },
+            
+            getCurrentWebAppUrl: () => {
+                return CONFIG.WEBAPP_URLS[Estado.currentWebAppUrlIndex];
+            },
+            
+            rotateWebAppUrl: () => {
+                Estado.currentWebAppUrlIndex = (Estado.currentWebAppUrlIndex + 1) % CONFIG.WEBAPP_URLS.length;
+                Utils.UI.agregarLog(`Cambiando a URL alternativa ${Estado.currentWebAppUrlIndex + 1}`, "warning");
             }
         };
 
@@ -1092,7 +1109,7 @@
         };
 
         // =======================================================
-        // 4. UTILIDADES MEJORADAS
+        // 4. UTILIDADES MEJORADAS CON RECONEXIÓN
         // =======================================================
         const Utils = {
             UI: {
@@ -1274,6 +1291,87 @@
                     URL.revokeObjectURL(url);
                     
                     Utils.UI.mostrarToast("CSV exportado correctamente", "success");
+                }
+            },
+            
+            Network: {
+                verificarConexionServidor: async () => {
+                    try {
+                        // Primero verificar conexión a internet
+                        if (!navigator.onLine) {
+                            throw new Error("Sin conexión a internet");
+                        }
+                        
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 10000);
+                        
+                        const response = await fetch(Estado.getCurrentWebAppUrl(), {
+                            method: 'HEAD',
+                            mode: 'no-cors',
+                            signal: controller.signal
+                        });
+                        
+                        clearTimeout(timeoutId);
+                        return true;
+                    } catch (error) {
+                        console.warn("Error verificando servidor:", error);
+                        return false;
+                    }
+                },
+                
+                enviarDatosConReintentos: async (datos, maxRetries = CONFIG.MAX_RETRIES) => {
+                    let lastError = null;
+                    
+                    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                        try {
+                            if (attempt > 1) {
+                                Utils.UI.actualizarProgreso(
+                                    30 + (attempt-1)*10, 
+                                    `Reintentando (${attempt}/${maxRetries})...`
+                                );
+                                
+                                await new Promise(resolve => 
+                                    setTimeout(resolve, CONFIG.RETRY_DELAY * attempt)
+                                );
+                            }
+                            
+                            const controller = new AbortController();
+                            const timeoutId = setTimeout(() => controller.abort(), 30000);
+                            
+                            const response = await fetch(Estado.getCurrentWebAppUrl(), {
+                                method: 'POST',
+                                headers: { 
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(datos),
+                                signal: controller.signal
+                            });
+                            
+                            clearTimeout(timeoutId);
+                            
+                            if (!response.ok) {
+                                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                            }
+                            
+                            const result = await response.json();
+                            return result;
+                            
+                        } catch (error) {
+                            lastError = error;
+                            Utils.UI.agregarLog(`Intento ${attempt} fallido: ${error.message}`, "warning");
+                            
+                            // Si es un error de red, rotar la URL
+                            if (error.name === 'TypeError' || error.name === 'AbortError') {
+                                Estado.rotateWebAppUrl();
+                            }
+                            
+                            if (attempt === maxRetries) {
+                                throw lastError;
+                            }
+                        }
+                    }
+                    
+                    throw lastError;
                 }
             }
         };
@@ -1491,7 +1589,8 @@
                 }
             }
         };
-                // =======================================================
+
+        // =======================================================
         // 6. MÓDULO DE TABLA MEJORADO
         // =======================================================
         const Tabla = {
@@ -1519,7 +1618,7 @@
                                maxlength="10" 
                                class="telefono-input" 
                                value="${registro.telefono || ''}"
-                               title="Debe tener exactamente 10 dígitos">
+                               title="Debe tener exactamente 10 dígitos (cualquier prefijo válido)">
                     </td>
                     <td>
                         <input type="text" 
@@ -1606,7 +1705,7 @@
                 // Feedback visual
                 if (telefonoInput) {
                     telefonoInput.classList.toggle('error-input', registro.telefono.length > 0 && !telefonoValido);
-                    telefonoInput.title = telefonoValido ? 'Teléfono válido' : 'Debe tener 10 dígitos';
+                    telefonoInput.title = telefonoValido ? 'Teléfono válido' : 'Debe tener 10 dígitos (cualquier prefijo)';
                 }
                 
                 if (iccInput) {
@@ -1738,9 +1837,22 @@
         };
 
         // =======================================================
-        // 7. MÓDULO DE ENVÍO MEJORADO
+        // 7. MÓDULO DE ENVÍO MEJORADO CON VERIFICACIÓN DE CONEXIÓN
         // =======================================================
         const Envio = {
+            verificarConexionAntesDeEnviar: async () => {
+                Utils.UI.actualizarProgreso(10, "Verificando conexión con el servidor...");
+                
+                const servidorDisponible = await Utils.Network.verificarConexionServidor();
+                
+                if (!servidorDisponible) {
+                    throw new Error("No se puede conectar con el servidor. Verifica tu conexión a internet.");
+                }
+                
+                Utils.UI.actualizarProgreso(20, "Conexión establecida. Preparando datos...");
+                return true;
+            },
+            
             enviarRegistros: async () => {
                 const registrosValidos = Estado.obtenerRegistrosValidos();
                 
@@ -1756,10 +1868,9 @@
                 // Preparar UI
                 D.btnEnviarLote.disabled = D.btnPrevisualizar.disabled = true;
                 D.progressContainer.style.display = 'block';
-                Utils.UI.actualizarProgreso(10, "Preparando envío...");
                 Utils.UI.actualizarEstadoSistema("Enviando datos...", "warning");
                 
-                Utils.UI.agregarLog(`Enviando ${registrosValidos.length} registros al servidor...`, "info");
+                Utils.UI.agregarLog(`Iniciando envío de ${registrosValidos.length} registros...`, "info");
                 
                 const datosEnvio = {
                     action: "guardarMultiplesRegistros",
@@ -1776,39 +1887,26 @@
                 };
                 
                 try {
-                    Utils.UI.actualizarProgreso(30, "Conectando con el servidor...");
+                    // Paso 1: Verificar conexión
+                    await Envio.verificarConexionAntesDeEnviar();
                     
-                    // Enviar datos al backend con timeout
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 30000);
+                    // Paso 2: Enviar datos con reintentos
+                    Utils.UI.actualizarProgreso(30, "Enviando datos al servidor...");
                     
-                    const response = await fetch(CONFIG.WEBAPP_URL, {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(datosEnvio),
-                        signal: controller.signal
-                    });
+                    const result = await Utils.Network.enviarDatosConReintentos(datosEnvio);
                     
-                    clearTimeout(timeoutId);
-                    
-                    Utils.UI.actualizarProgreso(70, "Enviando datos...");
-                    
-                    // Manejar respuesta
-                    const result = await response.json();
                     Utils.UI.actualizarProgreso(100, "Envío completado!");
                     
                     // Mostrar resultados
                     Envio.mostrarResultados(result);
                     
                     Utils.UI.agregarLog(
-                        `Envío completado: ${result.exitosos || registrosValidos.length} registros guardados`, 
+                        `✅ Envío completado: ${result.exitosos || registrosValidos.length} registros guardados`, 
                         "success"
                     );
                     
                     Utils.UI.mostrarToast(
-                        `Envío exitoso: ${result.exitosos || registrosValidos.length} registros`, 
+                        `✅ Envío exitoso: ${result.exitosos || registrosValidos.length} registros`, 
                         "success", 
                         5000
                     );
@@ -1823,9 +1921,40 @@
                     }, 1500);
                     
                 } catch (error) {
-                    Utils.UI.agregarLog(`Error en envío: ${error.message}`, "error");
-                    Utils.UI.mostrarToast(`Error de conexión: ${error.message}`, "error", 5000);
+                    Utils.UI.actualizarProgreso(100, "Error en el envío");
+                    
+                    let mensajeError = error.message;
+                    if (error.name === 'AbortError') {
+                        mensajeError = "Timeout: El servidor no respondió a tiempo";
+                    } else if (error.name === 'TypeError') {
+                        mensajeError = "Error de red: No se pudo conectar con el servidor";
+                    }
+                    
+                    Utils.UI.agregarLog(`❌ Error en envío: ${mensajeError}`, "error");
+                    
+                    // Mostrar mensaje de error detallado
+                    const mensajeUsuario = `
+                        <div style="padding: 1rem; background: rgba(239,68,68,0.1); border-radius: 8px; margin-top: 1rem;">
+                            <h4 style="color: var(--error); margin-bottom: 0.5rem;">
+                                <i class="fas fa-exclamation-triangle"></i> Error de Conexión
+                            </h4>
+                            <p style="margin-bottom: 0.5rem;">${mensajeError}</p>
+                            <p style="font-size: 0.9rem; color: var(--text-light);">
+                                <strong>Solución:</strong><br>
+                                1. Verifica tu conexión a internet<br>
+                                2. Asegúrate de que el Apps Script esté desplegado como "Cualquier persona"<br>
+                                3. Intenta nuevamente en unos momentos
+                            </p>
+                        </div>
+                    `;
+                    
+                    Utils.UI.mostrarToast("Error en el envío", "error", 5000);
                     Utils.UI.actualizarEstadoSistema("Error en envío", "error");
+                    
+                    // Mostrar detalles en el área de resultados
+                    D.resultsSummary.classList.remove('hidden');
+                    D.detallesEnvio.innerHTML = mensajeUsuario;
+                    
                 } finally {
                     D.btnEnviarLote.disabled = D.btnPrevisualizar.disabled = false;
                     setTimeout(() => {
@@ -1842,9 +1971,9 @@
                 D.summaryErrores.textContent = resultado.errores || 0;
                 D.summaryTotal.textContent = resultado.total || Estado.obtenerRegistrosValidos().length;
                 
-                let detallesHTML = `<div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">`;
+                let detallesHTML = `<div style="padding: 1rem; background: rgba(16,185,129,0.1); border-radius: 8px;">`;
                 detallesHTML += `<p><strong>📅 Lote:</strong> ${resultado.lote || 'Registro'}</p>`;
-                detallesHTML += `<p><strong>📊 Resultado:</strong> ${resultado.message || 'Envío completado'}</p>`;
+                detallesHTML += `<p><strong>📊 Resultado:</strong> ${resultado.message || 'Envío completado exitosamente'}</p>`;
                 detallesHTML += `<p><strong>👤 Promotor:</strong> ${Estado.promotorActual}</p>`;
                 detallesHTML += `<p><strong>🕒 Fecha:</strong> ${new Date().toLocaleString()}</p>`;
                 
@@ -1852,6 +1981,9 @@
                     detallesHTML += `<p><strong>🔗 URL:</strong> <a href="${resultado.sheetUrl}" target="_blank" style="color: var(--primary-light); text-decoration: none;">Ver en Google Sheets <i class="fas fa-external-link-alt"></i></a></p>`;
                 }
                 
+                detallesHTML += `<p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-light);">
+                    <i class="fas fa-info-circle"></i> Los datos han sido guardados en el servidor.
+                </p>`;
                 detallesHTML += `</div>`;
                 D.detallesEnvio.innerHTML = detallesHTML;
             },
@@ -2057,7 +2189,7 @@
                                 <i class="fas fa-check-circle"></i> Formatos Requeridos
                             </h3>
                             <ul style="padding-left: 1.5rem; color: var(--text); line-height: 1.6;">
-                                <li><strong>Teléfono:</strong> 10 dígitos exactos (cualquier prefijo válido: 55, 33, 81, etc.)</li>
+                                <li><strong>Teléfono:</strong> 10 dígitos exactos (cualquier prefijo válido: 55, 33, 81, 22, etc.)</li>
                                 <li><strong>ICC:</strong> 18-20 dígitos, preferiblemente comienza con 89</li>
                                 <li><strong>Promotor:</strong> Nombre completo sin acentos (se convertirán automáticamente)</li>
                             </ul>
@@ -2072,14 +2204,21 @@
                                 <li>Puedes procesar hasta 40 imágenes simultáneamente</li>
                                 <li>Exporta tus datos regularmente como respaldo</li>
                                 <li>Revisa siempre los datos extraídos por el OCR</li>
+                                <li>Si hay error de conexión, verifica que el Apps Script esté desplegado como "Cualquier persona"</li>
                             </ul>
                         </div>
                         
                         <div style="background: rgba(79, 70, 229, 0.1); padding: 1rem; border-radius: var(--radius);">
                             <h4 style="color: var(--primary-light); margin-bottom: 0.5rem;">
-                                <i class="fas fa-headset"></i> Soporte Técnico
+                                <i class="fas fa-headset"></i> Solución de Problemas
                             </h4>
-                            <p style="color: var(--text);">Para problemas o sugerencias, contacta al equipo de desarrollo.</p>
+                            <p style="color: var(--text); margin-bottom: 0.5rem;"><strong>Error "Failed to fetch":</strong></p>
+                            <ol style="padding-left: 1.5rem; color: var(--text); font-size: 0.9rem;">
+                                <li>Verifica tu conexión a internet</li>
+                                <li>Asegúrate de que el Apps Script esté desplegado como "Cualquier persona"</li>
+                                <li>Revisa que la URL del Web App sea correcta</li>
+                                <li>Intenta recargar la página</li>
+                            </ol>
                         </div>
                     </div>
                 `;
@@ -2284,8 +2423,9 @@
                 
                 // Mostrar mensaje de bienvenida
                 setTimeout(() => {
-                    Utils.UI.agregarLog("✅ Sistema MADA inicializado", "success");
-                    Utils.UI.agregarLog(`Versión ${CONFIG.VERSION}`, "info");
+                    Utils.UI.agregarLog("✅ Sistema MADA v" + CONFIG.VERSION + " inicializado", "success");
+                    Utils.UI.agregarLog("📱 Teléfono: 10 dígitos (cualquier prefijo válido)", "info");
+                    Utils.UI.agregarLog("💳 ICC: 18-20 dígitos (pref. 89...)", "info");
                     Utils.UI.agregarLog("1. Ingresa tu nombre completo", "info");
                     Utils.UI.agregarLog("2. Sube las capturas (hasta 40)", "info");
                     Utils.UI.agregarLog("3. Haz clic en 'Procesar capturas con OCR'", "info");
@@ -2297,6 +2437,20 @@
                     Utils.UI.mostrarToast("Sin conexión a internet. Algunas funciones pueden no estar disponibles.", "warning");
                     Utils.UI.agregarLog("⚠️ Sin conexión a internet", "warning");
                 }
+                
+                // Verificar conexión con servidor en segundo plano
+                setTimeout(async () => {
+                    try {
+                        const servidorDisponible = await Utils.Network.verificarConexionServidor();
+                        if (servidorDisponible) {
+                            Utils.UI.agregarLog("✅ Servidor disponible para envíos", "success");
+                        } else {
+                            Utils.UI.agregarLog("⚠️ Servidor temporalmente no disponible", "warning");
+                        }
+                    } catch (error) {
+                        // Silencioso, solo para diagnóstico
+                    }
+                }, 2000);
                 
             } catch (error) {
                 console.error("Error al inicializar el sistema:", error);
