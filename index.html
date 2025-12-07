@@ -135,7 +135,7 @@
             transition: var(--transition); 
             background: rgba(255, 255, 255, 0.05); 
             color: var(--text);
-            text-transform: uppercase; /* Asegura mayúsculas para el promotor */
+            text-transform: uppercase; 
         }
         
         .form-input:focus { 
@@ -297,7 +297,7 @@
             border-radius: var(--radius); 
             border: 1px solid rgba(255, 255, 255, 0.1); 
             background: rgba(0, 0, 0, 0.3); 
-            margin-top: 1rem;
+            margin-top: 1rem; 
         }
         
         .registros-table { 
@@ -340,7 +340,7 @@
             background: rgba(255, 255, 255, 0.07); 
             color: var(--text); 
             font-size: 0.95rem; 
-            text-transform: uppercase; /* Para ICC y Teléfono, también a mayúsculas */
+            text-transform: uppercase; 
         }
         
         .registros-table input:focus { 
@@ -554,8 +554,8 @@
                 <h2 class="card-title"><i class="fas fa-user"></i> Paso 1: Ingresa tu nombre</h2>
                 <div class="form-group">
                     <label class="form-label" for="promotor">Nombre completo del promotor *</label>
-                    <input type="text" id="promotor" class="form-input" placeholder="Ej: Juan Pérez Hernández" />
-                    <p class="input-hint">Este nombre se asignará a todos los trámites que proceses.</p>
+                    <input type="text" id="promotor" class="form-input" placeholder="Ej: JUAN PEREZ HERNANDEZ" />
+                    <p class="input-hint">Este nombre se asignará a todos los trámites que proceses. (Se fuerza a MAYÚSCULAS/Sin acentos)</p>
                 </div>
             </div>
 
@@ -671,8 +671,8 @@
         // =======================================================
         const CONFIG = {
             MAX_REGISTROS: 40,
-            // 🛑 REEMPLAZA ESTA URL CON LA URL DE TU APPS SCRIPT
-            WEBAPP_URL: 'REEMPLAZA_CON_TU_URL_APPS_SCRIPT/exec'
+            // 🛑 URL DE TU APPS SCRIPT
+            WEBAPP_URL: 'https://script.google.com/macros/s/AKfycby3soX7BLxbE7t8ZijhD_zzp9CSmk0LkFY6tLcWknLoWJCP9DSIgmfNuxLbdkCfP12B/exec'
         };
 
         // =======================================================
@@ -701,7 +701,7 @@
         };
 
         // =======================================================
-        // 3. CACHE DE ELEMENTOS DOM (sin cambios)
+        // 3. CACHE DE ELEMENTOS DOM
         // =======================================================
         const D = {};
         
@@ -726,7 +726,6 @@
         // =======================================================
         const Utils = {
             UI: {
-                // ... Toast y Log functions (sin cambios)
                 mostrarToast: (mensaje, tipo = "success", duracion = 3000) => {
                     D.toast.className = `toast toast-${tipo}`;
                     D.toastMessage.textContent = mensaje;
@@ -783,13 +782,12 @@
             },
             
             Data: {
-                // NUEVA UTILIDAD DE NORMALIZACIÓN
                 normalizarTexto: (texto) => {
                     if (!texto) return '';
                     return String(texto)
                         .normalize("NFD")
-                        .replace(/[\u0300-\u036f]/g, "") // Eliminar acentos
-                        .toUpperCase() // Forzar mayúsculas
+                        .replace(/[\u0300-\u036f]/g, "") 
+                        .toUpperCase() 
                         .trim();
                 },
                 
@@ -827,10 +825,9 @@
         };
 
         // =======================================================
-        // 5. MÓDULO DE OCR CORREGIDO (sin cambios)
+        // 5. MÓDULO DE OCR CORREGIDO
         // =======================================================
         const OCR = {
-            // ... (funciones procesarImagen y procesarLoteImagenes sin cambios en la lógica principal)
             procesarImagen: async (file) => {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -840,9 +837,7 @@
                                 e.target.result,
                                 'eng',
                                 {
-                                    logger: m => {
-                                        // Opcional: mostrar progreso
-                                    }
+                                    logger: m => { }
                                 }
                             );
                             
@@ -874,7 +869,7 @@
                     D.promotor.focus();
                     return;
                 }
-                Estado.promotorActual = promotorNormalizado; // Aplicar la versión normalizada
+                Estado.promotorActual = promotorNormalizado; 
                 D.promotor.value = promotorNormalizado;
                 
                 Estado.ocrEnProgreso = true;
@@ -970,7 +965,7 @@
         };
 
         // =======================================================
-        // 6. MÓDULO DE TABLA (MODIFICADO: Se aplica normalización)
+        // 6. MÓDULO DE TABLA
         // =======================================================
         const Tabla = {
             agregarFila: (registro, index) => {
@@ -1032,12 +1027,11 @@
                             const field = e.target.getAttribute('data-field');
                             let value = e.target.value;
                             
-                            // Solo números para teléfono e ICC (y limitar)
                             if (field !== 'promotor') {
                                 value = value.replace(/\D/g, '').slice(0, field === 'telefono' ? 10 : 20);
                                 e.target.value = value;
                             } else {
-                                // NORMALIZACIÓN: Aplica normalización de texto a la entrada manual del promotor en la tabla
+                                // NORMALIZACIÓN en tiempo real
                                 value = Utils.Data.normalizarTexto(value);
                                 e.target.value = value;
                             }
@@ -1066,7 +1060,6 @@
                 const iccInput = document.querySelector(`#fila-${index} input[data-field="icc"]`);
                 const estadoBadge = document.getElementById(`estado-${index}`);
                 
-                // La validación usa la utilidad de normalización para el promotor
                 const promotorNormalizado = Utils.Data.normalizarTexto(registro.promotor);
                 const telefonoValido = Utils.Data.validarTelefono(registro.telefono);
                 const iccValido = Utils.Data.validarICC(registro.icc);
@@ -1097,7 +1090,6 @@
                 }
             },
             
-            // ... resto de funciones de Tabla (sin cambios lógicos)
             actualizarContadores: () => {
                 const total = Estado.registros.length;
                 const validados = Estado.registros.filter(r => r.validado).length;
@@ -1185,7 +1177,7 @@
         };
 
         // =======================================================
-        // 7. MÓDULO DE ENVÍO (sin cambios lógicos)
+        // 7. MÓDULO DE ENVÍO
         // =======================================================
         const Envio = {
             enviarRegistros: async () => {
@@ -1211,7 +1203,6 @@
                     action: "guardarMultiplesRegistros",
                     nombreLote: `Registro_${new Date().toISOString().slice(0,10)}`,
                     timestamp: new Date().toISOString(),
-                    // Se envía la versión ya normalizada del registro
                     registros: registrosValidos.map(r => ({
                         promotor: r.promotor,
                         telefono: r.telefono,
@@ -1262,7 +1253,6 @@
                 }
             },
             
-            // ... resto de funciones de Envío (sin cambios lógicos)
             mostrarResultados: (resultado) => {
                 D.resultsSummary.classList.remove('hidden');
                 D.summaryExitosos.textContent = resultado.exitosos || 0;
@@ -1306,11 +1296,10 @@
         };
 
         // =======================================================
-        // 8. MANEJO DE EVENTOS (MODIFICADO: Promotor usa normalización)
+        // 8. MANEJO DE EVENTOS 
         // =======================================================
         const Events = {
             manejarArchivos: (files) => {
-                // ... (validación de promotor ahora usa normalización)
                 const promotorNormalizado = Utils.Data.normalizarTexto(D.promotor.value);
                 if (!promotorNormalizado || promotorNormalizado.length < 3) {
                     Utils.UI.mostrarToast("Primero ingresa tu nombre completo (mín. 3 caracteres)", "error");
@@ -1318,13 +1307,9 @@
                     return;
                 }
                 
-                // ... (resto sin cambios lógicos)
                 const archivosArray = Array.from(files);
-                
-                // Limitar a 40 archivos máximo
                 const archivosLimitados = archivosArray.slice(0, CONFIG.MAX_REGISTROS);
                 
-                // Validar que sean imágenes
                 const archivosValidos = archivosLimitados.filter(file => {
                     if (!file.type.startsWith('image/')) {
                         Utils.UI.mostrarToast(`${file.name} no es una imagen válida`, "warning");
@@ -1429,7 +1414,7 @@
         };
 
         // =======================================================
-        // 9. INICIALIZACIÓN (sin cambios)
+        // 9. INICIALIZACIÓN 
         // =======================================================
         function inicializarSistema() {
             Events.configurarListeners();
@@ -1443,7 +1428,7 @@
         }
 
         // =======================================================
-        // 10. EJECUCIÓN (sin cambios)
+        // 10. EJECUCIÓN
         // =======================================================
         document.addEventListener('DOMContentLoaded', inicializarSistema);
     </script>
