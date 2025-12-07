@@ -1021,18 +1021,15 @@
 
     <script>
                 // =======================================================
-        // 1. CONFIGURACIÓN MEJORADA CON MÚLTIPLES URLs DE RESPALDO
         // =======================================================
-        const CONFIG = {
-            MAX_REGISTROS: 40,
-            MAX_CONCURRENT_OCR: 3,
-            OCR_TIMEOUT: 30000,
-            // URLs de respaldo en caso de que la principal falle
-            WEBAPP_URLS: [
-                'https://script.google.com/macros/s/AKfycbyyqroVU_g7kQCiQ87FisWq1xap_v66B9xslLF7YX1O374jnhylJ9Koii4gHxCtXcS9/exec',
-                'https://script.google.com/macros/s/AKfycbwOJ9c06VXzRktRY0dPm7M5Q2K9fyw7qxzG0EDK56g/dev' // URL de desarrollo
-            ],
-            VERSION: '2.1.0',
+// 1. CONFIGURACIÓN
+// =======================================================
+const CONFIG = {
+    MAX_REGISTROS: 40,
+    // URL ACTIVA DE TU APPS SCRIPT (tomada de image_8dd959.png)
+    WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbyyqroVU_g7kQCiQ87FisWq1xap_v66B9xslLF7YX1O374jnhylJ9Koii4gHxCtXcS9/exec',
+    VERSION: '2.1.0' // Usa esta versión u otra si has actualizado
+};
             MAX_RETRIES: 3,
             RETRY_DELAY: 1000
         };
