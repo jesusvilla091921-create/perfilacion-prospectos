@@ -1,904 +1,665 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Supervisor | Servicios Integrales MADA</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <style>
-        /* CSS Optimizado y Mejor Organizado */
-        :root {
-            --primary-color: #2563eb;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-700: #374151;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-            --transition: all 0.3s ease;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Supervisor | Servicios Integrales MADA</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        /* CSS Optimizado y Mejor Organizado */
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-700: #374151;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-            line-height: 1.6;
-        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
 
-        .header {
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-            color: white;
-            padding: 1.5rem 2rem;
-            box-shadow: var(--shadow-md);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
 
-        .main-container {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-            display: grid;
-            gap: 1.5rem;
-        }
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            gap: 1.5rem;
+        }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
 
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition);
-            border-left: 4px solid var(--primary-color);
-        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary-color);
+        }
 
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
 
-        .stat-card.success { border-left-color: var(--success-color); }
-        .stat-card.warning { border-left-color: var(--warning-color); }
-        .stat-card.danger { border-left-color: var(--danger-color); }
+        .stat-card.success { border-left-color: var(--success-color); }
+        .stat-card.warning { border-left-color: var(--warning-color); }
+        .stat-card.danger { border-left-color: var(--danger-color); }
 
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 0.5rem 0;
-        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
 
-        .filters-container {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow-sm);
-        }
+        .filters-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
 
-        .filters-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            align-items: end;
-        }
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
 
-        label {
-            font-weight: 600;
-            font-size: 0.875rem;
-            color: var(--gray-700);
-        }
+        label {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
 
-        select, input {
-            padding: 0.75rem;
-            border: 1px solid var(--gray-300);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: var(--transition);
-        }
+        select, input {
+            padding: 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
 
-        select:focus, input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
 
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
 
-        .btn-primary:hover {
-            background-color: #1d4ed8;
-            transform: translateY(-1px);
-        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
+        }
 
-        .btn-secondary {
-            background-color: var(--gray-200);
-            color: var(--gray-700);
-        }
+        .btn-secondary {
+            background-color: var(--gray-200);
+            color: var(--gray-700);
+        }
 
-        .btn-secondary:hover {
-            background-color: var(--gray-300);
-        }
+        .btn-secondary:hover {
+            background-color: var(--gray-300);
+        }
 
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            border-bottom: 2px solid var(--gray-200);
-            padding-bottom: 0.5rem;
-        }
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid var(--gray-200);
+            padding-bottom: 0.5rem;
+        }
 
-        .tab-btn {
-            padding: 0.75rem 1.5rem;
-            background: none;
-            border: none;
-            border-radius: 8px 8px 0 0;
-            font-weight: 600;
-            color: var(--gray-700);
-            cursor: pointer;
-            transition: var(--transition);
-        }
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: var(--transition);
+        }
 
-        .tab-btn.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
 
-        .tab-btn:hover:not(.active) {
-            background-color: var(--gray-100);
-        }
+        .tab-btn:hover:not(.active) {
+            background-color: var(--gray-100);
+        }
 
-        .table-container {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-            position: relative;
-            min-height: 400px;
-        }
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            min-height: 400px;
+        }
 
-        .table-wrapper {
-            overflow-x: auto;
-        }
+        .table-wrapper {
+            overflow-x: auto;
+        }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 800px;
-        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
 
-        thead {
-            background-color: var(--gray-100);
-            position: sticky;
-            top: 0;
-        }
+        thead {
+            background-color: var(--gray-100);
+            position: sticky;
+            top: 0;
+        }
 
-        th {
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            color: var(--gray-700);
-            border-bottom: 2px solid var(--gray-200);
-            white-space: nowrap;
-        }
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-700);
+            border-bottom: 2px solid var(--gray-200);
+            white-space: nowrap;
+        }
 
-        td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--gray-200);
-        }
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
 
-        tr:hover {
-            background-color: var(--gray-100);
-        }
+        tr:hover {
+            background-color: var(--gray-100);
+        }
 
-        .badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
 
-        .badge-success {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
+        .badge-success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
 
-        .badge-warning {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
+        .badge-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
 
-        .badge-danger {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
+        .badge-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
 
-        .loader {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-        }
+        .loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
 
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid var(--gray-200);
-            border-top-color: var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--gray-200);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
-        .charts-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
 
-        .chart-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow-sm);
-        }
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
 
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: var(--transition);
-            z-index: 1000;
-        }
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 1000;
+        }
 
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
 
-        .toast-success {
-            background-color: var(--success-color);
-        }
+        .toast-success {
+            background-color: var(--success-color);
+        }
 
-        .toast-error {
-            background-color: var(--danger-color);
-        }
+        .toast-error {
+            background-color: var(--danger-color);
+        }
 
-        .footer {
-            text-align: center;
-            padding: 2rem;
-            color: var(--gray-700);
-            margin-top: 3rem;
-            border-top: 1px solid var(--gray-200);
-        }
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray-700);
+            margin-top: 3rem;
+            border-top: 1px solid var(--gray-200);
+        }
 
-        @media (max-width: 768px) {
-            .main-container {
-                padding: 0 1rem;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .charts-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .tabs {
-                overflow-x: auto;
-                flex-wrap: nowrap;
-            }
-        }
-    </style>
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 0 1rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-content">
-            <h1>Dashboard Supervisor</h1>
-            <div class="header-info">
-                <div>Servicios Integrales MADA</div>
-                <div id="fechaActual" class="text-sm"></div>
-            </div>
-        </div>
-    </header>
+    <header class="header">
+        <div class="header-content">
+            <h1>Dashboard Supervisor</h1>
+            <div class="header-info">
+                <div>Servicios Integrales MADA</div>
+                <div id="fechaActual" class="text-sm"></div>
+            </div>
+        </div>
+    </header>
 
-    <main class="main-container">
-        <div class="stats-grid" id="statsContainer">
-            <!-- Las estadísticas se llenarán dinámicamente -->
-        </div>
+    <main class="main-container">
+        <div class="stats-grid" id="statsContainer">
+                    </div>
 
-        <div class="filters-container">
-            <div class="filters-grid">
-                <div class="form-group">
-                    <label for="fechaInicio">Fecha Inicio</label>
-                    <input type="date" id="fechaInicio">
-                </div>
-                <div class="form-group">
-                    <label for="fechaFin">Fecha Fin</label>
-                    <input type="date" id="fechaFin">
-                </div>
-                <div class="form-group">
-                    <label for="promotorSelect">Promotor</label>
-                    <select id="promotorSelect">
-                        <option value="todos">Todos los promotores</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="estadoSelect">Estado</label>
-                    <select id="estadoSelect">
-                        <option value="todos">Todos los estados</option>
-                        <option value="LISTO">LISTO</option>
-                        <option value="PENDIENTE">PENDIENTE</option>
-                        <option value="RECHAZADO">RECHAZADO</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <button id="btnFiltrar" class="btn btn-primary">Filtrar</button>
-                    <button id="btnExportar" class="btn btn-secondary">Exportar Excel</button>
-                </div>
-            </div>
-        </div>
+        <div class="filters-container">
+            <div class="filters-grid">
+                <div class="form-group">
+                    <label for="fechaInicio">Fecha Inicio</label>
+                    <input type="date" id="fechaInicio">
+                </div>
+                <div class="form-group">
+                    <label for="fechaFin">Fecha Fin</label>
+                    <input type="date" id="fechaFin">
+                </div>
+                <div class="form-group">
+                    <label for="promotorSelect">Promotor</label>
+                    <select id="promotorSelect">
+                        <option value="todos">Todos los promotores</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="estadoSelect">Estado</label>
+                    <select id="estadoSelect">
+                        <option value="todos">Todos los estados</option>
+                        <option value="PENDIENTE">PENDIENTE</option>
+                        <option value="LISTO">LISTO</option>
+                        <option value="RECHAZADO">RECHAZADO</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button id="btnFiltrar" class="btn btn-primary">Filtrar</button>
+                    <button id="btnExportar" class="btn btn-secondary">Exportar Excel</button>
+                </div>
+            </div>
+        </div>
 
-        <div class="tabs-container">
-            <div class="tabs">
-                <button class="tab-btn active" data-tab="tabla">Tabla de Datos</button>
-                <button class="tab-btn" data-tab="graficas">Gráficas</button>
-            </div>
-        </div>
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="tabla">Tabla de Datos</button>
+                <button class="tab-btn" data-tab="graficas">Gráficas</button>
+            </div>
+        </div>
 
-        <div class="table-container" id="tablaContainer">
-            <div class="table-wrapper">
-                <table id="tabla">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Fecha</th>
-                            <th>Promotor</th>
-                            <th>Teléfono</th>
-                            <th>ICC</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaBody">
-                        <!-- Los datos se llenarán dinámicamente -->
-                    </tbody>
-                </table>
-            </div>
-            <div class="loader" id="tablaLoader">
-                <div class="spinner"></div>
-            </div>
-        </div>
+        <div class="table-container" id="tablaContainer">
+            <div class="table-wrapper">
+                <table id="tabla">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Fecha</th>
+                            <th>Promotor</th>
+                            <th>Teléfono</th>
+                            <th>ICC</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaBody">
+                                            </tbody>
+                </table>
+            </div>
+            <div class="loader" id="tablaLoader">
+                <div class="spinner"></div>
+            </div>
+        </div>
 
-        <div class="charts-container" id="graficasContainer" style="display: none;">
-            <div class="chart-card">
-                <h3>Distribución por Estado</h3>
-                <canvas id="chartEstado"></canvas>
-            </div>
-            <div class="chart-card">
-                <h3>Actividad por Promotor</h3>
-                <canvas id="chartPromotor"></canvas>
-            </div>
-            <div class="chart-card">
-                <h3>Tendencia Diaria</h3>
-                <canvas id="chartTendencia"></canvas>
-            </div>
-        </div>
-    </main>
+        <div class="charts-container" id="graficasContainer" style="display: none;">
+            <div class="chart-card">
+                <h3>Distribución por Estado</h3>
+                <canvas id="chartEstado"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Actividad por Promotor</h3>
+                <canvas id="chartPromotor"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Tendencia Diaria</h3>
+                <canvas id="chartTendencia"></canvas>
+            </div>
+        </div>
+    </main>
 
-    <footer class="footer">
-        <p>Servicios Integrales MADA &copy; <span id="currentYear"></span> | Dashboard Supervisor v2.0</p>
-    </footer>
+    <footer class="footer">
+        <p>Servicios Integrales MADA &copy; <span id="currentYear"></span> | Dashboard Supervisor v2.0</p>
+    </footer>
 
-    <div class="toast" id="toast"></div>
+    <div class="toast" id="toast"></div>
 
-    <script>
-        // ============ CONFIGURACIÓN ============
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxX2_0X6Z_00nHr1pm5LqXIUVaQgFdtkLOcW-q7zzCzs9fkvlJkZ1e6OeuHasJuSdAu/exec';
-        
-        // ============ ESTADO GLOBAL ============
-        const state = {
-            datosOriginales: [],
-            datosFiltrados: [],
-            graficas: {},
-            promotores: new Set(),
-            filtros: {
-                fechaInicio: null,
-                fechaFin: null,
-                promotor: 'todos',
-                estado: 'todos'
-            }
-        };
+    <script>
+        // ============ CONFIGURACIÓN ============
+        // 🛑 REEMPLAZA ESTA URL CON LA URL DE TU APPS SCRIPT
+        const API_URL = 'REEMPLAZA_CON_TU_URL_APPS_SCRIPT/exec'; 
+        
+        // ============ ESTADO GLOBAL ============
+        const state = {
+            datosOriginales: [],
+            datosFiltrados: [],
+            graficas: {},
+            promotores: new Set(),
+            filtros: {
+                fechaInicio: null,
+                fechaFin: null,
+                promotor: 'todos',
+                estado: 'todos'
+            }
+        };
 
-        // ============ CACHE DE ELEMENTOS DOM ============
-        const elements = {
-            tablaBody: document.getElementById('tablaBody'),
-            tablaLoader: document.getElementById('tablaLoader'),
-            statsContainer: document.getElementById('statsContainer'),
-            fechaInicio: document.getElementById('fechaInicio'),
-            fechaFin: document.getElementById('fechaFin'),
-            promotorSelect: document.getElementById('promotorSelect'),
-            estadoSelect: document.getElementById('estadoSelect'),
-            btnFiltrar: document.getElementById('btnFiltrar'),
-            btnExportar: document.getElementById('btnExportar'),
-            tabBtns: document.querySelectorAll('.tab-btn'),
-            tablaContainer: document.getElementById('tablaContainer'),
-            graficasContainer: document.getElementById('graficasContainer'),
-            toast: document.getElementById('toast'),
-            fechaActual: document.getElementById('fechaActual'),
-            currentYear: document.getElementById('currentYear')
-        };
+        // ============ CACHE DE ELEMENTOS DOM (sin cambios) ============
+        const elements = {
+            tablaBody: document.getElementById('tablaBody'),
+            tablaLoader: document.getElementById('tablaLoader'),
+            statsContainer: document.getElementById('statsContainer'),
+            fechaInicio: document.getElementById('fechaInicio'),
+            fechaFin: document.getElementById('fechaFin'),
+            promotorSelect: document.getElementById('promotorSelect'),
+            estadoSelect: document.getElementById('estadoSelect'),
+            btnFiltrar: document.getElementById('btnFiltrar'),
+            btnExportar: document.getElementById('btnExportar'),
+            tabBtns: document.querySelectorAll('.tab-btn'),
+            tablaContainer: document.getElementById('tablaContainer'),
+            graficasContainer: document.getElementById('graficasContainer'),
+            toast: document.getElementById('toast'),
+            fechaActual: document.getElementById('fechaActual'),
+            currentYear: document.getElementById('currentYear')
+        };
 
-        // ============ UTILIDADES ============
-        const utils = {
-            formatearFecha: (fecha) => {
-                return fecha.toISOString().split('T')[0];
-            },
-            
-            normalizarTexto: (texto) => {
-                return texto.toString().trim().toUpperCase();
-            },
-            
-            procesarFecha: (fechaStr) => {
-                if (!fechaStr) return utils.formatearFecha(new Date());
-                
-                // Manejar diferentes formatos de fecha
-                const fecha = new Date(fechaStr);
-                if (isNaN(fecha.getTime())) return utils.formatearFecha(new Date());
-                
-                return utils.formatearFecha(fecha);
-            },
-            
-            mostrarToast: (mensaje, tipo = 'success') => {
-                elements.toast.textContent = mensaje;
-                elements.toast.className = `toast ${tipo === 'success' ? 'toast-success' : 'toast-error'}`;
-                elements.toast.classList.add('show');
-                
-                setTimeout(() => {
-                    elements.toast.classList.remove('show');
-                }, 3000);
-            },
-            
-            mostrarLoader: () => {
-                elements.tablaLoader.style.display = 'flex';
-            },
-            
-            ocultarLoader: () => {
-                elements.tablaLoader.style.display = 'none';
-            },
-            
-            debounce: (func, wait) => {
-                let timeout;
-                return function executedFunction(...args) {
-                    const later = () => {
-                        clearTimeout(timeout);
-                        func(...args);
-                    };
-                    clearTimeout(timeout);
-                    timeout = setTimeout(later, wait);
-                };
-            }
-        };
+        // ============ UTILIDADES (MODIFICADO: Normalización centralizada) ============
+        const utils = {
+            formatearFecha: (fecha) => {
+                return fecha.toISOString().split('T')[0];
+            },
+            
+            // NUEVA: Mismo sistema de normalización que el Apps Script/Registro
+            normalizarTexto: (texto) => {
+                if (!texto) return '';
+                return String(texto)
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "") 
+                    .toUpperCase() 
+                    .trim();
+            },
+            
+            procesarFecha: (fechaStr) => {
+                if (!fechaStr) return utils.formatearFecha(new Date());
+                
+                // Permitir que el Apps Script envíe la fecha ya formateada (YYYY-MM-DD)
+                const fecha = new Date(fechaStr + 'T00:00:00'); 
+                if (isNaN(fecha.getTime())) return utils.formatearFecha(new Date());
+                
+                return utils.formatearFecha(fecha);
+            },
+            
+            mostrarToast: (mensaje, tipo = 'success') => {
+                elements.toast.textContent = mensaje;
+                elements.toast.className = `toast ${tipo === 'success' ? 'toast-success' : 'toast-error'}`;
+                elements.toast.classList.add('show');
+                
+                setTimeout(() => {
+                    elements.toast.classList.remove('show');
+                }, 3000);
+            },
+            
+            mostrarLoader: () => {
+                elements.tablaLoader.style.display = 'flex';
+            },
+            
+            ocultarLoader: () => {
+                elements.tablaLoader.style.display = 'none';
+            },
+            
+            debounce: (func, wait) => {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+        };
 
-        // ============ MANEJO DE DATOS ============
-        const dataHandler = {
-            async cargarDatos() {
-                utils.mostrarLoader();
-                
-                try {
-                    const response = await fetch(API_URL);
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    
-                    const data = await response.json();
-                    
-                    state.datosOriginales = data.map((fila, index) => ({
-                        id: index + 1,
-                        fecha: utils.procesarFecha(fila.Fecha),
-                        fechaFiltro: new Date(utils.procesarFecha(fila.Fecha) + 'T00:00:00'),
-                        promotor: utils.normalizarTexto(fila.Promotor || ''),
-                        telefono: String(fila.Telefono || '').trim(),
-                        icc: String(fila.ICC || '').trim(),
-                        estado: fila.Estado || 'LISTO'
-                    }));
-                    
-                    state.datosFiltrados = [...state.datosOriginales];
-                    
-                    // Extraer promotores únicos
-                    state.promotores = new Set(
-                        state.datosOriginales.map(item => item.promotor).filter(Boolean)
-                    );
-                    
-                    this.actualizarSelectPromotores();
-                    uiHandler.actualizarEstadisticas();
-                    uiHandler.llenarTabla();
-                    
-                    utils.ocultarLoader();
-                    utils.mostrarToast(`${state.datosOriginales.length} registros cargados`, 'success');
-                    
-                } catch (error) {
-                    console.error('Error al cargar datos:', error);
-                    utils.ocultarLoader();
-                    utils.mostrarToast(`Error al cargar datos: ${error.message}`, 'error');
-                }
-            },
-            
-            actualizarSelectPromotores() {
-                const select = elements.promotorSelect;
-                select.innerHTML = '<option value="todos">Todos los promotores</option>';
-                
-                Array.from(state.promotores)
-                    .sort()
-                    .forEach(promotor => {
-                        const option = document.createElement('option');
-                        option.value = promotor;
-                        option.textContent = promotor;
-                        select.appendChild(option);
-                    });
-            },
-            
-            aplicarFiltros() {
-                const { fechaInicio, fechaFin, promotor, estado } = state.filtros;
-                
-                state.datosFiltrados = state.datosOriginales.filter(item => {
-                    // Filtro por fecha
-                    if (fechaInicio && item.fechaFiltro < new Date(fechaInicio + 'T00:00:00')) {
-                        return false;
-                    }
-                    if (fechaFin && item.fechaFiltro > new Date(fechaFin + 'T23:59:59')) {
-                        return false;
-                    }
-                    
-                    // Filtro por promotor
-                    if (promotor !== 'todos' && item.promotor !== promotor) {
-                        return false;
-                    }
-                    
-                    // Filtro por estado
-                    if (estado !== 'todos' && item.estado !== estado) {
-                        return false;
-                    }
-                    
-                    return true;
-                });
-                
-                uiHandler.actualizarEstadisticas();
-                uiHandler.llenarTabla();
-                utils.mostrarToast(`${state.datosFiltrados.length} registros filtrados`, 'success');
-            },
-            
-            exportarExcel() {
-                try {
-                    const ws = XLSX.utils.json_to_sheet(
-                        state.datosFiltrados.map(item => ({
-                            '#': item.id,
-                            'Fecha': item.fecha,
-                            'Promotor': item.promotor,
-                            'Teléfono': item.telefono,
-                            'ICC': item.icc,
-                            'Estado': item.estado
-                        }))
-                    );
-                    
-                    const wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, "Datos");
-                    
-                    const fecha = new Date().toISOString().slice(0, 10);
-                    XLSX.writeFile(wb, `dashboard_mada_${fecha}.xlsx`);
-                    
-                    utils.mostrarToast('Archivo Excel exportado', 'success');
-                } catch (error) {
-                    console.error('Error al exportar:', error);
-                    utils.mostrarToast('Error al exportar Excel', 'error');
-                }
-            }
-        };
-
-        // ============ MANEJO DE UI ============
-        const uiHandler = {
-            llenarTabla() {
-                const tbody = elements.tablaBody;
-                tbody.innerHTML = '';
-                
-                if (state.datosFiltrados.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="6" style="text-align: center; padding: 3rem;">
-                                No se encontraron datos con los filtros aplicados
-                            </td>
-                        </tr>
-                    `;
-                    return;
-                }
-                
-                // Usar DocumentFragment para mejor rendimiento
-                const fragment = document.createDocumentFragment();
-                
-                state.datosFiltrados.forEach(item => {
-                    const tr = document.createElement('tr');
-                    
-                    const badgeClass = {
-                        'LISTO': 'badge-success',
-                        'PENDIENTE': 'badge-warning',
-                        'RECHAZADO': 'badge-danger'
-                    }[item.estado] || 'badge-secondary';
-                    
-                    tr.innerHTML = `
-                        <td>${item.id}</td>
-                        <td>${item.fecha}</td>
-                        <td>${item.promotor}</td>
-                        <td>${item.telefono}</td>
-                        <td>${item.icc}</td>
-                        <td><span class="badge ${badgeClass}">${item.estado}</span></td>
-                    `;
-                    
-                    fragment.appendChild(tr);
-                });
-                
-                tbody.appendChild(fragment);
-            },
-            
-            actualizarEstadisticas() {
-                const total = state.datosFiltrados.length;
-                const listos = state.datosFiltrados.filter(d => d.estado === 'LISTO').length;
-                const pendientes = state.datosFiltrados.filter(d => d.estado === 'PENDIENTE').length;
-                const rechazados = state.datosFiltrados.filter(d => d.estado === 'RECHAZADO').length;
-                const tasaExito = total > 0 ? ((listos / total) * 100).toFixed(1) : 0;
-                
-                elements.statsContainer.innerHTML = `
-                    <div class="stat-card">
-                        <div class="stat-label">Total Registros</div>
-                        <div class="stat-value">${total}</div>
-                        <div class="stat-desc">Filtros aplicados</div>
-                    </div>
-                    <div class="stat-card success">
-                        <div class="stat-label">Completados</div>
-                        <div class="stat-value">${listos}</div>
-                        <div class="stat-desc">Estado: LISTO</div>
-                    </div>
-                    <div class="stat-card warning">
-                        <div class="stat-label">Pendientes</div>
-                        <div class="stat-value">${pendientes}</div>
-                        <div class="stat-desc">Estado: PENDIENTE</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Tasa de Éxito</div>
-                        <div class="stat-value">${tasaExito}%</div>
-                        <div class="stat-desc">Completados / Total</div>
-                    </div>
-                `;
-            },
-            
-            inicializarFechas() {
-                const hoy = new Date();
-                const hace30Dias = new Date();
-                hace30Dias.setDate(hoy.getDate() - 30);
-                
-                elements.fechaInicio.value = utils.formatearFecha(hace30Dias);
-                elements.fechaFin.value = utils.formatearFecha(hoy);
-                
-                // Actualizar fecha actual en header
-                const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                elements.fechaActual.textContent = hoy.toLocaleDateString('es-ES', opciones);
-                elements.currentYear.textContent = hoy.getFullYear();
-                
-                // Guardar filtros iniciales
-                state.filtros.fechaInicio = elements.fechaInicio.value;
-                state.filtros.fechaFin = elements.fechaFin.value;
-            },
-            
-            inicializarGraficas() {
-                // Destruir gráficas existentes
-                Object.values(state.graficas).forEach(chart => {
-                    if (chart) chart.destroy();
-                });
-                
-                // Gráfica de distribución por estado
-                const ctxEstado = document.getElementById('chartEstado').getContext('2d');
-                const estadosData = this.agruparPorEstado();
-                
-                state.graficas.estado = new Chart(ctxEstado, {
-                    type: 'doughnut',
-                    data: {
-                        labels: Object.keys(estadosData),
-                        datasets: [{
-                            data: Object.values(estadosData),
-                            backgroundColor: [
-                                '#10b981', // LISTO - verde
-                                '#f59e0b', // PENDIENTE - amarillo
-                                '#ef4444'  // RECHAZADO - rojo
-                            ]
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
-                            }
-                        }
-                    }
-                });
-                
-                // Gráfica de actividad por promotor (top 10)
-                const ctxPromotor = document.getElementById('chartPromotor').getContext('2d');
-                const promotoresData = this.agruparPorPromotor();
-                
-                state.graficas.promotor = new Chart(ctxPromotor, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(promotoresData).slice(0, 10),
-                        datasets: [{
-                            label: 'Registros',
-                            data: Object.values(promotoresData).slice(0, 10),
-                            backgroundColor: '#3b82f6'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1
-                                }
-                            }
-                        }
-                    }
-                });
-            },
-            
-            agruparPorEstado() {
-                return state.datosFiltrados.reduce((acc, item) => {
-                    acc[item.estado] = (acc[item.estado] || 0) + 1;
-                    return acc;
-                }, {});
-            },
-            
-            agruparPorPromotor() {
-                const agrupado = state.datosFiltrados.reduce((acc, item) => {
-                    acc[item.promotor] = (acc[item.promotor] || 0) + 1;
-                    return acc;
-                }, {});
-                
-                // Ordenar por cantidad descendente
-                return Object.fromEntries(
-                    Object.entries(agrupado).sort(([,a], [,b]) => b - a)
-                );
-            }
-        };
-
-        // ============ EVENT LISTENERS ============
-        const eventHandlers = {
-            inicializar() {
-                // Fechas iniciales
-                uiHandler.inicializarFechas();
-                
-                // Cargar datos iniciales
-                dataHandler.cargarDatos();
-                
-                // Configurar event listeners
-                this.configurarEventListeners();
-            },
-            
-            configurarEventListeners() {
-                // Filtros
-                elements.btnFiltrar.addEventListener('click', () => {
-                    state.filtros.fechaInicio = elements.fechaInicio.value;
-                    state.filtros.fechaFin = elements.fechaFin.value;
-                    state.filtros.promotor = elements.promotorSelect.value;
-                    state.filtros.estado = elements.estadoSelect.value;
-                    
-                    dataHandler.aplicarFiltros();
-                });
-                
-                // Exportar
-                elements.btnExportar.addEventListener('click', () => {
-                    dataHandler.exportarExcel();
-                });
-                
-                // Tabs
-                elements.tabBtns.forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const tabId = btn.dataset.tab;
-                        
-                        // Actualizar botones activos
-                        elements.tabBtns.forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        
-                        // Mostrar contenido correspondiente
-                        if (tabId === 'tabla') {
-                            elements.tablaContainer.style.display = 'block';
-                            elements.graficasContainer.style.display = 'none';
-                        } else if (tabId === 'graficas') {
-                            elements.tablaContainer.style.display = 'none';
-                            elements.graficasContainer.style.display = 'grid';
-                            uiHandler.inicializarGraficas();
-                        }
-                    });
-                });
-                
-                // Filtros con debounce para mejor rendimiento
-                const aplicarFiltrosDebounced = utils.debounce(() => {
-                    elements.btnFiltrar.click();
-                }, 300);
-                
-                elements.fechaInicio.addEventListener('change', aplicarFiltrosDebounced);
-                elements.fechaFin.addEventListener('change', aplicarFiltrosDebounced);
-                elements.promotorSelect.addEventListener('change', aplicarFiltrosDebounced);
-                elements.estadoSelect.addEventListener('change', aplicarFiltrosDebounced);
-                
-                // Actualizar datos cada 5 minutos
-                setInterval(() => {
-                    dataHandler.cargarDatos();
-                }, 300000);
-            }
-        };
-
-        // ============ INICIALIZACIÓN ============
-        document.addEventListener('DOMContentLoaded', () => {
-            eventHandlers.inicializar();
-        });
-    </script>
-</body>
-</html>
+        // ============ MANEJO DE DATOS ============
+        const dataHandler = {
+            async cargarDatos() {
+                utils.mostrarLoader();
+                
+                try {
+                    // Apps Script devuelve solo el array de objetos, sin necesidad de 'json.result'
+                    const response = await fetch(API_URL);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    
+                    const data = await response.json();
+                    
+                    state.datosOriginales = data.map((fila, index) => {
+                        const fechaNormalizada = utils.procesarFecha(fila.Fecha);
+                        const promotorNormalizado = utils.normalizarTexto(fila.Promotor || '');
+                        
+                        return {
+                            id: index + 1,
+                            fecha: fechaNormalizada,
+                            fechaFiltro: new Date(fechaNormalizada + 'T00:00:00'),
+                            promotor: promotorNormalizado, // Usa el nombre normalizado
+                            telefono: String(fila.Telefono || '').trim(),
+                            icc: String(fila.ICC || '').trim(),
+                            estado: utils.normalizarTexto(fila.Estado || 'PENDIENTE')
+                        };
+                    });
+                    
+                    state.datosFiltrados = [...state.datosOriginales];
+                    
+                    // Extraer promotores únicos del campo normalizado
+                    state.promotores = new Set(
+                        state.datosOriginales.map(item => item.promotor).filter(Boolean)
+                    );
+                    
+                    this.actualizarSelectPromotores();
+                    uiHandler.actualizarEstadisticas();
+                    uiHandler.llenarTabla();
+                    
+                    utils.ocultarLoader();
+                    utils.mostrarToast(`${state.datosOriginales.length} registros cargados`, 'success');
+                    
+                } catch (error) {
+                    console.error('Error al cargar datos:', error);
+                    utils.ocultarLoader();
+                    utils.mostrarToast(`Error al cargar datos: ${error.message}`, 'error');
+                }
+            },
+            
+            actualizarSelectPromotores() {
+                const select = elements.promotorSelect;
+                select.innerHTML = '<option value="todos">Todos los promotores</option>';
+                
+                Array.from(state.promotores)
+                    .sort()
+                    .forEach(promotor => {
+                        const option = document.createElement('option');
+                        option.value = promotor;
+                        option.textContent = promotor;
+                        select.appendChild(option);
+                    });
+            },
+            
+            aplicarFiltros() {
+                const { fechaInicio, fechaFin, promotor, estado } = state.filtros;
+                
+                const fechaInicioObj = fechaInicio ? new Date(fechaInicio + 'T00:00:00') : null;
+                const fechaFinObj = fechaFin ? new Date(fechaFin + 'T23:59:59') : null;
+                const promotorFiltro = promotor === 'todos' ? null : promotor;
+                const estadoFiltro = estado === 'todos' ? null : estado;
+                
+                state.datosFiltrados = state.datosOriginales.filter(item => {
+                    // Filtro por fecha
+                    if (fechaInicioObj && item.fechaFiltro < fechaInicioObj) {
+                        return false;
+                    }
+                    if (fechaFinObj && item.fechaFiltro > fechaFinObj) {
+                        return false;
+                    }
+                    
+                    // Filtro por promotor (ya está normalizado)
+                    if (promotorFiltro && item.promotor !== promotorFiltro) {
+                        return false;
+                    }
+                    
+                    // Filtro por estado (ya está normalizado/mayúsculas)
+                    if (estadoFiltro && item.estado !== estadoFiltro) {
+                        return false;
+                    }
+                    
+                    return true;
+                });
+                
+                uiHandler.actualizarEstadisticas();
+                uiHandler.llenarTabla();
+                // Regenerar gráficas si la pestaña está activa
+                if (elements.graficasContainer.style.display !== 'none') {
+                    uiHandler.inicializarGraficas();
+                }
+                utils.mostrarToast(`${state.datosFiltrados.length} registros filtrados`, 'success');
+            },
+            
+            exportarExcel() {
+                // ... (lógica de exportación sin cambios)
+                try {
+                    const ws = XLSX.utils.json_to_sheet(
+                        state.datosFiltrados.map(item => ({
+                            '#': item.id,
+                            'Fecha': item.fecha,
+                            'Promotor': item.promotor,
+                            'Teléfono': item.telefono,
+                            'ICC': item.icc,
+                            'Estado': item.estado
+                        }))
+                    );
+                    
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "Datos");
